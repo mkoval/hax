@@ -29,7 +29,7 @@ disable_interupt(uint8_t inter_num);
 // Motors
 //  We should define some type of range for all motors, and then convert for
 //  motors than need different values.
-typedef int8_t motor_speed_t;
+typedef motor_speed_t int16_t;
 enum {
 	MOTOR_MAX=127,
 	MOTOR_MIN=-127
@@ -38,7 +38,7 @@ void motor_set(uint8_t motor_num, motor_speed_t new_speed);
 
 // Servos
 //  Same thing as motors on pic. May not be elsewhere.
-typedef int8_t servo_setpoint_t;
+typedef servo_setpoint_t int16_t;
 enum {
 	SERVO_MAX=127,
 	SERVO_MIN=-127
