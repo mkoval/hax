@@ -7,7 +7,8 @@
 
 // Analog inputs 
 //  includes on-robot sensors and remote inputs
-// XXX: uint8_t could be changed to some enum type.
+// XXX: uint8_t (used as indexing throughout this header) could be changed to
+//      some enum type.
 analog_t analog_get(uint8_t input_num);
 
 // Digital I/O
@@ -51,3 +52,8 @@ void servo_set(uint8_t servo_num, servo_setpoint_t new_setpoint);
 void puth(uint16_t hex);
 void puts(const char *c);
 //getc?
+
+// Configuration
+//  inputs need to be set to analog or digital.
+//  outputs may or may not need something similar
+void intput_mode(/*???*/);
