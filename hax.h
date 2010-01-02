@@ -136,9 +136,9 @@ set_isr(InteruptIndex, InterruptServiceRoutine);
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations.
  */
-set_interrupt_enabled(InterruptIndex, Bool);
-enable_interrupt(InterruptIndex);
-disable_interrupt(InterruptIndex);
+void set_interrupt_enabled(InterruptIndex, Bool);
+void enable_interrupt(InterruptIndex);
+void disable_interrupt(InterruptIndex);
 
 
 /*
