@@ -5,15 +5,61 @@
 // XXX: Can this be relied on? (My sense is no, thus we'll need some "haxint.h")
 #inlcude <stdint.h>
 
+typedef uint8_t Ix; // Indexing type
+
+
+
+//  We either do this (which leads to the boiler plate code in "NOTDEF", or
+//   have the user supply functions 'init','auton','telop', etc.
+// Some semi-vex specific things
+void hw_setup(void); // hardware specific initialization code.
+void hw_spin(void);  // execute whenever we have time.
+void hw_slow_spin(void); // execute whenever the outputs update.
+
+extern const unsigned int kSlowSpeed; // how fast is the slow loop?
+
+BOOL new_data_recved(void); // if we have new datas.
+RobotMode get_mode(void); // the mode (Auton/Telop)
+
+#ifdef NOTDEF
+void main(void) __noreturn;
+void main() {
+	RobotMode mode;
+	hw_setup();
+	init();
+	for(;;) {
+		mode = get_mode();
+		if (new_data_recved()) {
+			hw_slow_spin();
+			user_slow();
+			if (mode==kAuton) {
+				auton_slow();
+			}
+			else {
+				telop_slow();
+			}
+		}
+		hw_spin();
+		user_fast();
+		if (mode==kAuton) {
+			auton_fast();
+		}
+		else {
+			telop_fast();
+		}
+	}
+}
+#endif
+
+
+
 // Analog inputs 
 //  includes on-robot sensors and remote inputs
-// XXX: uint8_t (used as indexing throughout this header) could be changed to
-//      some enum type.
-analog_t analog_get(uint8_t input_num);
+Analog analog_get(Ix input_num);
 
 // Digital I/O
-void digital_set(uint8_t output_num);
-BOOL digital_get(uint8_t input_num);
+void digital_set(Ix output_num);
+BOOL digital_get(Ix input_num);
 
 // Interupts
 //  Could also give a bit less abstraction than this. Something like calling a
@@ -21,30 +67,30 @@ BOOL digital_get(uint8_t input_num);
 //  interupt
 //
 //  Also, some interupts may need more config than on/off.
-typedef void(*)(void) isr;
-reg_isr(uint8_t interrupt_num, isr handler);
-enable_interupt(uint8_t inter_num);
-disable_interupt(uint8_t inter_num);
+typedef void(*)(void) InterruptServiceRoutine;
+reg_isr(Ix interrupt_num, InterruptServiceRoutine routine);
+enable_interupt(Ix inter_num);
+disable_interupt(Ix inter_num);
 
 
 // Motors
 //  We should define some type of range for all motors, and then convert for
 //  motors than need different values.
-typedef motor_speed_t int16_t;
+typedef MotorSpeed int16_t;
 enum {
-	MOTOR_MAX=127,
-	MOTOR_MIN=-127
+	kMotorMax=127,
+	kMotorMin=-127
 };
-void motor_set(uint8_t motor_num, motor_speed_t new_speed);	
+void motor_set(Ix motor_num, MotorSpeed new_speed);	
 
 // Servos
 //  Same thing as motors on pic. May not be elsewhere.
-typedef servo_setpoint_t int16_t;
+typedef ServoPosition int16_t;
 enum {
-	SERVO_MAX=127,
-	SERVO_MIN=-127
+	kServoMax=127,
+	kServoMin=-127
 };
-void servo_set(uint8_t servo_num, servo_setpoint_t new_setpoint);
+void servo_set(Ix servo_num, ServoPosition new_setpoint);
 
 // Stream I/O (something for stdin/stdout)
 //  Shall we use standard io or nix it? (I'm all for avoiding format strings
@@ -56,4 +102,8 @@ void puts(const char *c);
 // Configuration
 //  inputs need to be set to analog or digital.
 //  outputs may or may not need something similar
-void intput_mode(/*???*/);
+typedef enum {
+	kInput,
+	kOutput
+} PinMode;
+void intput_mode(Ix pin, PinMode mode );
