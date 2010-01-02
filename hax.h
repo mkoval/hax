@@ -7,9 +7,9 @@
  * never compare against kFalse or kTrue. Instead rely on the default behavior
  * of the if-statement that considers a non-zero value to be true.the
  */
-typedef int   BOOL;
-#define FALSE 0
-#define TRUE  !FALSE
+typedef uint8_t Bool;
+#define FALSE   0
+#define TRUE    !FALSE
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
 typedef uint8_t InputIndex;
@@ -20,7 +20,7 @@ typedef uint8_t InterruptIndex;
 typedef enum {
 	kInput,
 	kOutput
-} PortType;
+} PortMode;
 
 /* Motor speed type, where kMotorMin represents full reverse speed
  * and kMotorMax represents full foward speed.
@@ -43,7 +43,7 @@ typedef void(*)(void) InteruptServiceRoutine;
 typedef enum {
 	kAuton,
 	kTelop
-} Mode;
+} CtrlMode;
 
 /* Number of milliseconds between two consecutive instances of the processor
  * receiving updated data (i.e. the speed of the "slow loop").
@@ -95,25 +95,25 @@ void loop(void);
 Bool new_data_received(void);
 
 /* Determines if the robot is in autonomous or operator-control mode */
-Mode get_mode(void); // the mode (Auton/Telop)
+CtrlMode get_mode(void);
 
 
 /*
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void init_port(PortType);
+void init_port(PortMode);
 
 /* Get a raw analog value from the input with the specified index. Produces
  * undefined results if the input is configured as a digital
  * sensor.
  */
-Analog analog_get(InputIndex);
+uint16_t analog_get(InputIndex);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(Index);
+void digital_set(Index, Bool);
 Bool digital_get(Index);
 
 
@@ -124,7 +124,7 @@ Bool digital_get(Index);
 void motor_set(OutputIndex, MotorSpeed);
 
 /* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(Ix servo_num, ServoPosition new_setpoint);
+void servo_set(OutputIndex, ServoPosition);
 
 
 /*
