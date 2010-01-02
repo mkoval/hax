@@ -131,7 +131,7 @@ void servo_set(OutputIndex, ServoPosition);
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-set_isr(InteruptIndex, InterruptServiceRoutine);
+void set_isr(InteruptIndex, InterruptServiceRoutine);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations.
