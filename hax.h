@@ -46,15 +46,15 @@ typedef enum {
 	kTelop
 } CtrlMode;
 
-/* Number of milliseconds between two consecutive instances of the processor
+/* Number of milliseconds*10 between two consecutive instances of the processor
  * receiving updated data (i.e. the speed of the "slow loop").
  */
-extern uint16_t kSlowSpeed;
+extern uint16_t kSlowSpeed; // Given by HW
 
 /* Number of analog inputs, numbered 0 to kNumAnalog - 1. This numbering
  * scheme is required for portability on PIC hardware.
  */
-extern uint8_t kNumAnalog;
+extern uint8_t kNumAnalog; // Given by User
 
 
 /*
@@ -132,14 +132,15 @@ void servo_set(AnalogOutIndex, ServoPosition);
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-void set_isr(InteruptIndex, InterruptServiceRoutine);
+void interrupt_reg_isr(InteruptIndex, InterruptServiceRoutine);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
- * potentially dangerous locations.
+ * potentially dangerous locations. 
+ * And so that you can actually enable them in the first place.
  */
-void set_interrupt_enabled(InterruptIndex, Bool);
-void enable_interrupt(InterruptIndex);
-void disable_interrupt(InterruptIndex);
+void interrupt_set(InterruptIndex, Bool);
+void interrupt_enable(InterruptIndex);
+void interrupt_disable(InterruptIndex);
 
 
 /*
