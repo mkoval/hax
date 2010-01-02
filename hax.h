@@ -9,18 +9,19 @@
  */
 typedef uint8_t Bool;
 #define FALSE   0
-#define TRUE    !FALSE
+#define TRUE    1
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
-typedef uint8_t InputIndex;
-typedef uint8_t OutputIndex;
+typedef uint8_t AnalogOutIndex;
+typedef uint8_t AnalogInIndex;
+typedef uint8_t DigitalIndex;
 typedef uint8_t InterruptIndex;
 
 /* Configuration options to be applied to each input. */
 typedef enum {
 	kInput,
 	kOutput
-} PortMode;
+} PinMode;
 
 /* Motor speed type, where kMotorMin represents full reverse speed
  * and kMotorMax represents full foward speed.
@@ -62,10 +63,10 @@ extern uint8_t kNumAnalog;
 /* These functions implement a hardware-agnostic robot controller. See loop()
  * and spin() for the difference between the two classes of function.
  */
-void auton_loop();
-void auton_spin();
-void telop_loop();
-void telop_spin();
+void auton_loop(void);
+void auton_spin(void);
+void telop_loop(void);
+void telop_spin(void);
 
 
 /*
@@ -102,29 +103,29 @@ CtrlMode get_mode(void);
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void init_port(PortMode);
+void set_pin_mode(DigitalIndex,PinMode);
 
 /* Get a raw analog value from the input with the specified index. Produces
  * undefined results if the input is configured as a digital
  * sensor.
  */
-uint16_t analog_get(InputIndex);
+uint16_t analog_get(AnalogInIndex);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(InputIndex, Bool);
-Bool digital_get(InputIndex);
+void digital_set(DigitalIndex, Bool);
+Bool digital_get(DigitalIndex);
 
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
 /* Motor's speed must be bounded by kMotorMin and kMotorMax. */
-void motor_set(OutputIndex, MotorSpeed);
+void motor_set(AnalogOutIndex, MotorSpeed);
 
 /* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(OutputIndex, ServoPosition);
+void servo_set(AnalogOutIndex, ServoPosition);
 
 
 /*
