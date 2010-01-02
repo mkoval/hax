@@ -3,7 +3,7 @@
 #ifdef NOTDEF
 void main(void) __noreturn;
 void main() {
-	Mode mode;
+	CtrlMode mode;
 	
 	setup();
 	
