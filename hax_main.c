@@ -1,6 +1,5 @@
 #include "hax.h"
 
-#ifdef NOTDEF
 void main(void) __noreturn;
 void main() {
 	CtrlMode mode;
@@ -31,4 +30,3 @@ void main() {
 		}
 	}
 }
-#endif
