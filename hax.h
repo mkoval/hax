@@ -113,8 +113,8 @@ uint16_t analog_get(InputIndex);
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(Index, Bool);
-Bool digital_get(Index);
+void digital_set(InputIndex, Bool);
+Bool digital_get(InputIndex);
 
 
 /*
