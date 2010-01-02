@@ -148,7 +148,8 @@ void disable_interrupt(InterruptIndex);
 /* Writes data of the specified type to stdout, formatting it in a human-
  * readable manner. Hex values, written with puth,  are prefixed with "0x".
  */
-void puth(uint16_t);
+void puth(uint8_t);
+void puth2(uint16_t);
 void puti(uint16_t);
 void putf(float);
 void puts(char *c);
