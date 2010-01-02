@@ -103,7 +103,7 @@ CtrlMode get_mode(void);
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void set_pin_mode(DigitalIndex,PinMode);
+void digital_set_mode(DigitalIndex,PinMode);
 
 /* Get a raw analog value from the input with the specified index. Produces
  * undefined results if the input is configured as a digital
