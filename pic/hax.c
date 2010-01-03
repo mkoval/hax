@@ -325,6 +325,8 @@ void setup(void) {
 	
 	/* Enable autonomous mode. */
 	txdata.user_cmd = 0x02;
+	
+	User_Proc_Is_Ready();
 }
 
 void spin(void) {
