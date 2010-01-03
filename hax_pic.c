@@ -1,15 +1,15 @@
-#include <user_serialdrv.h>
+#include <usart.h>
 #include "hax.h"
 
 void putb(uint8_t data) {
-	TXREG = data;
-	Wait4TXEmpty();
+	while(Busy1USART());
+	Write1USART(data);
 }
 
 void putc(char data) {
-	/* From the IFI Default Code printf_lib.c. */
-	TXREG = data;
-	Wait4TXEmpty();
+	/* From the Microchip C Library Docs */
+	while(Busy1USART());
+	Write1USART(data);
 }
 
 void puth(uint16_t data) {
