@@ -3,10 +3,10 @@
  * PIC Arch
  */
 #include "hax.h"
-#include "user_serialdrv.h"
+#include <usart.h>
 
 void putc(char data) {
-	/* From the IFI Default Code printf_lib.c. */
-	TXREG = data;
-	Wait4TXEmpty();
+	/* From the Microchip C Library Docs */
+	while(Busy1USART());
+	Write1USART(data);
 }
