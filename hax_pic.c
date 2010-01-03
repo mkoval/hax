@@ -45,7 +45,7 @@ void puti(uint16_t data) {
 }
 
 void putf(float data) {
-	float frac = data - (w)
+	/* TODO: Essentially implement ftoa() and send the results to putc(). */
 }
 
 void puts(char *data) {
