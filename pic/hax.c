@@ -382,7 +382,7 @@ CtrlMode get_mode(void) {
 }
 
 /*
- * DIGITAL AND ANALOG INPUTS
+ * DIGITAL AND ANALOG IO
  */
 
 #define BIT_HI(x, i)     ((x) |=  1 << (i))
@@ -390,14 +390,13 @@ CtrlMode get_mode(void) {
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
 void pin_set_io(PinIndex i, PinMode mode) {
-	/* The comparison operator may not return "1" for all true values. This
-	 * is potentialy dangerous as it is being used as a bitmask.
-	 */
+	
+	/* It will return 1 for all true values */
 	uint8_t bit = (mode == kInput);
 	
 	switch (i) {
-	/* The first four inputs are consecutively numbered starting at zero in
-	 * the TRISA register.
+	/* For the first 4 pins, the first 4 bits of TRISA control their IO
+	 * direction
 	 */
 	case 0:
 	case 1:
