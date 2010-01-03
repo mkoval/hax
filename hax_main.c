@@ -1,8 +1,9 @@
 #include "hax.h"
+#include "hax_compilers.h"
 
 void main(void) __noreturn;
 void main() {
-	CtrlMode mode;
+	static CtrlMode mode;
 	
 	setup();
 	
