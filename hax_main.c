@@ -10,7 +10,7 @@ void main() {
 	for(;;) {
 		mode = get_mode();
 		
-		/* The "slow loop", executes once every kSlowSpeed milliseconds. */
+		/* The "slow loop", executes once every kSlowSpeed microseconds. */
 		if (new_data_received()) {
 			loop();
 			
