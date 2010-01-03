@@ -42,7 +42,14 @@ void puti(uint16_t data) {
 }
 
 void putf(float data) {
-	/* TODO: Essentially implement ftoa() and send the results to putc(). */
+	if ( data >> 31 ) { // bit 31 is the sign bit.
+		putc('-');
+	}
+	
+	int8_t exp =  (int8_t) ( (uint8_t) ( ( data << 1 ) >> 1) >> 23 ) - 127;
+	uint32_t frac = (uint32_t) ( data << 9 ) >> 9;
+
+	/* TODO: Do something with the fraction and exponent. */
 }
 
 void puts(char *data) {
