@@ -2,6 +2,7 @@
  * Hardware Specific Code,
  * PIC Arch
  */
+#include <p18cxxx.h>
 #include <usart.h>
 #include "hax.h"
 
@@ -13,39 +14,6 @@ uint16_t kSlowSpeed = 18500;
  */
 #define RND 6
 #define RESET_VECTOR 0x800
-
-/* Registers required for the IFI code to function. */
-extern volatile near uint8_t TXSTA1;
-extern volatile near struct {
-	uint8_t TX9D:1;
-	uint8_t TRMT:1;
-	uint8_t BRGH:1;
-	uint8_t:1;
-	uint8_t SYNC:1;
-	uint8_t TXEN:1;
-	uint8_t TX9:1;
-	uint8_t CSRC:1;
-} TXSTA1bits;
-
-extern volatile near unsigned char       PIR1;
-extern volatile near union {
-	struct {
-		unsigned TMR1IF:1;
-		unsigned TMR2IF:1;
-		unsigned CCP1IF:1;
-		unsigned SSPIF:1;     /* Reserved - Do not use */
-		unsigned TX1IF:1;
-		unsigned RC1IF:1;
-		unsigned ADIF:1;
-		unsigned PSPIF:1;     /* Reserved - Do not use */
-	};
-	struct {
-		unsigned :4;
-		unsigned TXIF:1;
-		unsigned RCIF:1;
-	};
-} PIR1bits;
-
 
 /* This structure contains important system statusflag information. */
 typedef struct {
@@ -133,7 +101,7 @@ RxData rxdata;
 Packed statusflag;
 
 /*
- * STARTUP CODE - DO NOT MODIFY
+ * STARTUP CODE
  * from ifi_startup.c
  */
 extern void Clear_Memory(void);
