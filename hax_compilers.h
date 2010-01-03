@@ -4,8 +4,14 @@
 /* MCC18 does not support a __noreturn flag as per Page 104 of the MCC18
  * User Guide.
  */
-#ifdef __18CXX
+#if defined(__18CXX)
+
 #define __noreturn 
+
+#else
+
+#error "Unsupported Compiler"
+
 #endif
 
 #endif
