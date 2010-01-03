@@ -333,7 +333,11 @@ void setup(void) {
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
 	
-	
+	/* Initialize all pins as inputs unless overridden.
+	 */
+	for (i = 0; i <= 15; ++i) {
+		digital_set_mode( i, kDigitalInput);
+	}
 	
 	/* Initialize Serial */
 	OpenUSART(USART_TX_INT_OFF &
@@ -355,12 +359,6 @@ void setup(void) {
 	if ( kNumAnalog > 0 ) {
 		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
-	}
-	
-	/* Initialize all digital pins as inputs unless overridden.
-	 */
-	for (i = 0; i <= 15 - kNumAnalogInputs; ++i) {
-		digital_set_mode( i, kDigitalInput);
 	}
 	
 	User_Proc_Is_Ready();
@@ -387,8 +385,8 @@ CtrlMode get_mode(void) {
  * DIGITAL AND ANALOG INPUTS
  */
 
-#define BIT_HI(x, i)     ((x) |=  0x01 << (i))
-#define BIT_LO(x, i)     ((x) &= ~(0x01 << (i)))
+#define BIT_HI(x, i)     ((x) |=  1 << (i))
+#define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
 void digital_set_mode(DigitalIndex i, PinMode mode) {
