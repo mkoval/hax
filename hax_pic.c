@@ -10,3 +10,4 @@ void putc(char data) {
 	while(Busy1USART());
 	Write1USART(data);
 }
+
