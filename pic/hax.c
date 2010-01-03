@@ -336,7 +336,7 @@ void setup(void) {
 	/* Initialize all pins as inputs unless overridden.
 	 */
 	for (i = 0; i <= 15; ++i) {
-		digital_set_mode( i, kDigitalInput);
+		pin_set_io( i, kDigitalInput);
 	}
 	
 	/* Initialize Serial */
@@ -389,7 +389,7 @@ CtrlMode get_mode(void) {
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void digital_set_mode(DigitalIndex i, PinMode mode) {
+void pin_set_io(PinIndex i, PinMode mode) {
 	/* The comparison operator may not return "1" for all true values. This
 	 * is potentialy dangerous as it is being used as a bitmask.
 	 */

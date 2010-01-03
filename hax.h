@@ -12,9 +12,9 @@ typedef uint8_t Bool;
 #define TRUE    1
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
-typedef uint8_t AnalogOutIndex;
-typedef uint8_t AnalogInIndex;
-typedef uint8_t DigitalIndex;
+typedef uint8_t PinIndex; /* Pins on the RC */
+typedef uint8_t AnalogOutIndex; /* The union of PWMs and the PinIndex*/
+typedef uint8_t AnalogInIndex;  /* The union of OI inputs and the PinIndex*/
 typedef uint8_t InterruptIndex;
 
 /* Configuration options to be applied to each input. */
@@ -105,7 +105,7 @@ CtrlMode get_mode(void);
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void digital_set_mode(DigitalIndex, PinMode);
+void pin_set_io(PinIndex, PinMode);
 
 /* Get a raw analog value from the input with the specified index. Produces
  * undefined results if the input is configured as a digital
@@ -116,8 +116,8 @@ uint16_t analog_get(AnalogInIndex);
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(DigitalIndex, Bool);
-Bool digital_get(DigitalIndex);
+void digital_set(PinIndex, Bool);
+Bool digital_get(PinIndex);
 
 
 /*
