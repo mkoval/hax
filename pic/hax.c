@@ -15,12 +15,6 @@ uint16_t kSlowSpeed = 18500;
 uint8_t picAnalogMask;
 
 /*
- * HELPER FUNCTIONS
- */
-/* Flags the specified hardware pin for digital IO. */
-void init_digital_pin(uint8_t);
-
-/*
  * HARDWARE SPECIFIC DEFINITIONS
  */
 #define RND 6
@@ -384,11 +378,10 @@ void setup(void) {
 	 */
 	picAnalogMask = 0xF0 | (15 - kNumAnalog);
 	
-	/* Digital pins need to be initialized seperately for IO to work as
-	 * expected.
+	/* Initialize all digital pins as inputs unless overridden.
 	 */
-	for (i = kNumAnalog; i <= 15; ++i) {
-		init_digital_pin(i);
+	for (i = 0; i <= 15 - kNumAnalog; ++i) {
+		digital_set_mode(i);
 	}
 	
 	/* Initialize Serial */
@@ -441,7 +434,15 @@ CtrlMode get_mode(void) {
 /*
  * DIGITAL AND ANALOG INPUTS
  */
-void init_digital_pin(uint8_t i) {
+
+#define BIT_HI(x, i)     ((x) |=  0x01 << (i))
+#define BIT_LO(x, i)     ((x) &= ~(0x01 << (i)))
+#define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
+
+void digital_set_mode(DigitalIndex i, PinMode mode) {
+	/* Convert the digital index into a raw hardware index. */
+	i += kNumAnalog;
+	
 	switch (i) {
 	/* The first four inputs are consecutively numbered starting at zero in
 	 * the TRISA register.
@@ -450,12 +451,12 @@ void init_digital_pin(uint8_t i) {
 	case 1:
 	case 2:
 	case 3:
-		TRISA |= 0x01 << i;
+		BIT_SET(TRISA, i, mode == kInput);
 		break;
 	
 	/* Also in the TRISA register, but the fifth bit (TRISA4) is reserved. */
 	case 4:
-		TRISA |= 0x10;
+		BIT_SET(TRISA, 5, mode == kInput);
 		break;
 	
 	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
@@ -468,7 +469,7 @@ void init_digital_pin(uint8_t i) {
 	case 9:
 	case 10:
 	case 11:
-		TRISF |= 0x01 << i;
+		BIT_SET(TRISF, i, mode == kInput);
 		break;
 	
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
@@ -478,12 +479,9 @@ void init_digital_pin(uint8_t i) {
 	case 13:
 	case 14:
 	case 15:
-		TRISH |= 0x01 << (i + 4);
+		BIT_SET(TRISH, i + 4, mode == kInput);
 		break;
 	}
-}
-
-void digital_set_mode(DigitalIndex i, PinMode mode) {
 }
 
 /*
