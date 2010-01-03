@@ -362,19 +362,11 @@ void setup(void) {
 }
 
 void spin(void) {
-	if (rxdata.rcmode.mode.autonomous) {
-		auton_spin();
-	} else {
-		telop_spin();
-	}
+
 }
 
 void loop(void) {
-	if (rxdata.rcmode.mode.autonomous) {
-		auton_loop();
-	} else {
-		telop_loop();
-	}
+
 }
 
 Bool new_data_received(void) {
