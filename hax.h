@@ -110,7 +110,7 @@ void digital_set_mode(DigitalIndex, PinMode);
  * undefined results if the input is configured as a digital
  * sensor.
  */
-uint16_t analog_get(AnalogIndex);
+uint16_t analog_get(AnalogInIndex);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
