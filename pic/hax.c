@@ -333,12 +333,8 @@ void setup(void) {
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
 	
-	/* Setup the number of analog sensors. The PIC defines a series of 15
-	 * ADC constants in mcc18/h/adc.h that are all of the form 0b1111xxxx,
-	 * where x counts the number of DIGITAL ports. In total, there are
-	 * sixteen ports numbered from 0ANA to 15ANA.
-	 */
-	picAnalogMask = 0xF0 | (15 - kNumAnalog);
+	
+	picAnalogMask = ;
 	
 	/* Initialize all digital pins as inputs unless overridden.
 	 */
@@ -357,14 +353,16 @@ void setup(void) {
 	Delay1KTCYx( 50 ); /* Settling time */
 	
 	/* Init ADC */
-	#if ( defined(NUM_ANALOG_INPUTS) && ( NUM_ANALOG_INPUTS > 0 ) )
-		
-		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ADC_##NUM_ANALOG_INPUTS##ANA ,
+	
+	/* Setup the number of analog sensors. The PIC defines a series of 15
+	 * ADC constants in mcc18/h/adc.h that are all of the form 0b1111xxxx,
+	 * where x counts the number of DIGITAL ports. In total, there are
+	 * sixteen ports numbered from 0ANA to 15ANA.
+	 */
+	if ( kNumAnalog > 0 ) {
+		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalog) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
-		
-	#else
-	#error "Invalid Analog Specification."
-	#endif
+	}
 	
 	User_Proc_Is_Ready();
 }
@@ -399,9 +397,6 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	 * is potentialy dangerous as it is being used as a bitmask.
 	 */
 	uint8_t bit = (mode == kInput) ? 1 : 0;
-	
-	/* Convert the digital index into a raw hardware index. */
-	i += kNumAnalog;
 	
 	switch (i) {
 	/* The first four inputs are consecutively numbered starting at zero in
