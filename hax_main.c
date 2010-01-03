@@ -6,6 +6,7 @@ void main() {
 	static CtrlMode mode;
 	
 	setup();
+	init();
 	
 	for(;;) {
 		mode = get_mode();

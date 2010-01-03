@@ -64,6 +64,7 @@ extern uint8_t kNumAnalogInputs;
 /* These functions implement a hardware-agnostic robot controller. See loop()
  * and spin() for the difference between the two classes of function.
  */
+void init(void);
 void auton_loop(void);
 void auton_spin(void);
 void telop_loop(void);
