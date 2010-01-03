@@ -1,5 +1,10 @@
+#include <user_serialdrv.h>
 #include "hax.h"
-#include "user_serialdrv.h"
+
+void putb(uint8_t data) {
+	TXREG = data;
+	Wait4TXEmpty();
+}
 
 void putc(char data) {
 	/* From the IFI Default Code printf_lib.c. */
