@@ -20,44 +20,6 @@ uint8_t picAnalogMask;
 #define RND 6
 #define RESET_VECTOR 0x800
 
-/* Registers used to configure each input as analog or digital. */
-extern volatile near uint8_t TRISA;
-extern volatile near uint8_t TRISF;
-extern volatile near uint8_t TRISH;
-
-/* Registers required for the IFI code to function. */
-extern volatile near uint8_t TXSTA1;
-
-extern volatile near struct {
-	uint8_t TX9D:1;
-	uint8_t TRMT:1;
-	uint8_t BRGH:1;
-	uint8_t:1;
-	uint8_t SYNC:1;
-	uint8_t TXEN:1;
-	uint8_t TX9:1;
-	uint8_t CSRC:1;
-} TXSTA1bits;
-
-extern volatile near unsigned char       PIR1;
-extern volatile near union {
-	struct {
-		unsigned TMR1IF:1;
-		unsigned TMR2IF:1;
-		unsigned CCP1IF:1;
-		unsigned SSPIF:1;     /* Reserved - Do not use */
-		unsigned TX1IF:1;
-		unsigned RC1IF:1;
-		unsigned ADIF:1;
-		unsigned PSPIF:1;     /* Reserved - Do not use */
-	};
-	struct {
-		unsigned :4;
-		unsigned TXIF:1;
-		unsigned RCIF:1;
-	};
-} PIR1bits;
-
 /* This structure contains important system statusflag information. */
 typedef struct {
 	uint8_t:6;
