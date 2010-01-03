@@ -395,7 +395,7 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	/* The comparison operator may not return "1" for all true values. This
 	 * is potentialy dangerous as it is being used as a bitmask.
 	 */
-	uint8_t bit = (mode == kInput) ? 1 : 0;
+	uint8_t bit = (mode == kInput);
 	
 	switch (i) {
 	/* The first four inputs are consecutively numbered starting at zero in
