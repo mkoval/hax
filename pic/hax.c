@@ -440,6 +440,11 @@ CtrlMode get_mode(void) {
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
 void digital_set_mode(DigitalIndex i, PinMode mode) {
+	/* The comparison operator may not return "1" for all true values. This
+	 * is potentialy dangerous as it is being used as a bitmask.
+	 */
+	uint8_t bit = (mode == kInput) ? 1 : 0;
+	
 	/* Convert the digital index into a raw hardware index. */
 	i += kNumAnalog;
 	
@@ -451,12 +456,12 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	case 1:
 	case 2:
 	case 3:
-		BIT_SET(TRISA, i, mode == kInput);
+		BIT_SET(TRISA, i, bit);
 		break;
 	
 	/* Also in the TRISA register, but the fifth bit (TRISA4) is reserved. */
 	case 4:
-		BIT_SET(TRISA, 5, mode == kInput);
+		BIT_SET(TRISA, 5, bit);
 		break;
 	
 	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
@@ -469,7 +474,7 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	case 9:
 	case 10:
 	case 11:
-		BIT_SET(TRISF, i, mode == kInput);
+		BIT_SET(TRISF, i, bit);
 		break;
 	
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
@@ -479,7 +484,7 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	case 13:
 	case 14:
 	case 15:
-		BIT_SET(TRISH, i + 4, mode == kInput);
+		BIT_SET(TRISH, i + 4, bit);
 		break;
 	}
 }
