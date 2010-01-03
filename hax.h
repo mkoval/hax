@@ -13,8 +13,8 @@ typedef uint8_t Bool;
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
 typedef uint8_t PinIndex; /* Pins on the RC */
-typedef uint8_t AnalogOutIndex; /* The union of PWMs and the PinIndex*/
 typedef uint8_t AnalogInIndex;  /* The union of OI inputs and the PinIndex*/
+typedef uint8_t AnalogOutIndex; /* Just the PWMs */
 typedef uint8_t InterruptIndex;
 
 /* Configuration options to be applied to each input. */
