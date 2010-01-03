@@ -52,11 +52,11 @@ typedef enum {
  */
 extern uint16_t kSlowSpeed;
 
-/* Number of analog inputs, numbered 0 to NUM_ANALOG_INPUTS - 1. This 
+/* Number of analog inputs, numbered 0 to kNumAnalogInputs - 1. This 
  * numbering scheme is required for portability on PIC hardware.
  * NOTE: Supplied by user code.
  */
-/* #define NUM_ANALOG_INPUTS */
+extern uint8_t kNumAnalogInputs;
 
 /*
  * USER CONTROLLER CODE

@@ -360,7 +360,7 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	if ( kNumAnalog > 0 ) {
-		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalog) ) ,
+		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
 	}
 	
