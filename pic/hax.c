@@ -435,7 +435,7 @@ void digital_set_mode(DigitalIndex i, PinMode pins) {
 	case 1:
 	case 2:
 	case 3:
-		TRISA |= 0x1 << i;
+		TRISA |= 0x01 << i;
 		break;
 	
 	/* Also in the TRISA register, but the fifth bit (TRISA4) is reserved. */
@@ -453,7 +453,7 @@ void digital_set_mode(DigitalIndex i, PinMode pins) {
 	case 9:
 	case 10:
 	case 11:
-		TRISF |= 0x1 << i;
+		TRISF |= 0x01 << i;
 		break;
 	
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
@@ -463,7 +463,7 @@ void digital_set_mode(DigitalIndex i, PinMode pins) {
 	case 13:
 	case 14:
 	case 15:
-		TRISH |= 0x1 << (i + 4);
+		TRISH |= 0x01 << (i + 4);
 		break;
 	}
 }
