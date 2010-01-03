@@ -26,7 +26,7 @@ void puth(uint16_t data) {
 	}
 }
 
-void puti(uint16_t data, uint8_t radix) {
+void puti(uint16_t data) {
 	char buf[6];
 	uint8_t i;
 	
@@ -34,8 +34,8 @@ void puti(uint16_t data, uint8_t radix) {
 	 * most significant digit).
 	 */
 	for (i = 0; data > 0; ++i) {
-		buf[i] = '0' + (data % radix);
-		data  /= radix;
+		buf[i] = '0' + (data % 10);
+		data  /= 10;
 	}
 	
 	/* Reverse the string prior to sending it to the serial port. */
