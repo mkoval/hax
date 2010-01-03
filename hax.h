@@ -1,7 +1,7 @@
 #ifndef HAX_H_
 #define HAX_H_
 
-#include <stdint.h>
+#include "stdint.h"
 
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
  * never compare against kFalse or kTrue. Instead, rely on the default
@@ -38,7 +38,7 @@ typedef int8_t ServoPosition;
 #define kServoMax +127
 
 /* Callback function invoked when a hardware interrupt is fired. */
-typedef void(*InteruptServiceRoutine)(void);
+typedef void (*InterruptServiceRoutine)(void);
 
 /* Operating mode of the robot (autonomous or operator controlled). */
 typedef enum {
@@ -46,7 +46,7 @@ typedef enum {
 	kTelop
 } CtrlMode;
 
-/* Number of milliseconds*10 between two consecutive instances of the processor
+/* Number of microseconds between two consecutive instances of the processor
  * receiving updated data (i.e. the speed of the "slow loop").
  * NOTE: Supplied by the hardware-specific implementation of HAX.
  */
@@ -57,6 +57,8 @@ extern uint16_t kSlowSpeed;
  * NOTE: Supplied by user code.
  */
 extern uint8_t kNumAnalog;
+
+extern Bool kIsAuton;
 
 
 /*
@@ -134,7 +136,7 @@ void servo_set(AnalogOutIndex, ServoPosition);
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-void interrupt_reg_isr(InteruptIndex, InterruptServiceRoutine);
+void interrupt_reg_isr(InterruptIndex, InterruptServiceRoutine);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations. 
