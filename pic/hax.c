@@ -434,9 +434,10 @@ void pin_set_io(PinIndex i, PinMode mode) {
 }
 
 uint16_t analog_get(AnalogInIndex ain) {
-	if ( ain > kAnalogSplit /* This should be replaced by a constant somewhere */ ) {
+	if ( ain > kAnalogSplit ) {
 		/* get oi data */
-		rx_data.oi_analog[ ain - kAnalogSplit ];
+		/* we may not want to trust "ain" */
+		return rx_data.oi_analog[ ain - kAnalogSplit ];
 	}
 	/* kNumAnalogInputs should be checked somewhere else... preferably at
 	 * compile time.
