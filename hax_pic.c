@@ -7,6 +7,25 @@ void putc(char data) {
 	Wait4TXEmpty();
 }
 
+void puth(uint16_t data) {
+	uint8_t i, digit;
+	
+	putc('0');
+	putc('x');
+	
+	for (i = 0; i < 4; ++i) {
+		/* Each four-bit chunk of a binary number is a hex digit. */
+		digit  = (uint8_t) ((data & 0xF000) >> 12);
+		data <<= 4;
+		
+		if (digit < 10) {
+			putc('0' + digit);
+		} else {
+			putc('A' + digit - 10);
+		}
+	}
+}
+
 void puti(uint16_t data, uint8_t radix) {
 	char buf[6];
 	uint8_t i;
@@ -25,8 +44,12 @@ void puti(uint16_t data, uint8_t radix) {
 	}
 }
 
-void puth(uint16_t data) {
-	putc(data, '0');
-	putc(data, 'x');
-	puti(data, 16);
+void putf(float data) {
+	float frac = data - (w)
+}
+
+void puts(char *data) {
+	for (; *data; ++data) {
+		putc(*data);
+	}
 }
