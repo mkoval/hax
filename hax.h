@@ -52,14 +52,11 @@ typedef enum {
  */
 extern uint16_t kSlowSpeed;
 
-/* Number of analog inputs, numbered 0 to kNumAnalog - 1. This numbering
- * scheme is required for portability on PIC hardware.
+/* Number of analog inputs, numbered 0 to NUM_ANALOG_INPUTS - 1. This 
+ * numbering scheme is required for portability on PIC hardware.
  * NOTE: Supplied by user code.
  */
-extern uint8_t kNumAnalog;
-
-extern Bool kIsAuton;
-
+/* #define NUM_ANALOG_INPUTS */
 
 /*
  * USER CONTROLLER CODE
@@ -155,7 +152,6 @@ void interrupt_disable(InterruptIndex);
  * unless manually printed with the other put() methods.
  */
 void putc(char);
-void putb(uint8_t);
 void puth(uint16_t);
 void puti(uint16_t);
 void putf(float);
