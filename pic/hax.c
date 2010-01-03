@@ -323,8 +323,28 @@ void setup(void) {
 	 */
 	statusflag.NEW_SPI_DATA = 0;
 	
-	/* Enable autonomous mode. */
+	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
+	
+	/* Initialize Serial */
+	OpenUSART(USART_TX_INT_OFF &
+		USART_RX_INT_OFF &
+		USART_ASYNCH_MODE &
+		USART_EIGHT_BIT &
+		USART_CONT_RX &
+		USART_BRGH_HIGH,
+		baud_115);   
+	Delay1KTCYx( 50 ); /* Settling time */
+	
+	/* Init ADC */
+	#if ( defined(NUM_ANALOG_INPUTS) && ( NUM_ANALOG_INPUTS > 0 ) )
+		
+		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ADC_##NUM_ANALOG_INPUTS##ANA ,
+			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
+		
+	#else
+	#error "Invalid Analog Specification."
+	#endif
 	
 	User_Proc_Is_Ready();
 }
