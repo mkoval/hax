@@ -334,13 +334,6 @@ void setup(void) {
 	txdata.user_cmd = 0x02;
 	
 	
-	picAnalogMask = ;
-	
-	/* Initialize all digital pins as inputs unless overridden.
-	 */
-	for (i = 0; i <= 15 - kNumAnalog; ++i) {
-		digital_set_mode( i, kDigitalInput);
-	}
 	
 	/* Initialize Serial */
 	OpenUSART(USART_TX_INT_OFF &
@@ -362,6 +355,12 @@ void setup(void) {
 	if ( kNumAnalog > 0 ) {
 		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
+	}
+	
+	/* Initialize all digital pins as inputs unless overridden.
+	 */
+	for (i = 0; i <= 15 - kNumAnalogInputs; ++i) {
+		digital_set_mode( i, kDigitalInput);
 	}
 	
 	User_Proc_Is_Ready();
