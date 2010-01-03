@@ -42,13 +42,22 @@ void puti(uint16_t data) {
 }
 
 void putf(float data) {
+	uint32_t frac;
+	uint8_t exp =  (uint8_t) ( ( data << 1 ) >> 1) >> 23 ) ;
+	
+	if (exp == 0xFF) {
+		putc('N');
+		putc('a');
+		putc('N');
+		return;
+	}
+	
+	uint32_t frac = (uint32_t) ( data << 9 ) >> 9;
+
 	if ( data >> 31 ) { // bit 31 is the sign bit.
 		putc('-');
 	}
 	
-	int8_t exp =  (int8_t) ( (uint8_t) ( ( data << 1 ) >> 1) >> 23 ) - 127;
-	uint32_t frac = (uint32_t) ( data << 9 ) >> 9;
-
 	/* TODO: Do something with the fraction and exponent. */
 }
 
