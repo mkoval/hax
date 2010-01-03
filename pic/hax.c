@@ -307,13 +307,46 @@ void Getdata(RxData *);
 /* Sets the output type of PWM's 13, 14, 15, and 16. Each argument is either
  * IFI_PWM for a PWM output or USER_CCP for a timer.
  */
+ /* EIGHTH: Set your PWM output type.  Only applies if USER controls PWM 1, 2, 3, or 4. */
+  /*   Choose from these parameters for PWM 1-4 respectively:                          */
+  /*     IFI_PWM  - Standard IFI PWM output generated with Generate_Pwms(...)          */
+  /*     USER_CCP - User can use PWM pin as digital I/O or CCP pin.                    */
 void Setup_PWM_Output_Type(int, int, int, int);
+
+/*
+ * From ifi_utilities.h
+ */
+void Hex_output(unsigned char temp);
+void Generate_Pwms(unsigned char pwm_1,unsigned char pwm_2,
+                   unsigned char pwm_3,unsigned char pwm_4,
+                   unsigned char pwm_5,unsigned char pwm_6,
+                   unsigned char pwm_7,unsigned char pwm_8);
 
 /**
  ** END IFI LIB CODE
  **/
 
-
+static void Setup_Who_Controls_Pwms(int pwmSpec1,int pwmSpec2,int pwmSpec3,int pwmSpec4,
+                                    int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
+{
+  txdata.pwm_mask = 0xFF;         /* Default to master controlling all PWMs. */
+  if (pwmSpec1 == USER)           /* If User controls PWM1 then clear bit0. */
+    txdata.pwm_mask &= 0xFE;      /* same as txdata.pwm_mask = txdata.pwm_mask & 0xFE; */
+  if (pwmSpec2 == USER)           /* If User controls PWM2 then clear bit1. */
+    txdata.pwm_mask &= 0xFD;
+  if (pwmSpec3 == USER)           /* If User controls PWM3 then clear bit2. */
+    txdata.pwm_mask &= 0xFB;
+  if (pwmSpec4 == USER)           /* If User controls PWM4 then clear bit3. */
+    txdata.pwm_mask &= 0xF7;
+  if (pwmSpec5 == USER)           /* If User controls PWM5 then clear bit4. */
+    txdata.pwm_mask &= 0xEF;
+  if (pwmSpec6 == USER)           /* If User controls PWM6 then clear bit5. */
+    txdata.pwm_mask &= 0xDF;
+  if (pwmSpec7 == USER)           /* If User controls PWM7 then clear bit6. */
+    txdata.pwm_mask &= 0xBF;
+  if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
+    txdata.pwm_mask &= 0x7F;
+ }
 
 /*
  * INITIALIZATION AND MISC
@@ -437,7 +470,7 @@ uint16_t analog_get(AnalogInIndex ain) {
 	if ( ain > kAnalogSplit ) {
 		/* get oi data */
 		/* we may not want to trust "ain" */
-		return rx_data.oi_analog[ ain - kAnalogSplit ];
+		return rxdata.oi_analog[ ain - kAnalogSplit ];
 	}
 	/* kNumAnalogInputs should be checked somewhere else... preferably at
 	 * compile time.
@@ -451,6 +484,23 @@ uint16_t analog_get(AnalogInIndex ain) {
 	}
 	else {
 		return 0xFFFF;
+	}
+}
+
+void motor_set(AnalogOutIndex aout, MotorSpeed sp) {
+	analog_set(aout,sp);
+}
+
+void motor_set(AnalogOutIndex aout, ServoSetpoint sp) {
+	analog_set(aout,sp);
+}
+
+void analog_set(AnalogOutIndex aout, int8_t sp) {
+	if ( aout < 16 ) {
+		uint8_t val = sp + 127;
+		
+		/* 127 & 128 are treated as the same, apparently. */
+		txdata.rc_pwm[aout] = (val > 127) ? val+1 : val;
 	}
 }
 
