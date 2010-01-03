@@ -1,3 +1,8 @@
+/*
+ * Hardware Specific Code,
+ * PIC Arch
+ */
+#include <p18cxxx.h>
 #include <usart.h>
 #include "hax.h"
 
@@ -52,7 +57,6 @@ extern volatile near union {
 		unsigned RCIF:1;
 	};
 } PIR1bits;
-
 
 /* This structure contains important system statusflag information. */
 typedef struct {
@@ -131,16 +135,12 @@ typedef struct {
 	uint8_t:2;
 } Packed;
 
-extern volatile near unsigned long short TBLPTR;
-extern near unsigned FSR0;
-extern near char FPFLAGS;
-
 TxData txdata;
 RxData rxdata;
 Packed statusflag;
 
 /*
- * STARTUP CODE - DO NOT MODIFY
+ * STARTUP CODE
  * from ifi_startup.c
  */
 extern void Clear_Memory(void);
@@ -312,10 +312,10 @@ void _do_cinit(void) {
 }
 
 
-/*
- * IFI MASTER PROCESSOR CODE - DO NOT MODIFY
- * from ifi_startup.c; methods defined in ifi_library.lib
- */
+/**
+ ** IFI LIBRARY CODE
+ ** methods defined in ifi_library.lib
+ **/
 /* Vector jumps to the appropriate high priority interrupt handler. Called
  * from the high priority interrupt vector.
  */
@@ -349,9 +349,11 @@ void Getdata(RxData *);
  */
 void Setup_PWM_Output_Type(int, int, int, int);
 
-void Wait4TXEmpty() {
-	while (!PIR1bits.TXIF);
-}
+/**
+ ** END IFI LIB CODE
+ **/
+
+
 
 /*
  * INITIALIZATION AND MISC
@@ -364,7 +366,7 @@ void setup(void) {
 	 */
 	statusflag.NEW_SPI_DATA = 0;
 	
-	/* Enable autonomous mode. */
+	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
 	
 	/* Setup the number of analog sensors. The PIC defines a series of 15
@@ -373,14 +375,32 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	picAnalogMask = 0xF0 | (15 - kNumAnalog);
+	
+	/* Initialize Serial */
+	OpenUSART(USART_TX_INT_OFF &
+		USART_RX_INT_OFF &
+		USART_ASYNCH_MODE &
+		USART_EIGHT_BIT &
+		USART_CONT_RX &
+		USART_BRGH_HIGH,
+		baud_115);   
+	Delay1KTCYx( 50 ); /* Settling time */
+	
+	/* Init ADC */
+	#if ( defined(NUM_ANALOG_INPUTS) && ( NUM_ANALOG_INPUTS > 0 ) )
+		
+		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ADC_##NUM_ANALOG_INPUTS##ANA ,
+			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
+		
+	#else
+	#error "Invalid Analog Specification."
+	#endif
+	
+	User_Proc_Is_Ready();
 }
 
 void spin(void) {
-	if (rxdata.rcmode.mode.autonomous) {
-		auton_spin();
-	} else {
-		telop_spin();
-	}
+
 }
 
 void loop(void) {
@@ -451,11 +471,6 @@ void digital_set_mode(DigitalIndex i, PinMode pins) {
 /*
  * STREAM IO
  */
-void putb(uint8_t data) {
-	while(Busy1USART());
-	Write1USART(data);
-}
-
 void putc(char data) {
 	/* From the Microchip C Library Docs */
 	while(Busy1USART());
