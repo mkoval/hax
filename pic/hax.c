@@ -343,7 +343,7 @@ void setup(void) {
 	/* Initialize all digital pins as inputs unless overridden.
 	 */
 	for (i = 0; i <= 15 - kNumAnalog; ++i) {
-		digital_set_mode(i);
+		digital_set_mode( i, kDigitalInput);
 	}
 	
 	/* Initialize Serial */
@@ -374,15 +374,8 @@ void spin(void) {
 }
 
 void loop(void) {
+	PutData(&txdata);
 	GetData(&rxdata);
-	
-	if (rxdata.rcmode.mode.autonomous) {
-		auton_loop();
-	} else {
-		telop_loop();
-	}
-	
-	PutData(&rxdata);
 }
 
 Bool new_data_received(void) {
