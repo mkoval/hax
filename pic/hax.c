@@ -92,10 +92,6 @@ typedef struct {
 	uint8_t:2;
 } Packed;
 
-extern volatile near unsigned long short TBLPTR;
-extern near unsigned FSR0;
-extern near char FPFLAGS;
-
 TxData txdata;
 RxData rxdata;
 Packed statusflag;
