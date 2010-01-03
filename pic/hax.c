@@ -305,10 +305,10 @@ void _do_cinit(void) {
 }
 
 
-/*
- * IFI MASTER PROCESSOR CODE - DO NOT MODIFY
- * from ifi_startup.c; methods defined in ifi_library.lib
- */
+/**
+ ** IFI LIBRARY CODE
+ ** methods defined in ifi_library.lib
+ **/
 /* Vector jumps to the appropriate high priority interrupt handler. Called
  * from the high priority interrupt vector.
  */
@@ -341,6 +341,11 @@ void Getdata(RxData *);
  * IFI_PWM for a PWM output or USER_CCP for a timer.
  */
 void Setup_PWM_Output_Type(int, int, int, int);
+
+/**
+ ** END IFI LIB CODE
+ **/
+
 
 
 /*
