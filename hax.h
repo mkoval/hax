@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
- * never compare against kFalse or kTrue. Instead rely on the default behavior
- * of the if-statement that considers a non-zero value to be true.the
+ * never compare against kFalse or kTrue. Instead, rely on the default
+ * behavior of if statements that consider non-zero values to be true.
  */
 typedef uint8_t Bool;
 #define FALSE   0
@@ -48,13 +48,15 @@ typedef enum {
 
 /* Number of milliseconds*10 between two consecutive instances of the processor
  * receiving updated data (i.e. the speed of the "slow loop").
+ * NOTE: Supplied by the hardware-specific implementation of HAX.
  */
-extern uint16_t kSlowSpeed; // Given by HW
+extern uint16_t kSlowSpeed;
 
 /* Number of analog inputs, numbered 0 to kNumAnalog - 1. This numbering
  * scheme is required for portability on PIC hardware.
+ * NOTE: Supplied by user code.
  */
-extern uint8_t kNumAnalog; // Given by User
+extern uint8_t kNumAnalog;
 
 
 /*
@@ -147,10 +149,11 @@ void interrupt_disable(InterruptIndex);
  * STREAM IO
  */
 /* Writes data of the specified type to stdout, formatting it in a human-
- * readable manner. Hex values, written with puth,  are prefixed with "0x".
+ * readable manner. Hex values, written with puth, are not prefixed with "0x"
+ * unless manually printed with the other put() methods.
  */
-void puth(uint8_t);
-void puth2(uint16_t);
+void putb(uint8_t);
+void puth(uint16_t);
 void puti(uint16_t);
 void putf(float);
 void puts(char *c);
