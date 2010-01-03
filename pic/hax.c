@@ -15,6 +15,12 @@ uint16_t kSlowSpeed = 18500;
 uint8_t picAnalogMask;
 
 /*
+ * HELPER FUNCTIONS
+ */
+/* Flags the specified hardware pin for digital IO. */
+void init_digital_pin(uint8_t);
+
+/*
  * HARDWARE SPECIFIC DEFINITIONS
  */
 #define RND 6
@@ -359,6 +365,8 @@ void Setup_PWM_Output_Type(int, int, int, int);
  * INITIALIZATION AND MISC
  */
 void setup(void) {
+	uint8_t i;
+	
 	IFI_Initialization();
 	
 	/* Prevent the "slow loop" from executing until data has been received
@@ -375,6 +383,13 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	picAnalogMask = 0xF0 | (15 - kNumAnalog);
+	
+	/* Digital pins need to be initialized seperately for IO to work as
+	 * expected.
+	 */
+	for (i = kNumAnalog; i <= 15; ++i) {
+		init_digital_pin(i);
+	}
 	
 	/* Initialize Serial */
 	OpenUSART(USART_TX_INT_OFF &
@@ -426,7 +441,7 @@ CtrlMode get_mode(void) {
 /*
  * DIGITAL AND ANALOG INPUTS
  */
-void digital_set_mode(DigitalIndex i, PinMode pins) {
+void init_digital_pin(uint8_t i) {
 	switch (i) {
 	/* The first four inputs are consecutively numbered starting at zero in
 	 * the TRISA register.
@@ -465,7 +480,9 @@ void digital_set_mode(DigitalIndex i, PinMode pins) {
 	case 15:
 		TRISH |= 0x01 << (i + 4);
 		break;
-	}
+}
+
+void digital_set_mode(DigitalIndex i, PinMode mode) {
 }
 
 /*
