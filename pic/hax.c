@@ -85,10 +85,7 @@ typedef struct {
 	/* Reserved for future use. */
 	uint8_t spare01, spare02, spare03;
 
-	uint8_t oi_analog01, oi_analog02, oi_analog03, oi_analog04;
-	uint8_t oi_analog05, oi_analog06, oi_analog07, oi_analog08;
-	uint8_t oi_analog09, oi_analog10, oi_analog11, oi_analog12;
-	uint8_t oi_analog13, oi_analog14, oi_analog15, oi_analog16;
+	uint8_t oi_analog[16];
 	uint8_t reserve[9]; /* Reserved for future use. */
 	uint8_t master_version;
 } RxData;
@@ -100,10 +97,7 @@ typedef struct {
 	/* Reserved for future use. */
 	uint8_t spare01, spare02, spare03, spare04;
 	
-	uint8_t rc_pwm01, rc_pwm02, rc_pwm03, rc_pwm04;
-	uint8_t rc_pwm05, rc_pwm06, rc_pwm07, rc_pwm08;
-	uint8_t rc_pwm09, rc_pwm10, rc_pwm11, rc_pwm12;
-	uint8_t rc_pwm13, rc_pwm14, rc_pwm15, rc_pwm16;
+	uint8_t rc_pwm[16];
 	
 	uint8_t user_cmd;   /* Reserved for future use. */
 	uint8_t cmd_byte1;  /* Reserved for future use. */
