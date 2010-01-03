@@ -480,6 +480,7 @@ void init_digital_pin(uint8_t i) {
 	case 15:
 		TRISH |= 0x01 << (i + 4);
 		break;
+	}
 }
 
 void digital_set_mode(DigitalIndex i, PinMode mode) {
