@@ -1,7 +1,7 @@
 #ifndef HAX_H_
 #define HAX_H_
 
-#include "hax_int.h"
+#include "stdint.h"
 
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
  * never compare against kFalse or kTrue. Instead, rely on the default
@@ -57,6 +57,9 @@ extern uint16_t kSlowSpeed;
  * NOTE: Supplied by user code.
  */
 extern uint8_t kNumAnalogInputs;
+
+/* The number below which Analog inputs are ADC, and above which are OI */
+#define kAnalogSplit 127
 
 /*
  * USER CONTROLLER CODE

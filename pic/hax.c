@@ -9,10 +9,8 @@
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
 
-/* Bitmask applied to the input of OpenADC to specify the number of analog
- * ports.
- */
-uint8_t picAnalogMask;
+/* Checks if the kNumAnalog is valid */
+#define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
 
 /*
  * HARDWARE SPECIFIC DEFINITIONS
@@ -356,7 +354,7 @@ void setup(void) {
 	 * where x counts the number of DIGITAL ports. In total, there are
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
-	if ( kNumAnalog > 0 ) {
+	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
 	}
@@ -436,13 +434,14 @@ void pin_set_io(PinIndex i, PinMode mode) {
 }
 
 uint16_t analog_get(AnalogInIndex ain) {
-	if ( ain > 127 /* This should be replaced by a constant somewhere */ ) {
+	if ( ain > kAnalogSplit /* This should be replaced by a constant somewhere */ ) {
 		/* get oi data */
+		rx_data.oi_analog[ ain - kAnalogSplit ];
 	}
 	/* kNumAnalogInputs should be checked somewhere else... preferably at
-	 * compile time. 16 should be defined somewhere
+	 * compile time.
 	 */
-	else if ( ain < kNumAnalogInputs && kNumAnalogInputs < 16  ) {
+	else if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* read ADC */
 		SetChanADC(ain);
 		ConvertADC();
