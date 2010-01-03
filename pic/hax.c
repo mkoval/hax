@@ -12,9 +12,42 @@ uint16_t kSlowSpeed = 18500;
  * HARDWARE SPECIFIC DEFINITIONS
  */
 #define RND 6
-#define RESET_VECTOR     0x800
+#define RESET_VECTOR 0x800
 
-/* This structure contains important system status information. */
+/* Registers required for the IFI code to function. */
+extern volatile near uint8_t TXSTA1;
+extern volatile near struct {
+	uint8_t TX9D:1;
+	uint8_t TRMT:1;
+	uint8_t BRGH:1;
+	uint8_t:1;
+	uint8_t SYNC:1;
+	uint8_t TXEN:1;
+	uint8_t TX9:1;
+	uint8_t CSRC:1;
+} TXSTA1bits;
+
+extern volatile near unsigned char       PIR1;
+extern volatile near union {
+	struct {
+		unsigned TMR1IF:1;
+		unsigned TMR2IF:1;
+		unsigned CCP1IF:1;
+		unsigned SSPIF:1;     /* Reserved - Do not use */
+		unsigned TX1IF:1;
+		unsigned RC1IF:1;
+		unsigned ADIF:1;
+		unsigned PSPIF:1;     /* Reserved - Do not use */
+	};
+	struct {
+		unsigned :4;
+		unsigned TXIF:1;
+		unsigned RCIF:1;
+	};
+} PIR1bits;
+
+
+/* This structure contains important system statusflag information. */
 typedef struct {
 	uint8_t:6;
 	uint8_t autonomous:1; /* Autonomous enable/disable flag. */
@@ -46,12 +79,12 @@ typedef struct {
 		Bits bitselect;
 		PICModes mode;
 		uint8_t allbits;
-	} rc_mode_byte;
+	} rcmode;
 	
 	union {
 		Bits bitselect;
 		uint8_t allbits;
-	} rc_receiver_status_byte;
+	} rcstatusflag;
 	
 	/* Reserved for future use. */
 	uint8_t spare01, spare02, spare03;
@@ -95,24 +128,25 @@ extern volatile near unsigned long short TBLPTR;
 extern near unsigned FSR0;
 extern near char FPFLAGS;
 
-extern TxData txdata;
-extern RxData rxdata;
-extern Packed status;
+TxData txdata;
+RxData rxdata;
+Packed statusflag;
 
 /*
  * STARTUP CODE - DO NOT MODIFY
  * from ifi_startup.c
  */
-extern void Clear_Memory (void);
-extern void main (void);
+extern void Clear_Memory(void);
+extern void main(void);
 
-void _entry(void);
 void _startup(void);
-void _do_cinit(void);I
+void _do_cinit(void);
 
 #pragma code _entry_scn=RESET_VECTOR
 void _entry(void) {
-	_asm goto _startup _endasm
+	_asm
+	goto _startup
+	_endasm
 }
 
 #pragma code _startup_scn
@@ -308,6 +342,10 @@ void Getdata(RxData *);
  */
 void Setup_PWM_Output_Type(int, int, int, int);
 
+void Wait4TXEmpty() {
+	while (!PIR1bits.TXIF);
+}
+
 /*
  * INITIALIZATION AND MISC
  */
@@ -324,7 +362,7 @@ void setup(void) {
 }
 
 void spin(void) {
-	if (autonomous_mode) {
+	if (rxdata.rcmode.mode.autonomous) {
 		auton_spin();
 	} else {
 		telop_spin();
@@ -332,7 +370,7 @@ void spin(void) {
 }
 
 void loop(void) {
-	if (autonomous_mode) {
+	if (rxdata.rcmode.mode.autonomous) {
 		auton_loop();
 	} else {
 		telop_loop();
@@ -344,7 +382,7 @@ Bool new_data_received(void) {
 }
 
 CtrlMode get_mode(void) {
-	return (autonomous_mode) ? kAuton : kTelop;
+	return (rxdata.rcmode.mode.autonomous) ? kAuton : kTelop;
 }
 
 /*

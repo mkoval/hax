@@ -154,6 +154,7 @@ void interrupt_disable(InterruptIndex);
  * readable manner. Hex values, written with puth, are not prefixed with "0x"
  * unless manually printed with the other put() methods.
  */
+void putc(char);
 void putb(uint8_t);
 void puth(uint16_t);
 void puti(uint16_t);
