@@ -342,9 +342,6 @@ void Getdata(RxData *);
  */
 void Setup_PWM_Output_Type(int, int, int, int);
 
-void Wait4TXEmpty() {
-	while (!PIR1bits.TXIF);
-}
 
 /*
  * INITIALIZATION AND MISC
