@@ -107,13 +107,13 @@ CtrlMode get_mode(void);
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void digital_set_mode(DigitalIndex,PinMode);
+void digital_set_mode(DigitalIndex, PinMode);
 
 /* Get a raw analog value from the input with the specified index. Produces
  * undefined results if the input is configured as a digital
  * sensor.
  */
-uint16_t analog_get(AnalogInIndex);
+uint16_t analog_get(AnalogIndex);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
