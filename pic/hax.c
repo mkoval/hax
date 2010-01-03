@@ -4,14 +4,25 @@
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
 
+/* Bitmask applied to the input of OpenADC to specify the number of analog
+ * ports.
+ */
+uint8_t picAnalogMask;
+
 /*
  * HARDWARE SPECIFIC DEFINITIONS
  */
 #define RND 6
 #define RESET_VECTOR 0x800
 
+/* Registers used to configure each input as analog or digital. */
+extern volatile near uint8_t TRISA;
+extern volatile near uint8_t TRISF;
+extern volatile near uint8_t TRISH;
+
 /* Registers required for the IFI code to function. */
 extern volatile near uint8_t TXSTA1;
+
 extern volatile near struct {
 	uint8_t TX9D:1;
 	uint8_t TRMT:1;
@@ -355,6 +366,13 @@ void setup(void) {
 	
 	/* Enable autonomous mode. */
 	txdata.user_cmd = 0x02;
+	
+	/* Setup the number of analog sensors. The PIC defines a series of 15
+	 * ADC constants in mcc18/h/adc.h that are all of the form 0b1111xxxx,
+	 * where x counts the number of DIGITAL ports. In total, there are
+	 * sixteen ports numbered from 0ANA to 15ANA.
+	 */
+	picAnalogMask = 0xF0 | (15 - kNumAnalog);
 }
 
 void spin(void) {
@@ -366,11 +384,15 @@ void spin(void) {
 }
 
 void loop(void) {
+	GetData(&rxdata);
+	
 	if (rxdata.rcmode.mode.autonomous) {
 		auton_loop();
 	} else {
 		telop_loop();
 	}
+	
+	PutData(&rxdata);
 }
 
 Bool new_data_received(void) {
@@ -379,6 +401,51 @@ Bool new_data_received(void) {
 
 CtrlMode get_mode(void) {
 	return (rxdata.rcmode.mode.autonomous) ? kAuton : kTelop;
+}
+
+/*
+ * DIGITAL AND ANALOG INPUTS
+ */
+void digital_set_mode(DigitalIndex i, PinMode pins) {
+	switch (i) {
+	/* The first four inputs are consecutively numbered starting at zero in
+	 * the TRISA register.
+	 */
+	case 0:
+	case 1:
+	case 2:
+	case 3:
+		TRISA |= 0x1 << i;
+		break;
+	
+	/* Also in the TRISA register, but the fifth bit (TRISA4) is reserved. */
+	case 4:
+		TRISA |= 0x10;
+		break;
+	
+	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
+	 * starting at bit zero.
+	 */
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
+	case 11:
+		TRISF |= 0x1 << i;
+		break;
+	
+	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
+	 * the TRISH register.
+	 */
+	case 12:
+	case 13:
+	case 14:
+	case 15:
+		TRISH |= 0x1 << (i + 4);
+		break;
+	}
 }
 
 /*
