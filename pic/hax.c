@@ -435,6 +435,25 @@ void pin_set_io(PinIndex i, PinMode mode) {
 	}
 }
 
+uint16_t analog_get(AnalogInIndex ain) {
+	if ( ain > 127 /* This should be replaced by a constant somewhere */ ) {
+		/* get oi data */
+	}
+	/* kNumAnalogInputs should be checked somewhere else... preferably at
+	 * compile time. 16 should be defined somewhere
+	 */
+	else if ( ain < kNumAnalogInputs && kNumAnalogInputs < 16  ) {
+		/* read ADC */
+		SetChanADC(ain);
+		ConvertADC();
+		while( BusyADC() );
+		return ReadADC();
+	}
+	else {
+		return 0xFFFF;
+	}
+}
+
 /*
  * STREAM IO
  */
