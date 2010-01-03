@@ -1,7 +1,7 @@
 #ifndef HAX_H_
 #define HAX_H_
 
-#include "stdint.h"
+#include "hax_int.h"
 
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
  * never compare against kFalse or kTrue. Instead, rely on the default
