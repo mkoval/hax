@@ -421,7 +421,7 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	case 9:
 	case 10:
 	case 11:
-		BIT_SET(TRISF, i, bit);
+		BIT_SET(TRISF, (i - 7) , bit);
 		break;
 	
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
@@ -431,7 +431,7 @@ void digital_set_mode(DigitalIndex i, PinMode mode) {
 	case 13:
 	case 14:
 	case 15:
-		BIT_SET(TRISH, i + 4, bit);
+		BIT_SET(TRISH, (i - 15) + 4, bit);
 		break;
 	}
 }
