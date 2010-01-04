@@ -94,17 +94,6 @@ typedef struct {
 	uint8_t control;
 } TxData;
 
-typedef struct {
-	uint8_t NEW_SPI_DATA:1;
-	uint8_t TX_UPDATED:1;
-	uint8_t FIRST_TIME:1;
-	uint8_t TX_BUFFSELECT:1;
-	uint8_t RX_BUFFSELECT:1;
-	uint8_t SPI_SEMAPHORE:1;
-	uint8_t:2;
-} Packed;
-
-
 /*
  * INITIALIZATION AND MISC
  */
