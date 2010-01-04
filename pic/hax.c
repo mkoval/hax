@@ -95,9 +95,12 @@ typedef struct {
 	uint8_t:2;
 } Packed;
 
-TxData txdata;
-RxData rxdata;
-Packed statusflag;
+/**
+ ** From IFI Lib
+ **/
+extern TxData txdata;
+extern RxData rxdata;
+extern Packed statusflag;
 
 /*
  * STARTUP CODE
