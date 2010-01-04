@@ -118,7 +118,7 @@ void setup_1(void) {
 		USART_CONT_RX &
 		USART_BRGH_HIGH,
 		kBaud115);   
-	Delay1KTCYx( 50 ); /* Settling time */
+	Delay1KTCYx( 50 ); /* Settling time (5K Clock ticks) */
 	
 	/* Init ADC */
 	
@@ -135,8 +135,10 @@ void setup_1(void) {
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
 		 */
-		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
-			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
+		OpenADC( 
+			ADC_FOSC_64 & ADC_RIGHT_JUST & ( 0xF0 | (15 - kNumAnalogInputs) ) ,
+			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS 
+			);
 	}
 }
 
