@@ -347,7 +347,13 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
-		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
+		/* ADC_FOSC: According to this post: 
+		 * http://www.vexforum.com/archive/index.php/t-1338.html the VEX Pic's
+		 * FOSC is 10MHz. According to the PIC18F8520 doc, section 19.2, the
+		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 10/0.625=16
+		 * (Also, see table 19-1 in the chip doc)
+		 */
+		OpenADC( ADC_FOSC_16 & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
 	}
 	
