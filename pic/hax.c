@@ -27,27 +27,12 @@ typedef enum
   kBaud115 = 21
 } SerialSpeed;
 
-/* This structure contains important system statusflag information. */
 typedef struct {
 	uint8_t:6;
 	uint8_t autonomous:1; /* Autonomous enable/disable flag. */
 	uint8_t disabled:1;   /* Robot enable/disable flag. */
-} PICModes;
+} RCModes;
 
-/* This structure allows you to address specific bits of a byte. Changed to
- * an eight-bit integer from IFI's definition avoid reliance upon the MCC18
- * restriction of bitfields to not exceed a byte in length.
- */
-typedef struct {
-	uint8_t bit0:1;
-	uint8_t bit1:1;
-	uint8_t bit2:1;
-	uint8_t bit3:1;
-	uint8_t bit4:1;
-	uint8_t bit5:1;
-	uint8_t bit6:1;
-	uint8_t bit7:1;
-} Bits;
 
 /* This structure defines the contents of the data received from the master
  * processor.
@@ -56,13 +41,11 @@ typedef struct {
 	uint8_t packet_num;
 	
 	union {
-		Bits bitselect;
-		PICModes mode;
+		RCModes mode;
 		uint8_t allbits;
 	} rcmode;
 	
 	union {
-		Bits bitselect;
 		uint8_t allbits;
 	} rcstatusflag;
 	
