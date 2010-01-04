@@ -3,6 +3,11 @@
 
 #include "stdint.h"
 
+/*
+ * The Main function
+ */
+void main(void) __noreturn;
+
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
  * never compare against kFalse or kTrue. Instead, rely on the default
  * behavior of if statements that consider non-zero values to be true.
@@ -160,5 +165,6 @@ void puth(uint16_t);
 void puti(uint16_t);
 void putf(float);
 void puts(char *c);
+
 
 #endif
