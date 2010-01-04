@@ -19,6 +19,14 @@ uint16_t kSlowSpeed = 18500;
 #define RND 6
 #define RESET_VECTOR 0x800
 
+typedef enum
+{
+  kBaud19 = 128,
+  kBaud38 = 64,
+  kBaud56 = 42,
+  kBaud115 = 21
+} SerialSpeed;
+
 /* This structure contains important system statusflag information. */
 typedef struct {
 	uint8_t:6;
@@ -288,6 +296,7 @@ void _do_cinit(void) {
  * INITIALIZATION AND MISC
  */
  
+ #if 0
  static void Setup_Who_Controls_Pwms(int pwmSpec1, int pwmSpec2, int pwmSpec3,
 		int pwmSpec4, int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
 {
@@ -309,8 +318,9 @@ void _do_cinit(void) {
   if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
     txdata.pwm_mask &= 0x7F;
  }
+ #endif
  
-void setup(void) {
+void setup_1(void) {
 	uint8_t i;
 	
 	IFI_Initialization();
@@ -322,6 +332,9 @@ void setup(void) {
 	
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
+	
+	/* Make the master control all PWMs (for now) */
+	txdata.pwm_mask = 0xFF;
 	
 	/* Initialize all pins as inputs unless overridden.
 	 */
@@ -336,7 +349,7 @@ void setup(void) {
 		USART_EIGHT_BIT &
 		USART_CONT_RX &
 		USART_BRGH_HIGH,
-		baud_115);   
+		kBaud115);   
 	Delay1KTCYx( 50 ); /* Settling time */
 	
 	/* Init ADC */
@@ -347,16 +360,19 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
-		/* ADC_FOSC: According to this post: 
-		 * http://www.vexforum.com/archive/index.php/t-1338.html the VEX Pic's
-		 * FOSC is 10MHz. According to the PIC18F8520 doc, section 19.2, the
-		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 10/0.625=16
+		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
+		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc, the FOSC
+		 * is 40Mhz.
+		 * According to the doc, section 19.2, the
+		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
 		 */
-		OpenADC( ADC_FOSC_16 & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
+		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
 	}
-	
+}
+
+void setup_2(void) {
 	User_Proc_Is_Ready();
 }
 
@@ -364,9 +380,12 @@ void spin(void) {
 
 }
 
-void loop(void) {
-	PutData(&txdata);
+void loop_1(void) {
 	GetData(&rxdata);
+}
+
+void loop_2(void) {
+	PutData(&txdata);
 }
 
 Bool new_data_received(void) {
