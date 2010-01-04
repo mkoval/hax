@@ -4,6 +4,71 @@
  ** methods defined in ifi_library.lib
  **/
  
+ 
+ typedef struct {
+	uint8_t unknown:6;
+	uint8_t autonomous:1; /* Autonomous enable/disable flag. */
+	uint8_t disabled:1;   /* Robot enable/disable flag. */
+} RCModes;
+
+
+/* This structure defines the contents of the data received from the master
+ * processor.
+ */
+typedef struct {
+	uint8_t packet_num;
+	
+	union {
+		RCModes mode;
+		uint8_t allbits;
+	} rcmode;
+	
+	union {
+		uint8_t allbits; /* ??? */
+	} rcstatusflag;
+	
+	uint8_t reserved_1[3];
+	uint8_t oi_analog[16]; /* Inputs */
+	uint8_t reserved_2[9];
+	uint8_t master_version;
+} RxData;
+
+/* Indicates master control of a pwm when high */
+typedef struct {
+	uint8_t pwm1:1;
+	uint8_t pwm2:1;
+	uint8_t pwm3:1;
+	uint8_t pwm4:1;
+	uint8_t pwm5:1;
+	uint8_t pwm6:1;
+	uint8_t pwm7:1;
+	uint8_t pwm8:1;
+} PwmMasterCtrl;
+
+/* This structure defines the contents of the data transmitted to the master  
+ * processor.
+ */
+typedef struct {
+	uint8_t reserved_1[4];
+	uint8_t rc_pwm[16]; /* Outputs */
+	
+	/* "user_cmd |= 0x02" gives autonomous mode. */
+	uint8_t user_cmd;   /* Reserved for future use. */
+	uint8_t cmd_byte1;  /* Reserved for future use. */
+	
+	union {
+		uint8_t a;
+		PwmMasterCtrl b;
+	} pwm_mask;
+	
+	uint8_t warning_code;
+	uint8_t reserved_2[4];
+	uint8_t error_code;
+	uint8_t packetnum;
+	uint8_t current_mode;
+	uint8_t control;
+} TxData;
+ 
  typedef struct {
 	uint8_t NEW_SPI_DATA:1;
 	uint8_t TX_UPDATED:1;
