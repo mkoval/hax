@@ -11,7 +11,7 @@
 	uint8_t TX_BUFFSELECT:1;
 	uint8_t RX_BUFFSELECT:1;
 	uint8_t SPI_SEMAPHORE:1;
-	uint8_t:2;
+	uint8_t unknown:2;
 } StatusFlags;
  
 extern TxData txdata;
