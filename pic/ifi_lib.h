@@ -3,6 +3,21 @@
  ** IFI LIBRARY CODE
  ** methods defined in ifi_library.lib
  **/
+ 
+ typedef struct {
+	uint8_t NEW_SPI_DATA:1;
+	uint8_t TX_UPDATED:1;
+	uint8_t FIRST_TIME:1;
+	uint8_t TX_BUFFSELECT:1;
+	uint8_t RX_BUFFSELECT:1;
+	uint8_t SPI_SEMAPHORE:1;
+	uint8_t:2;
+} StatusFlags;
+ 
+extern TxData txdata;
+extern RxData rxdata;
+extern StatusFlags statusflag;
+ 
 /* Vector jumps to the appropriate high priority interrupt handler. Called
  * from the high priority interrupt vector.
  */

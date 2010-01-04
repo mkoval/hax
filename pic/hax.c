@@ -13,12 +13,6 @@ uint16_t kSlowSpeed = 18500;
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
 
-/*
- * HARDWARE SPECIFIC DEFINITIONS
- */
-#define RND 6
-#define RESET_VECTOR 0x800
-
 typedef enum
 {
   kBaud19 = 128,
@@ -27,27 +21,12 @@ typedef enum
   kBaud115 = 21
 } SerialSpeed;
 
-/* This structure contains important system statusflag information. */
 typedef struct {
-	uint8_t:6;
+	uint8_t unknown:6;
 	uint8_t autonomous:1; /* Autonomous enable/disable flag. */
 	uint8_t disabled:1;   /* Robot enable/disable flag. */
-} PICModes;
+} RCModes;
 
-/* This structure allows you to address specific bits of a byte. Changed to
- * an eight-bit integer from IFI's definition avoid reliance upon the MCC18
- * restriction of bitfields to not exceed a byte in length.
- */
-typedef struct {
-	uint8_t bit0:1;
-	uint8_t bit1:1;
-	uint8_t bit2:1;
-	uint8_t bit3:1;
-	uint8_t bit4:1;
-	uint8_t bit5:1;
-	uint8_t bit6:1;
-	uint8_t bit7:1;
-} Bits;
 
 /* This structure defines the contents of the data received from the master
  * processor.
@@ -56,270 +35,59 @@ typedef struct {
 	uint8_t packet_num;
 	
 	union {
-		Bits bitselect;
-		PICModes mode;
+		RCModes mode;
 		uint8_t allbits;
 	} rcmode;
 	
 	union {
-		Bits bitselect;
-		uint8_t allbits;
+		uint8_t allbits; /* ??? */
 	} rcstatusflag;
 	
-	/* Reserved for future use. */
-	uint8_t spare01, spare02, spare03;
-
-	uint8_t oi_analog[16];
-	uint8_t reserve[9]; /* Reserved for future use. */
+	uint8_t reserved_1[3];
+	uint8_t oi_analog[16]; /* Inputs */
+	uint8_t reserved_2[9];
 	uint8_t master_version;
 } RxData;
 
+/* Indicates master control of a pwm when high */
+typedef struct {
+	uint8_t pwm1:1;
+	uint8_t pwm2:1;
+	uint8_t pwm3:1;
+	uint8_t pwm4:1;
+	uint8_t pwm5:1;
+	uint8_t pwm6:1;
+	uint8_t pwm7:1;
+	uint8_t pwm8:1;
+} PwmMasterCtrl;
+
 /* This structure defines the contents of the data transmitted to the master  
- * microprocessor.
+ * processor.
  */
 typedef struct {
-	/* Reserved for future use. */
-	uint8_t spare01, spare02, spare03, spare04;
+	uint8_t reserved_1[4];
+	uint8_t rc_pwm[16]; /* Outputs */
 	
-	uint8_t rc_pwm[16];
-	
+	/* "user_cmd |= 0x02" gives autonomous mode. */
 	uint8_t user_cmd;   /* Reserved for future use. */
 	uint8_t cmd_byte1;  /* Reserved for future use. */
-	uint8_t pwm_mask;
+	
+	union {
+		uint8_t a;
+		PwmMasterCtrl b;
+	} pwm_mask;
+	
 	uint8_t warning_code;
-	uint8_t reserve[4]; /* Reserved for future use. */
+	uint8_t reserved_2[4];
 	uint8_t error_code;
 	uint8_t packetnum;
 	uint8_t current_mode;
 	uint8_t control;
 } TxData;
 
-typedef struct {
-	uint8_t NEW_SPI_DATA:1;
-	uint8_t TX_UPDATED:1;
-	uint8_t FIRST_TIME:1;
-	uint8_t TX_BUFFSELECT:1;
-	uint8_t RX_BUFFSELECT:1;
-	uint8_t SPI_SEMAPHORE:1;
-	uint8_t:2;
-} Packed;
-
-/**
- ** From IFI Lib
- **/
-extern TxData txdata;
-extern RxData rxdata;
-extern Packed statusflag;
-
-/*
- * STARTUP CODE
- * from ifi_startup.c
- */
-
-void _startup(void);
-void _do_cinit(void);
-
-#pragma code _entry_scn=RESET_VECTOR
-void _entry(void) {
-	_asm
-	goto _startup
-	_endasm
-}
-
-#pragma code _startup_scn
-void _startup(void) {
-	_asm
-	/* Initialize the stack pointer. */
-	lfsr 1, _stack lfsr 2, _stack clrf TBLPTRU, 0
-	/* Initialize rounding flag for floating point libs. */
-	bcf FPFLAGS, RND, 0
-
-	/* Initialize the flash memory access configuration. This is harmless for
-	 * non-flash devices, so we do it on all parts.
-	 */
-	bsf 0xa6, 7, 0
-	bcf 0xa6, 6, 0
-	_endasm
-
-	loop:
-		Clear_Memory(); /* Where is this from? */
-		/* initialize memory to all zeros (From Kevin Watson's FRC code) *//*
-		_asm
-		lfsr   0, 0
-		movlw  0xF
-		clear_loop:
-		clrf   POSTINC0, 0
-		cpfseq FSR0H, 0
-		bra    clear_loop 
-		_endasm
-		*/
-  		_do_cinit ();
-		
-
-	main();
-	goto loop;
-}
-
-/* MPLAB-C18 initialized data memory support, populated by the linker. */
-extern far rom struct {
-	unsigned short num_init;
-	struct _init_entry {
-		unsigned long from;
-		unsigned long to;
-		unsigned long size;
-	}
-	entries[];
-} _cinit;
-
-#pragma code _cinit_scn
-void _do_cinit(void) {
-	/* We'll make the assumption in the following code that these statics
-	 * will be allocated into the same bank.
-	 */
-	static short long prom;
-	static unsigned short curr_byte;
-	static unsigned short curr_entry;
-	static short long data_ptr;
-
-	/* Initialized data... */
-	TBLPTR = (short long) &_cinit;
-	
-	_asm
-	movlb data_ptr
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf curr_entry, 1
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf curr_entry+1, 1
-	_endasm
-	
-	test:
-		_asm
-		bnz 3
-		tstfsz curr_entry, 1
-		bra 1
-		_endasm
-	
-	goto done;
-	
-	/* Count down so we only have to look up the data in _cinit once. At
-	 * this point we know that TBLPTR points to the top of the current entry
-	 * in _cinit, so we can just start reading the from, to, and size
-	 * values.
-	 */
-	_asm
-	/* Read the source address. */
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf prom, 1
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf prom+1, 1
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf prom+2, 1
-	
-	/* Skip a byte since it's stored as a 32bit int. */
-	tblrdpostinc
-	
-	/* Read the destination address directly into FSR0. */
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf FSR0L, 0
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf FSR0H, 0
-	
-	/* Skip two bytes since it's stored as a 32bit int. */
-	tblrdpostinc
-	tblrdpostinc
-	
-	/* Read the destination address directly into FSR0. */
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf curr_byte, 1
-	tblrdpostinc
-	movf  TABLAT, 0, 0
-	movwf curr_byte+1, 1
-	
-	/* Skip two bytes since it's stored as a 32bit int. */
-	tblrdpostinc
-	tblrdpostinc
-	_endasm
-
-	/* The table pointer now points to the next entry. Save it off since we'll
-	 * be using the table pointer to do the copying for the entry.
-	 */
-	data_ptr = TBLPTR;
-
-	/* now assign the source address to the table pointer */
-	TBLPTR = prom;
-
-	/* Do the copy loop. */
-	_asm
-	/* Determine if we have any more bytes to copy. */
-	movlb curr_byte
-	movf  curr_byte, 1, 1
-	
-	copy_loop:
-		bnz 2 /* Copy one byte. */
-		movf  curr_byte + 1, 1, 1
-		bz 7  /* Done copying. */
-
-	copy_one_byte:
-		tblrdpostinc
-		movf  TABLAT, 0, 0
-		movwf POSTINC0, 0
-
-	/* Decrement byte counter. */
-	decf  curr_byte, 1, 1
-	bc -8 /* Copy loop. */
-	decf  curr_byte + 1, 1, 1
-	bra -7 /* Copy one byte. */
-
-	done_copying:
-	_endasm
-	
-    /* Restore the table pointer for the next entry. */
-	TBLPTR = data_ptr;
-	
-	/* Next entry... */
-	curr_entry--;
-	goto test;
-	
-	done:
-		;
-}
-
 /*
  * INITIALIZATION AND MISC
  */
- 
- #if 0
- static void Setup_Who_Controls_Pwms(int pwmSpec1, int pwmSpec2, int pwmSpec3,
-		int pwmSpec4, int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
-{
-  txdata.pwm_mask = 0xFF;         /* Default to master controlling all PWMs. */
-  if (pwmSpec1 == USER)           /* If User controls PWM1 then clear bit0. */
-    txdata.pwm_mask &= 0xFE;      
-  if (pwmSpec2 == USER)           /* If User controls PWM2 then clear bit1. */
-    txdata.pwm_mask &= 0xFD;
-  if (pwmSpec3 == USER)           /* If User controls PWM3 then clear bit2. */
-    txdata.pwm_mask &= 0xFB;
-  if (pwmSpec4 == USER)           /* If User controls PWM4 then clear bit3. */
-    txdata.pwm_mask &= 0xF7;
-  if (pwmSpec5 == USER)           /* If User controls PWM5 then clear bit4. */
-    txdata.pwm_mask &= 0xEF;
-  if (pwmSpec6 == USER)           /* If User controls PWM6 then clear bit5. */
-    txdata.pwm_mask &= 0xDF;
-  if (pwmSpec7 == USER)           /* If User controls PWM7 then clear bit6. */
-    txdata.pwm_mask &= 0xBF;
-  if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
-    txdata.pwm_mask &= 0x7F;
- }
- #endif
- 
 void setup_1(void) {
 	uint8_t i;
 	
