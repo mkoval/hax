@@ -4,6 +4,7 @@
  */
 
 #include <p18cxxx.h>
+#include "ifi_lib.h"
 #include "hax.h"
  
 void _startup(void);

@@ -3,6 +3,11 @@
  ** IFI LIBRARY CODE
  ** methods defined in ifi_library.lib
  **/
+ 
+extern TxData txdata;
+extern RxData rxdata;
+extern Packed statusflag;
+ 
 /* Vector jumps to the appropriate high priority interrupt handler. Called
  * from the high priority interrupt vector.
  */
