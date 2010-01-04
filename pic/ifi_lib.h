@@ -111,15 +111,12 @@ void Putdata(TxData *);
  */
 void Getdata(RxData *);
 
-/* FIXME: Conflicting Documentation */
-/* Sets the output type of PWM's 13, 14, 15, and 16. Each argument is either
- * IFI_PWM for a PWM output or USER_CCP for a timer.
+/* When any of the pwms 1 to 4 are controlled by the user proc, set whether 
+ * Generate_Pwms generates their outputs.
  */
-/* EIGHTH: Set your PWM output type.  Only applies if USER controls PWM 1, 2, 3, or 4. */
-/*   Choose from these parameters for PWM 1-4 respectively:                          */
-/*     IFI_PWM  - Standard IFI PWM output generated with Generate_Pwms(...)          */
-/*     USER_CCP - User can use PWM pin as digital I/O or CCP pin.                    */
-void Setup_PWM_Output_Type(int, int, int, int);
+#define IFI_PWM 0
+#define USER_CCP 1
+void Setup_PWM_Output_Type(int pwm1, int pwm2, int pwm3, int pwm4);
 
 /* From ifi_utilities.h
  */
