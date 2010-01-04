@@ -50,7 +50,7 @@ typedef struct {
 	} rcstatusflag;
 	
 	/* Reserved for future use. */
-	uint8_t spare01, spare02, spare03;
+	uint8_t spare[3];
 
 	uint8_t oi_analog[16];
 	uint8_t reserve[9]; /* Reserved for future use. */
@@ -62,7 +62,7 @@ typedef struct {
  */
 typedef struct {
 	/* Reserved for future use. */
-	uint8_t spare01, spare02, spare03, spare04;
+	uint8_t spare[4];
 	
 	uint8_t rc_pwm[16];
 	
