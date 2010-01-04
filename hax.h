@@ -3,6 +3,11 @@
 
 #include "stdint.h"
 
+/*
+ * The Main function
+ */
+void main(void) __noreturn;
+
 /* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
  * never compare against kFalse or kTrue. Instead, rely on the default
  * behavior of if statements that consider non-zero values to be true.
@@ -80,8 +85,10 @@ void telop_spin(void);
 /* Hardware-specific initialization code that is executed exactly once
  * prior to any invocations of spin or loop. Responsible for initializing
  * analog inputs, digital inputs, and outputs.
+ * setup_1 executes prior to user init, and setup_2 follows user init.
  */
-void setup(void);
+void setup_1(void);
+void setup_2(void);
 
 /* Executed whenever the processor is not otherwise occupied (aka. the "fast
  * loop"). Time between two consecutive invocations of this function is
@@ -92,8 +99,10 @@ void spin(void);
 /* Executed whenever the processor has received new data, every kSlowSpeed
  * milliseconds (aka. the "slow loop"). Controller code should be placed in
  * this function unless there is a compelling reason to place it in spin().
+ * loop_1 runs prior to user code, and loop_2 follows it.
  */
-void loop(void);
+void loop_1(void);
+void loop_2(void);
 
 /* Check if there is new data available, triggering the invocation of the
  * loop() function.
@@ -160,5 +169,6 @@ void puth(uint16_t);
 void puti(uint16_t);
 void putf(float);
 void puts(char *c);
+
 
 #endif

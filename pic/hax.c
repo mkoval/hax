@@ -5,6 +5,7 @@
 #include <p18cxxx.h>
 #include <usart.h>
 #include "hax.h"
+#include "ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
@@ -17,6 +18,14 @@ uint16_t kSlowSpeed = 18500;
  */
 #define RND 6
 #define RESET_VECTOR 0x800
+
+typedef enum
+{
+  kBaud19 = 128,
+  kBaud38 = 64,
+  kBaud56 = 42,
+  kBaud115 = 21
+} SerialSpeed;
 
 /* This structure contains important system statusflag information. */
 typedef struct {
@@ -95,16 +104,17 @@ typedef struct {
 	uint8_t:2;
 } Packed;
 
-TxData txdata;
-RxData rxdata;
-Packed statusflag;
+/**
+ ** From IFI Lib
+ **/
+extern TxData txdata;
+extern RxData rxdata;
+extern Packed statusflag;
 
 /*
  * STARTUP CODE
  * from ifi_startup.c
  */
-extern void Clear_Memory(void);
-extern void main(void);
 
 void _startup(void);
 void _do_cinit(void);
@@ -132,8 +142,19 @@ void _startup(void) {
 	_endasm
 
 	loop:
-		Clear_Memory();
+		Clear_Memory(); /* Where is this from? */
+		/* initialize memory to all zeros (From Kevin Watson's FRC code) *//*
+		_asm
+		lfsr   0, 0
+		movlw  0xF
+		clear_loop:
+		clrf   POSTINC0, 0
+		cpfseq FSR0H, 0
+		bra    clear_loop 
+		_endasm
+		*/
   		_do_cinit ();
+		
 
 	main();
 	goto loop;
@@ -271,67 +292,17 @@ void _do_cinit(void) {
 		;
 }
 
-
-/**
- ** IFI LIBRARY CODE
- ** methods defined in ifi_library.lib
- **/
-/* Vector jumps to the appropriate high priority interrupt handler. Called
- * from the high priority interrupt vector.
- */
-void InterruptHandlerHigh(void);
-
-
-/* Configure registers and initializes the SPI RX/TX buffers. Called from the
- * setup() HAX function during robot initalization.
- */
-void Initialize_Registers(void);
-void IFI_Initialization(void);
-
-/* Informs the master processor that all user initialization is complete. Must
- * be the last function call in setup().
- */
-void User_Proc_Is_Ready(void);
-
-/* Fill the transmit buffer with data in the supplied struct to send to the
- * master processor. Completes in 23 microseconds.
- */
-void Putdata(TxData *);
-
-/* Retreive data from the SPI receive buffer (from the master processor),
- * reading the results into the supplied structure. Completes in 14.8
- * microseconds.
- */
-void Getdata(RxData *);
-
-/* Sets the output type of PWM's 13, 14, 15, and 16. Each argument is either
- * IFI_PWM for a PWM output or USER_CCP for a timer.
- */
- /* EIGHTH: Set your PWM output type.  Only applies if USER controls PWM 1, 2, 3, or 4. */
-  /*   Choose from these parameters for PWM 1-4 respectively:                          */
-  /*     IFI_PWM  - Standard IFI PWM output generated with Generate_Pwms(...)          */
-  /*     USER_CCP - User can use PWM pin as digital I/O or CCP pin.                    */
-void Setup_PWM_Output_Type(int, int, int, int);
-
 /*
- * From ifi_utilities.h
+ * INITIALIZATION AND MISC
  */
-void Hex_output(unsigned char temp);
-void Generate_Pwms(unsigned char pwm_1,unsigned char pwm_2,
-                   unsigned char pwm_3,unsigned char pwm_4,
-                   unsigned char pwm_5,unsigned char pwm_6,
-                   unsigned char pwm_7,unsigned char pwm_8);
-
-/**
- ** END IFI LIB CODE
- **/
-
-static void Setup_Who_Controls_Pwms(int pwmSpec1,int pwmSpec2,int pwmSpec3,int pwmSpec4,
-                                    int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
+ 
+ #if 0
+ static void Setup_Who_Controls_Pwms(int pwmSpec1, int pwmSpec2, int pwmSpec3,
+		int pwmSpec4, int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
 {
   txdata.pwm_mask = 0xFF;         /* Default to master controlling all PWMs. */
   if (pwmSpec1 == USER)           /* If User controls PWM1 then clear bit0. */
-    txdata.pwm_mask &= 0xFE;      /* same as txdata.pwm_mask = txdata.pwm_mask & 0xFE; */
+    txdata.pwm_mask &= 0xFE;      
   if (pwmSpec2 == USER)           /* If User controls PWM2 then clear bit1. */
     txdata.pwm_mask &= 0xFD;
   if (pwmSpec3 == USER)           /* If User controls PWM3 then clear bit2. */
@@ -347,11 +318,9 @@ static void Setup_Who_Controls_Pwms(int pwmSpec1,int pwmSpec2,int pwmSpec3,int p
   if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
     txdata.pwm_mask &= 0x7F;
  }
-
-/*
- * INITIALIZATION AND MISC
- */
-void setup(void) {
+ #endif
+ 
+void setup_1(void) {
 	uint8_t i;
 	
 	IFI_Initialization();
@@ -363,6 +332,9 @@ void setup(void) {
 	
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	txdata.user_cmd = 0x02;
+	
+	/* Make the master control all PWMs (for now) */
+	txdata.pwm_mask = 0xFF;
 	
 	/* Initialize all pins as inputs unless overridden.
 	 */
@@ -377,7 +349,7 @@ void setup(void) {
 		USART_EIGHT_BIT &
 		USART_CONT_RX &
 		USART_BRGH_HIGH,
-		baud_115);   
+		kBaud115);   
 	Delay1KTCYx( 50 ); /* Settling time */
 	
 	/* Init ADC */
@@ -388,10 +360,19 @@ void setup(void) {
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
-		OpenADC( ADC_FOSC_RC & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
+		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
+		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc, the FOSC
+		 * is 40Mhz.
+		 * According to the doc, section 19.2, the
+		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
+		 * (Also, see table 19-1 in the chip doc)
+		 */
+		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & ( xF0 | (15 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS );
 	}
-	
+}
+
+void setup_2(void) {
 	User_Proc_Is_Ready();
 }
 
@@ -399,9 +380,12 @@ void spin(void) {
 
 }
 
-void loop(void) {
-	PutData(&txdata);
+void loop_1(void) {
 	GetData(&rxdata);
+}
+
+void loop_2(void) {
+	PutData(&txdata);
 }
 
 Bool new_data_received(void) {
@@ -478,6 +462,7 @@ uint16_t analog_get(AnalogInIndex ain) {
 	else if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* read ADC */
 		SetChanADC(ain);
+		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
 		ConvertADC();
 		while( BusyADC() );
 		return ReadADC();
