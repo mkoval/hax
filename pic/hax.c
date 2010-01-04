@@ -28,7 +28,7 @@ typedef enum
 } SerialSpeed;
 
 typedef struct {
-	uint8_t:6;
+	uint8_t unknown:6;
 	uint8_t autonomous:1; /* Autonomous enable/disable flag. */
 	uint8_t disabled:1;   /* Robot enable/disable flag. */
 } RCModes;
@@ -46,31 +46,44 @@ typedef struct {
 	} rcmode;
 	
 	union {
-		uint8_t allbits;
+		uint8_t allbits; /* ??? */
 	} rcstatusflag;
-	
-	/* Reserved for future use. */
-	uint8_t spare[3];
-
-	uint8_t oi_analog[16];
-	uint8_t reserve[9]; /* Reserved for future use. */
+	uint8_t reserved_1[3];
+	uint8_t oi_analog[16]; /* Inputs */
+	uint8_t reserved_2[9];
 	uint8_t master_version;
 } RxData;
 
+/* Indicates master control of a pwm when high */
+typedef struct {
+	uint8_t pwm1:1;
+	uint8_t pwm2:1;
+	uint8_t pwm3:1;
+	uint8_t pwm4:1;
+	uint8_t pwm5:1;
+	uint8_t pwm6:1;
+	uint8_t pwm7:1;
+	uint8_t pwm8:1;
+} PwmMasterCtrl;
+
 /* This structure defines the contents of the data transmitted to the master  
- * microprocessor.
+ * processor.
  */
 typedef struct {
-	/* Reserved for future use. */
-	uint8_t spare[4];
+	uint8_t reserved_1[4];
+	uint8_t rc_pwm[16]; /* Outputs */
 	
-	uint8_t rc_pwm[16];
-	
+	/* "user_cmd |= 0x02" gives autonomous mode. */
 	uint8_t user_cmd;   /* Reserved for future use. */
 	uint8_t cmd_byte1;  /* Reserved for future use. */
-	uint8_t pwm_mask;
+	
+	union {
+		uint8_t a;
+		PwmMasterCtrl b;
+	} pwm_mask;
+	
 	uint8_t warning_code;
-	uint8_t reserve[4]; /* Reserved for future use. */
+	uint8_t reserved_2[4];
 	uint8_t error_code;
 	uint8_t packetnum;
 	uint8_t current_mode;
@@ -80,31 +93,6 @@ typedef struct {
 /*
  * INITIALIZATION AND MISC
  */
- 
- #if 0
- static void Setup_Who_Controls_Pwms(int pwmSpec1, int pwmSpec2, int pwmSpec3,
-		int pwmSpec4, int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
-{
-  txdata.pwm_mask = 0xFF;         /* Default to master controlling all PWMs. */
-  if (pwmSpec1 == USER)           /* If User controls PWM1 then clear bit0. */
-    txdata.pwm_mask &= 0xFE;      
-  if (pwmSpec2 == USER)           /* If User controls PWM2 then clear bit1. */
-    txdata.pwm_mask &= 0xFD;
-  if (pwmSpec3 == USER)           /* If User controls PWM3 then clear bit2. */
-    txdata.pwm_mask &= 0xFB;
-  if (pwmSpec4 == USER)           /* If User controls PWM4 then clear bit3. */
-    txdata.pwm_mask &= 0xF7;
-  if (pwmSpec5 == USER)           /* If User controls PWM5 then clear bit4. */
-    txdata.pwm_mask &= 0xEF;
-  if (pwmSpec6 == USER)           /* If User controls PWM6 then clear bit5. */
-    txdata.pwm_mask &= 0xDF;
-  if (pwmSpec7 == USER)           /* If User controls PWM7 then clear bit6. */
-    txdata.pwm_mask &= 0xBF;
-  if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
-    txdata.pwm_mask &= 0x7F;
- }
- #endif
- 
 void setup_1(void) {
 	uint8_t i;
 	
