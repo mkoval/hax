@@ -13,12 +13,6 @@ uint16_t kSlowSpeed = 18500;
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
 
-/*
- * HARDWARE SPECIFIC DEFINITIONS
- */
-#define RND 6
-#define RESET_VECTOR 0x800
-
 typedef enum
 {
   kBaud19 = 128,
@@ -48,6 +42,7 @@ typedef struct {
 	union {
 		uint8_t allbits; /* ??? */
 	} rcstatusflag;
+	
 	uint8_t reserved_1[3];
 	uint8_t oi_analog[16]; /* Inputs */
 	uint8_t reserved_2[9];

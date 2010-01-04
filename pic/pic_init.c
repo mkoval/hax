@@ -7,6 +7,10 @@
 #include "ifi_lib.h"
 #include "hax.h"
  
+#define RND 6 /* Rounding Flag for math libs */ 
+#define RESET_VECTOR 0x800
+
+ 
 void _startup(void);
 void _do_cinit(void);
 
