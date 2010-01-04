@@ -5,6 +5,7 @@
 #include <p18cxxx.h>
 #include <usart.h>
 #include "hax.h"
+#include "ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
@@ -106,8 +107,6 @@ extern Packed statusflag;
  * STARTUP CODE
  * from ifi_startup.c
  */
-extern void Clear_Memory(void);
-extern void main(void);
 
 void _startup(void);
 void _do_cinit(void);
@@ -135,8 +134,19 @@ void _startup(void) {
 	_endasm
 
 	loop:
-		Clear_Memory();
+		Clear_Memory(); /* Where is this from? */
+		/* initialize memory to all zeros (From Kevin Watson's FRC code) *//*
+		_asm
+		lfsr   0, 0
+		movlw  0xF
+		clear_loop:
+		clrf   POSTINC0, 0
+		cpfseq FSR0H, 0
+		bra    clear_loop 
+		_endasm
+		*/
   		_do_cinit ();
+		
 
 	main();
 	goto loop;
@@ -274,67 +284,16 @@ void _do_cinit(void) {
 		;
 }
 
-
-/**
- ** IFI LIBRARY CODE
- ** methods defined in ifi_library.lib
- **/
-/* Vector jumps to the appropriate high priority interrupt handler. Called
- * from the high priority interrupt vector.
- */
-void InterruptHandlerHigh(void);
-
-
-/* Configure registers and initializes the SPI RX/TX buffers. Called from the
- * setup() HAX function during robot initalization.
- */
-void Initialize_Registers(void);
-void IFI_Initialization(void);
-
-/* Informs the master processor that all user initialization is complete. Must
- * be the last function call in setup().
- */
-void User_Proc_Is_Ready(void);
-
-/* Fill the transmit buffer with data in the supplied struct to send to the
- * master processor. Completes in 23 microseconds.
- */
-void Putdata(TxData *);
-
-/* Retreive data from the SPI receive buffer (from the master processor),
- * reading the results into the supplied structure. Completes in 14.8
- * microseconds.
- */
-void Getdata(RxData *);
-
-/* Sets the output type of PWM's 13, 14, 15, and 16. Each argument is either
- * IFI_PWM for a PWM output or USER_CCP for a timer.
- */
- /* EIGHTH: Set your PWM output type.  Only applies if USER controls PWM 1, 2, 3, or 4. */
-  /*   Choose from these parameters for PWM 1-4 respectively:                          */
-  /*     IFI_PWM  - Standard IFI PWM output generated with Generate_Pwms(...)          */
-  /*     USER_CCP - User can use PWM pin as digital I/O or CCP pin.                    */
-void Setup_PWM_Output_Type(int, int, int, int);
-
 /*
- * From ifi_utilities.h
+ * INITIALIZATION AND MISC
  */
-void Hex_output(unsigned char temp);
-void Generate_Pwms(unsigned char pwm_1,unsigned char pwm_2,
-                   unsigned char pwm_3,unsigned char pwm_4,
-                   unsigned char pwm_5,unsigned char pwm_6,
-                   unsigned char pwm_7,unsigned char pwm_8);
-
-/**
- ** END IFI LIB CODE
- **/
-
-static void Setup_Who_Controls_Pwms(int pwmSpec1,int pwmSpec2,int pwmSpec3,int pwmSpec4,
-                                    int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
+ 
+ static void Setup_Who_Controls_Pwms(int pwmSpec1, int pwmSpec2, int pwmSpec3,
+		int pwmSpec4, int pwmSpec5,int pwmSpec6,int pwmSpec7,int pwmSpec8)
 {
   txdata.pwm_mask = 0xFF;         /* Default to master controlling all PWMs. */
   if (pwmSpec1 == USER)           /* If User controls PWM1 then clear bit0. */
-    txdata.pwm_mask &= 0xFE;      /* same as txdata.pwm_mask = txdata.pwm_mask & 0xFE; */
+    txdata.pwm_mask &= 0xFE;      
   if (pwmSpec2 == USER)           /* If User controls PWM2 then clear bit1. */
     txdata.pwm_mask &= 0xFD;
   if (pwmSpec3 == USER)           /* If User controls PWM3 then clear bit2. */
@@ -350,10 +309,7 @@ static void Setup_Who_Controls_Pwms(int pwmSpec1,int pwmSpec2,int pwmSpec3,int p
   if (pwmSpec8 == USER)           /* If User controls PWM8 then clear bit7. */
     txdata.pwm_mask &= 0x7F;
  }
-
-/*
- * INITIALIZATION AND MISC
- */
+ 
 void setup(void) {
 	uint8_t i;
 	
@@ -481,6 +437,7 @@ uint16_t analog_get(AnalogInIndex ain) {
 	else if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* read ADC */
 		SetChanADC(ain);
+		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
 		ConvertADC();
 		while( BusyADC() );
 		return ReadADC();
