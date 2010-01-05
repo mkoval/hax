@@ -49,7 +49,7 @@ void setup_1(void) {
 	
 	/* Initialize all pins as inputs unless overridden.
 	 */
-	for (i = 0; i <= 15; ++i) {
+	for (i = 0; i < 16; ++i) {
 		pin_set_io( i, kDigitalInput);
 	}
 	
@@ -79,7 +79,7 @@ void setup_1(void) {
 		 * (Also, see table 19-1 in the chip doc)
 		 */
 		OpenADC( 
-			ADC_FOSC_64 & ADC_RIGHT_JUST & ( 0xF0 | (15 - kNumAnalogInputs) ) ,
+			ADC_FOSC_64 & ADC_RIGHT_JUST & ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 			ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD & ADC_VREFMINUS_VSS 
 			);
 	}
