@@ -13,6 +13,13 @@ uint16_t kSlowSpeed = 18500;
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
 
+/* Variables used for master proc comms by both our code and IFI's lib. 
+ *  Do not rename.
+ */
+TxData txdata;
+RxData rxdata;
+StatusFlags statusflag;
+
 typedef enum
 {
   kBaud19 = 128,
