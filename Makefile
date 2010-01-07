@@ -1,18 +1,10 @@
 RM        = rm -rf
 
+include mcc18.mk
+
 TARGET    = $(BUILD_DIR)/vex_fw.hex
-MCCPATH   = /opt/mcc18
+
 BUILD_DIR = build/pic
-CC        = $(MCCPATH)/bin/mcc18
-LD        = $(MCCPATH)/bin/mplink
-IPATH     = $(MCCPATH)/h
-WIPATH   := $(shell if [ -x `which cygpath` ]; then cygpath -w $(IPATH); elif [ -x `which winepath` ]; then winepath -w $(IPATH); else echo "Not found"; fi )
-CFLAGS    = -I="$(WIPATH)" -p=18F8520
-LIBPATH   = $(MCCPATH)/lib/
-WLIBPATH :=  $(shell if [ -x `which cygpath` ]; then cygpath -w $(LIBPATH); elif [ -x `which winepath` ]; then winepath -w $(LIBPATH); else echo "Path converter not found"; fi )
-VEX_LIB   = pic/Vex_alltimers.lib
-LD_SCRIPT = pic/18f8520user.lkr
-LDFLAGS   = $(VEX_LIB) /l "$(WLIBPATH)" /a INHX32 /o
 
 SOURCE    = hax_main.c \
             pic/hax.c \
@@ -34,7 +26,7 @@ install : $(TARGET)
 
 clean :
 	@echo "CLEAN"
-	@-$(RM) $(BUILD_DIR)
+	@$(RM) $(BUILD_DIR)
 
 #This sucks.
 $(BUILD_DIR) :
