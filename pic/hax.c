@@ -5,7 +5,7 @@
 #include <p18cxxx.h>
 #include <usart.h>
 #include "hax.h"
-#include "ifi_lib.h"
+#include "pic/ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
@@ -42,7 +42,7 @@ void setup_1(void) {
 	statusflag.NEW_SPI_DATA = 0;
 	
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
-	txdata.user_cmd = 0x02;
+	/* txdata.user_cmd = 0x02; */
 	
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask = 0xFF;
@@ -50,7 +50,7 @@ void setup_1(void) {
 	/* Initialize all pins as inputs unless overridden.
 	 */
 	for (i = 0; i < 16; ++i) {
-		pin_set_io( i, kDigitalInput);
+		pin_set_io( i, kInput);
 	}
 	
 	/* Initialize Serial */
@@ -148,7 +148,7 @@ void pin_set_io(PinIndex i, PinMode mode) {
 	case 9:
 	case 10:
 	case 11:
-		BIT_SET(TRISF, (i - 7) , bit);
+		BIT_SET(TRISF, (i - 5) , bit);
 		break;
 	
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
@@ -158,7 +158,7 @@ void pin_set_io(PinIndex i, PinMode mode) {
 	case 13:
 	case 14:
 	case 15:
-		BIT_SET(TRISH, (i - 15) + 4, bit);
+		BIT_SET(TRISH, (i - 12) + 4, bit);
 		break;
 	}
 }
@@ -185,14 +185,6 @@ uint16_t analog_get(AnalogInIndex ain) {
 	}
 }
 
-void motor_set(AnalogOutIndex aout, MotorSpeed sp) {
-	analog_set(aout,sp);
-}
-
-void motor_set(AnalogOutIndex aout, ServoSetpoint sp) {
-	analog_set(aout,sp);
-}
-
 void analog_set(AnalogOutIndex aout, int8_t sp) {
 	if ( aout < 16 ) {
 		uint8_t val = sp + 127;
@@ -200,6 +192,14 @@ void analog_set(AnalogOutIndex aout, int8_t sp) {
 		/* 127 & 128 are treated as the same, apparently. */
 		txdata.rc_pwm[aout] = (val > 127) ? val+1 : val;
 	}
+}
+
+void motor_set(AnalogOutIndex aout, MotorSpeed sp) {
+	analog_set(aout,sp);
+}
+
+void servo_set(AnalogOutIndex aout, ServoPosition sp) {
+	analog_set(aout,sp);
 }
 
 /*
