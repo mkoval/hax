@@ -1,3 +1,8 @@
+#include "hax.h"
+
+void init(void) {
+}
+
 void auton_loop(void) {
 }
 	
@@ -9,3 +14,4 @@ void telop_loop(void) {
 
 void telop_spin(void) {
 }
+
