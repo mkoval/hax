@@ -11,7 +11,7 @@ typedef enum {
 	kWarnPortB = 2,
 	
 	/* External Interupt 1 enabled */
-	kWarnExInt1En = 3,
+	kWarnExInt1En = 3
 
 	/* Also will contain data pretaining to ErrorCodes */
 	
@@ -63,7 +63,7 @@ typedef enum {
 	/* set if PortF.pin7 is not an input
 	 * warning code = TRISF
 	 */
-	kErrorPinF7NotInput = 15,
+	kErrorPinF7NotInput = 15
 
 } ErrorCode;
  
