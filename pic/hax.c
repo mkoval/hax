@@ -45,7 +45,7 @@ void setup_1(void) {
 	/* txdata.user_cmd = 0x02; */
 	
 	/* Make the master control all PWMs (for now) */
-	txdata.pwm_mask = 0xFF;
+	txdata.pwm_mask.a = 0xFF;
 	
 	/* Initialize all pins as inputs unless overridden.
 	 */
