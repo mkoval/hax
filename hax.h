@@ -2,6 +2,7 @@
 #define HAX_H_
 
 #include "stdint.h"
+#include "compilers.h"
 
 /*
  * The Main function
