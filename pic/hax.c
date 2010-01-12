@@ -4,6 +4,7 @@
  */
 #include <p18cxxx.h>
 #include <usart.h>
+#include <adc.h>
 #include "hax.h"
 #include "pic/ifi_lib.h"
 
