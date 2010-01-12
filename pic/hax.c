@@ -215,3 +215,8 @@ void putc(char data) {
 	while(Busy1USART());
 	Write1USART(data);
 }
+
+/* IFI lib uses this. (IT BURNNNNSSSS) */
+void Wait4TXEmpty(void) {
+	while(Busy1USART());
+}
