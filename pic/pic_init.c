@@ -7,7 +7,6 @@
 #include "ifi_lib.h"
 #include "hax.h"
  
-#define RND 6 /* Rounding Flag for math libs */ 
 #define RESET_VECTOR 0x800
 
  
@@ -26,8 +25,6 @@ void _startup(void) {
 	_asm
 	/* Initialize the stack pointer. */
 	lfsr 1, _stack lfsr 2, _stack clrf TBLPTRU, 0
-	/* Initialize rounding flag for floating point libs. */
-	bcf FPFLAGS, RND, 0
 
 	/* Initialize the flash memory access configuration. This is harmless for
 	 * non-flash devices, so we do it on all parts.
