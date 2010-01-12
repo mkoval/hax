@@ -99,11 +99,11 @@ void spin(void) {
 }
 
 void loop_1(void) {
-	GetData(&rxdata);
+	Getdata(&rxdata);
 }
 
 void loop_2(void) {
-	PutData(&txdata);
+	Putdata(&txdata);
 }
 
 Bool new_data_received(void) {
