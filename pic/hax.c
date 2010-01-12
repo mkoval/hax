@@ -5,7 +5,9 @@
 #include <p18cxxx.h>
 #include <usart.h>
 #include <adc.h>
+#include <delays.h>
 #include "hax.h"
+#include "pic/master.h"
 #include "pic/ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
