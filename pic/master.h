@@ -2,7 +2,7 @@
  * Structures for comunication with the master proc
  */
 
- #include "stdint.h"
+#include "stdint.h"
  
 /* WarningCode & ErrorCode are sent to the master processor in TxData */
 typedef enum {
