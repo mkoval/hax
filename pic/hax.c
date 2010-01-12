@@ -57,7 +57,7 @@ void setup_1(void) {
 	}
 	
 	/* Initialize Serial */
-	OpenUSART(USART_TX_INT_OFF &
+	Open1USART(USART_TX_INT_OFF &
 		USART_RX_INT_OFF &
 		USART_ASYNCH_MODE &
 		USART_EIGHT_BIT &
