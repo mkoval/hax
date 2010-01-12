@@ -2,6 +2,8 @@
  * Structures for comunication with the master proc
  */
 
+ #include "stdint.h"
+ 
 /* WarningCode & ErrorCode are sent to the master processor in TxData */
 typedef enum {
 	/* as detected by SSPCON1.WCOL */
