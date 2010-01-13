@@ -1,20 +1,19 @@
-RM        = rm -rf
+RM      = rm -rf
 
-include mcc18.mk
+VPATH   = $(srcdir)
 
-TARGET    = vex_fw.hex
+TARGET  = vex_fw.hex
 
+ARCH    = pic
 
-SOURCE    = hax_main.c \
-            pic/hax.c \
-            pic/pic_init.c\
-            user.c
-HEADERS   = stdint.h \
-            hax.h \
-            pic/ifi_lib.h \
-            pic/master.h
-			
-OBJECTS   = $(SOURCE:.c=.o)
+CSOURCE = hax_main.c \
+          user.c
+HEADERS = stdint.h \
+          hax.h
+
+include $(ARCH)/include.mk
+
+OBJECTS   = $(CSOURCE:=.o)
 
 .SECONDARY :
 
@@ -28,7 +27,7 @@ clean :
 	@echo "LDHEX $(@F)"
 	@$(LD) $(LD_SCRIPT) $(LDFLAGS) $@ $^
 
-%.o : %.c $(HEADERS) 
+%.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
 	@$(CC) $(CFLAGS) $< -fo=$@ -fe=$(@:.o=.err)
 
