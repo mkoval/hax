@@ -17,9 +17,11 @@ OBJECTS   = $(CSOURCE:=.o)
 
 all : $(TARGET)
 
+rebuild : clean all
+
 clean :
 	@echo "CLEAN"
-	@rm $(OBJECTS) $(TARGET)
+	@$(RM) $(OBJECTS) $(TARGET)
 
 %.hex : $(OBJECTS)
 	@echo "LDHEX $(@F)"
@@ -29,4 +31,4 @@ clean :
 	@echo "CC $(@F)"
 	@$(CC) $(CFLAGS) $< -fo=$@ -fe=$(@:.o=.err)
 
-.PHONY : all clean install
+.PHONY : all clean install rebuild
