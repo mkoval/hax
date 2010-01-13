@@ -2,9 +2,8 @@ RM        = rm -rf
 
 include mcc18.mk
 
-TARGET    = $(BUILD_DIR)/vex_fw.hex
+TARGET    = vex_fw.hex
 
-BUILD_DIR = build/pic
 
 SOURCE    = hax_main.c \
             pic/hax.c \
@@ -15,30 +14,21 @@ HEADERS   = stdint.h \
             pic/ifi_lib.h \
             pic/master.h
 			
-OBJECTS   = $(patsubst %, $(BUILD_DIR)/%, $(SOURCE:.c=.o))
+OBJECTS   = $(SOURCE:.c=.o)
 
 .SECONDARY :
 
-all : $(TARGET) | $(BUILD_DIR)
-
-install : $(TARGET)
-	@vexctl upload $<
+all : $(TARGET)
 
 clean :
 	@echo "CLEAN"
-	@$(RM) $(BUILD_DIR)
+	@rm $(OBJECTS) $(TARGET)
 
-#This sucks.
-$(BUILD_DIR) :
-	@mkdir -p $@
-	@mkdir -p $@/pic
-	@mkdir -p $@/cortex
-
-$(BUILD_DIR)/%.hex : $(OBJECTS) | $(BUILD_DIR)
+%.hex : $(OBJECTS)
 	@echo "LDHEX $(@F)"
 	@$(LD) $(LD_SCRIPT) $(LDFLAGS) $@ $^
 
-$(BUILD_DIR)/%.o : %.c $(HEADERS) | $(BUILD_DIR) 
+%.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
 	@$(CC) $(CFLAGS) $< -fo=$@ -fe=$(@:.o=.err)
 
