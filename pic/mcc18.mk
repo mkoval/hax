@@ -10,3 +10,5 @@ WLIBPATH :=  $(shell if [ -x `which cygpath` ]; then cygpath -w $(LIBPATH); elif
 VEX_LIB   = $(ARCH)/Vex_alltimers.lib
 LD_SCRIPT = $(ARCH)/18f8520user.lkr
 LDFLAGS   = $(VEX_LIB) /l '$(WLIBPATH)' /a INHX32 /o 
+
+TRASH     = $(TARGET:.hex=.cod) $(TARGET:.hex=.lst) $(OBJECTS:.o=.err)

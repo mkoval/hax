@@ -21,7 +21,7 @@ rebuild : clean all
 
 clean :
 	@echo "CLEAN"
-	@$(RM) $(OBJECTS) $(TARGET)
+	@$(RM) $(OBJECTS) $(TARGET) $(TRASH)
 
 %.hex : $(OBJECTS)
 	@echo "LDHEX $(@F)"
