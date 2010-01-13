@@ -9,7 +9,7 @@ CSOURCE = hax_main.c \
 HEADERS = stdint.h \
           hax.h
 
-include $(ARCH)/include.mk
+include $(ARCH)/Makefile
 
 OBJECTS   = $(CSOURCE:=.o)
 
