@@ -7,8 +7,8 @@
 #include <adc.h>
 #include <delays.h>
 #include "hax.h"
-#include "pic/master.h"
-#include "pic/ifi_lib.h"
+#include "vex_pic/master.h"
+#include "vex_pic/ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
