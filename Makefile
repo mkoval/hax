@@ -2,7 +2,7 @@ RM      = rm -rf
 
 VPATH   = $(srcdir)
 
-ARCH    = pic
+ARCH    = vex_pic
 
 CSOURCE = hax_main.c \
           user.c
