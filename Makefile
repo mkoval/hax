@@ -2,8 +2,6 @@ RM      = rm -rf
 
 VPATH   = $(srcdir)
 
-TARGET  = vex_fw.hex
-
 ARCH    = pic
 
 CSOURCE = hax_main.c \

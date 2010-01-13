@@ -1,5 +1,7 @@
 include $(ARCH)/mcc18.mk
 
+TARGET  += $(ARCH).hex
+
 CSOURCE += $(ARCH)/hax.c \
 	   $(ARCH)/pic_init.c
 
