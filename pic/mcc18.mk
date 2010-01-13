@@ -7,6 +7,6 @@ WIPATH   := $(shell if [ -x `which cygpath` ]; then cygpath -w $(IPATH); elif [ 
 CFLAGS    = -I='$(WIPATH)' -p=18F8520
 LIBPATH   = '$(MCCPATH)/lib'
 WLIBPATH :=  $(shell if [ -x `which cygpath` ]; then cygpath -w $(LIBPATH); elif [ -x `which winepath` ]; then winepath -w $(LIBPATH); else echo "Path converter not found"; fi )
-VEX_LIB   = pic/Vex_alltimers.lib
-LD_SCRIPT = pic/18f8520user.lkr
+VEX_LIB   = $(ARCH)/Vex_alltimers.lib
+LD_SCRIPT = $(ARCH)/18f8520user.lkr
 LDFLAGS   = $(VEX_LIB) /l '$(WLIBPATH)' /a INHX32 /o 
