@@ -4,9 +4,9 @@
  ** methods defined in ifi_library.lib
  **/
  
- #include "master.h"
+#include "master.h"
  
- typedef struct {
+typedef struct {
 	uint8_t NEW_SPI_DATA:1;
 	uint8_t TX_UPDATED:1;
 	uint8_t FIRST_TIME:1;
@@ -15,7 +15,10 @@
 	uint8_t SPI_SEMAPHORE:1;
 	uint8_t unknown:2;
 } StatusFlags;
- 
+
+
+/* These need to be defined somewhere in our code.
+ */
 extern TxData txdata;
 extern RxData rxdata;
 extern StatusFlags statusflag;
