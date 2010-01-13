@@ -1,4 +1,4 @@
-include mcc18.mk
+include $(ARCH)/mcc18.mk
 
 CSOURCE += $(ARCH)/hax.c \
 	   $(ARCH)/pic_init.c
