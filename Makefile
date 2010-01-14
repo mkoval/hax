@@ -2,6 +2,7 @@ RM      = rm -rf
 
 VPATH   = $(srcdir)
 
+USER    = skel
 ARCH    = vex_pic
 
 CSOURCE = hax_main.c \
@@ -10,6 +11,7 @@ HEADERS = stdint.h \
           hax.h
 
 include $(ARCH)/Makefile
+include $(USER)/Makefile
 
 OBJECTS   = $(CSOURCE:=.o)
 
