@@ -8,6 +8,8 @@
 #include "hax.h"
  
 #define RND 6 /* Rounding Flag for math libs */ 
+extern near char FPFLAGS;
+
 #define RESET_VECTOR 0x800
 
  
