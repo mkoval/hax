@@ -1,1 +1,1 @@
-CSOURCE += $(USER)/user.c
+CSOURCE += $(PROG)/user.c
