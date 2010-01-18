@@ -122,7 +122,7 @@ CtrlMode get_mode(void) {
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void pin_set_io(PinIndex i, PinMode mode) {
+void pin_set_io(PinIx i, PinMode mode) {
 	
 	/* It will return 1 for all true values */
 	uint8_t bit = (mode == kInput);
@@ -168,7 +168,7 @@ void pin_set_io(PinIndex i, PinMode mode) {
 	}
 }
 
-uint16_t analog_get(AnalogInIndex ain) {
+uint16_t analog_get(AnalogInIx ain) {
 	if ( ain > kAnalogSplit ) {
 		/* get oi data */
 		/* we may not want to trust "ain" */
@@ -190,7 +190,7 @@ uint16_t analog_get(AnalogInIndex ain) {
 	}
 }
 
-void analog_set(AnalogOutIndex aout, int8_t sp) {
+void analog_set(AnalogOutIx aout, AnalogOut sp) {
 	if ( aout < 16 ) {
 		uint8_t val = sp + 127;
 		
@@ -199,11 +199,11 @@ void analog_set(AnalogOutIndex aout, int8_t sp) {
 	}
 }
 
-void motor_set(AnalogOutIndex aout, MotorSpeed sp) {
+void motor_set(AnalogOutIx aout, MotorSpeed sp) {
 	analog_set(aout,sp);
 }
 
-void servo_set(AnalogOutIndex aout, ServoPosition sp) {
+void servo_set(AnalogOutIx aout, ServoPosition sp) {
 	analog_set(aout,sp);
 }
 
