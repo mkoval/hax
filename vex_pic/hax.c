@@ -106,7 +106,7 @@ void loop_2(void) {
 	Putdata(&txdata);
 }
 
-Bool new_data_received(void) {
+bool new_data_received(void) {
 	return statusflag.NEW_SPI_DATA;
 }
 

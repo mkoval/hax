@@ -2,20 +2,13 @@
 #define HAX_H_
 
 #include "stdint.h"
+#include "stdbool.h"
 #include "compilers.h"
 
 /*
  * The Main function
  */
 void main(void) __noreturn;
-
-/* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
- * never compare against kFalse or kTrue. Instead, rely on the default
- * behavior of if statements that consider non-zero values to be true.
- */
-typedef uint8_t Bool;
-#define FALSE   0
-#define TRUE    1
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
 typedef uint8_t PinIndex; /* Pins on the RC */
@@ -108,7 +101,7 @@ void loop_2(void);
 /* Check if there is new data available, triggering the invocation of the
  * loop() function.
  */
-Bool new_data_received(void);
+bool new_data_received(void);
 
 /* Determines if the robot is in autonomous or operator-control mode */
 CtrlMode get_mode(void);
@@ -129,8 +122,8 @@ uint16_t analog_get(AnalogInIndex);
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(PinIndex, Bool);
-Bool digital_get(PinIndex);
+void digital_set(PinIx, bool);
+bool digital_get(PinIx);
 
 
 /*
