@@ -22,6 +22,11 @@ typedef enum {
 	kOutput
 } PinMode;
 
+
+typedef int8_t AnalogOut;
+#define kAnalogOutMin -127
+#define kAnalogOutMax +127
+
 /* Motor speed type, where kMotorMin represents full reverse speed
  * and kMotorMax represents full foward speed.
  */
@@ -129,6 +134,9 @@ bool digital_get(PinIx);
 /*
  * MOTOR AND SERVO OUTPUTS
  */
+/* More raw function, bounded by kAnalogOut{Max,Min} */
+void analog_set(AnalogOutIx, AnalogOut);
+
 /* Motor's speed must be bounded by kMotorMin and kMotorMax. */
 void motor_set(AnalogOutIx, MotorSpeed);
 
