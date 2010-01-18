@@ -15,6 +15,8 @@ uint16_t kSlowSpeed = 18500;
 
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
+#define kVPMaxMotors 8
+#define kVPNumOIInputs 16
 
 /* Variables used for master proc comms by both our code and IFI's lib. 
  *  Do not rename.
@@ -169,15 +171,8 @@ void pin_set_io(PinIx i, PinMode mode) {
 }
 
 uint16_t analog_get(AnalogInIx ain) {
-	if ( ain > kAnalogSplit ) {
-		/* get oi data */
-		/* we may not want to trust "ain" */
-		return rxdata.oi_analog[ ain - kAnalogSplit ];
-	}
-	/* kNumAnalogInputs should be checked somewhere else... preferably at
-	 * compile time.
-	 */
-	else if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
+	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
+		/* 0 <= ain < 16 */
 		/* read ADC */
 		SetChanADC(ain);
 		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
@@ -185,14 +180,21 @@ uint16_t analog_get(AnalogInIx ain) {
 		while( BusyADC() );
 		return ReadADC();
 	}
+	else if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
+		/* 127 <= ain < (127 + 16) */
+		/* ain refers to one of the off robot inputs */
+		/* get oi data */
+		return rxdata.oi_analog[ ain - kAnalogSplit ];
+	}
 	else {
+		/* ain is not valid */
 		return 0xFFFF;
 	}
 }
 
 void analog_set(AnalogOutIx aout, AnalogOut sp) {
-	if ( aout < 16 ) {
-		uint8_t val = sp + 127;
+	if ( aout < kVPMaxMotors ) {
+		uint8_t val = sp + (uint8_t)127;
 		
 		/* 127 & 128 are treated as the same, apparently. */
 		txdata.rc_pwm[aout] = (val > 127) ? val+1 : val;
