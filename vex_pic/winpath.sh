@@ -9,9 +9,10 @@ if [ $# != 1 ]; then
 	exit 2
 fi
 
-if   which cygpath 2>/dev/null; then 
+if   which cygpath >/dev/null 2>&1 ; then 
 	cygpath -w "$1"
-elif which winepath 2>/dev/null; then
+	echo "'$1'" >/dev/stderr
+elif which winepath 2>/dev/null 2>&1; then
 	winepath -w "$1"
 else 
 	error "path converter not found"
