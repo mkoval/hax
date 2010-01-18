@@ -44,6 +44,16 @@ void setup_1(void) {
 	 */
 	statusflag.NEW_SPI_DATA = 0;
 	
+	/* Initialize Serial */
+	Open1USART(USART_TX_INT_OFF &
+		USART_RX_INT_OFF &
+		USART_ASYNCH_MODE &
+		USART_EIGHT_BIT &
+		USART_CONT_RX &
+		USART_BRGH_HIGH,
+		kBaud115);   
+	Delay1KTCYx( 50 ); /* Settling time (5K Clock ticks) */
+	
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	/* txdata.user_cmd = 0x02; */
 	
@@ -55,16 +65,6 @@ void setup_1(void) {
 	for (i = 0; i < 16; ++i) {
 		pin_set_io( i, kInput);
 	}
-	
-	/* Initialize Serial */
-	Open1USART(USART_TX_INT_OFF &
-		USART_RX_INT_OFF &
-		USART_ASYNCH_MODE &
-		USART_EIGHT_BIT &
-		USART_CONT_RX &
-		USART_BRGH_HIGH,
-		kBaud115);   
-	Delay1KTCYx( 50 ); /* Settling time (5K Clock ticks) */
 	
 	/* Init ADC */
 	
