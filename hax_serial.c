@@ -7,9 +7,6 @@
 void puth(uint16_t data) {
 	uint8_t i, digit;
 	
-	putc('0');
-	putc('x');
-	
 	for (i = 0; i < 4; ++i) {
 		/* Each four-bit chunk of a binary number is a hex digit. */
 		digit  = (uint8_t) ((data & 0xF000) >> 12);
@@ -30,7 +27,7 @@ void puti(uint16_t data) {
 	/* Generate the output in reverse order (i.e. the left-most digit is the
 	 * most significant digit).
 	 */
-	for (i = 0; data > 0; ++i) {
+	for (i = 0; data >= 0; ++i) {
 		buf[i] = '0' + (data % 10);
 		data  /= 10;
 	}
@@ -41,9 +38,10 @@ void puti(uint16_t data) {
 	}
 }
 
+#if 0
 void putf(float data) {
 	uint32_t frac;
-	uint8_t exp =  (uint8_t) ( ( data << 1 ) >> 1) >> 23 ) ;
+	uint8_t exp = (uint8_t) ( ( data << 1 ) >> 1) >> 23 ) ;
 	
 	if (exp == 0xFF) {
 		putc('N');
@@ -60,20 +58,20 @@ void putf(float data) {
 	
 	/* TODO: Do something with the fraction and exponent. */
 }
+#endif
 
-void puts(char *data) {
+void puts(char __rom const *data) {
 	for (; *data; ++data) {
 		putc(*data);
 	}
 }
 
-
 // This is much nicer with inline functions.
-#define EXPR_ ( (0xF & x) + '0' )
+#define AA(n) ( (0xF & n) + '0' )
 // If the calculated character is not in the numeric range, push it into the
 //  Capital letter range ( 7 away in ascii )
-#define H2ASCI(x) (EXPR_>'9')?(EXPR_+7):(EXPR_)
-#define PUTH4( x ) putc( H2ASCI( x ) ) 
+#define H2ASCI( z ) ( AA(z) > '9' )?( AA(z) + 7) : ( AA(z) )
+#define PUTH4( y ) putc( H2ASCI(y) ) 
 #define PUTH8( x ) ( PUTH4( (x) >> 4 ) , PUTH4( (x) & 0xF ) )
 
 void _puth(uint8_t data) {
@@ -84,3 +82,4 @@ void _puth2(uint16_t data) {
 	PUTH8( data >> 8 );
 	PUTH8( data & 0xFF );
 }
+
