@@ -15,6 +15,8 @@ uint16_t kSlowSpeed = 18500;
 
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(x) ( (x) < 16 && (x) != 15 )
+#define kVPMaxMotors 8
+#define kVPNumOIInputs 16
 
 /* Variables used for master proc comms by both our code and IFI's lib. 
  *  Do not rename.
@@ -44,6 +46,16 @@ void setup_1(void) {
 	 */
 	statusflag.NEW_SPI_DATA = 0;
 	
+	/* Initialize Serial */
+	Open1USART(USART_TX_INT_OFF &
+		USART_RX_INT_OFF &
+		USART_ASYNCH_MODE &
+		USART_EIGHT_BIT &
+		USART_CONT_RX &
+		USART_BRGH_HIGH,
+		kBaud115);   
+	Delay1KTCYx( 50 ); /* Settling time (5K Clock ticks) */
+	
 	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
 	/* txdata.user_cmd = 0x02; */
 	
@@ -55,16 +67,6 @@ void setup_1(void) {
 	for (i = 0; i < 16; ++i) {
 		pin_set_io( i, kInput);
 	}
-	
-	/* Initialize Serial */
-	Open1USART(USART_TX_INT_OFF &
-		USART_RX_INT_OFF &
-		USART_ASYNCH_MODE &
-		USART_EIGHT_BIT &
-		USART_CONT_RX &
-		USART_BRGH_HIGH,
-		kBaud115);   
-	Delay1KTCYx( 50 ); /* Settling time (5K Clock ticks) */
 	
 	/* Init ADC */
 	
@@ -106,7 +108,7 @@ void loop_2(void) {
 	Putdata(&txdata);
 }
 
-Bool new_data_received(void) {
+bool new_data_received(void) {
 	return statusflag.NEW_SPI_DATA;
 }
 
@@ -122,7 +124,7 @@ CtrlMode get_mode(void) {
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void pin_set_io(PinIndex i, PinMode mode) {
+void pin_set_io(PinIx i, PinMode mode) {
 	
 	/* It will return 1 for all true values */
 	uint8_t bit = (mode == kInput);
@@ -168,16 +170,9 @@ void pin_set_io(PinIndex i, PinMode mode) {
 	}
 }
 
-uint16_t analog_get(AnalogInIndex ain) {
-	if ( ain > kAnalogSplit ) {
-		/* get oi data */
-		/* we may not want to trust "ain" */
-		return rxdata.oi_analog[ ain - kAnalogSplit ];
-	}
-	/* kNumAnalogInputs should be checked somewhere else... preferably at
-	 * compile time.
-	 */
-	else if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
+uint16_t analog_get(AnalogInIx ain) {
+	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
+		/* 0 <= ain < 16 */
 		/* read ADC */
 		SetChanADC(ain);
 		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
@@ -185,25 +180,32 @@ uint16_t analog_get(AnalogInIndex ain) {
 		while( BusyADC() );
 		return ReadADC();
 	}
+	else if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
+		/* 127 <= ain < (127 + 16) */
+		/* ain refers to one of the off robot inputs */
+		/* get oi data */
+		return rxdata.oi_analog[ ain - kAnalogSplit ];
+	}
 	else {
+		/* ain is not valid */
 		return 0xFFFF;
 	}
 }
 
-void analog_set(AnalogOutIndex aout, int8_t sp) {
-	if ( aout < 16 ) {
-		uint8_t val = sp + 127;
+void analog_set(AnalogOutIx aout, AnalogOut sp) {
+	if ( aout < kVPMaxMotors ) {
+		uint8_t val = sp + (uint8_t)127;
 		
 		/* 127 & 128 are treated as the same, apparently. */
 		txdata.rc_pwm[aout] = (val > 127) ? val+1 : val;
 	}
 }
 
-void motor_set(AnalogOutIndex aout, MotorSpeed sp) {
+void motor_set(AnalogOutIx aout, MotorSpeed sp) {
 	analog_set(aout,sp);
 }
 
-void servo_set(AnalogOutIndex aout, ServoPosition sp) {
+void servo_set(AnalogOutIx aout, ServoPosition sp) {
 	analog_set(aout,sp);
 }
 

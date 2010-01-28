@@ -2,6 +2,7 @@
 #define HAX_H_
 
 #include "stdint.h"
+#include "stdbool.h"
 #include "compilers.h"
 
 /*
@@ -9,25 +10,22 @@
  */
 void main(void) __noreturn;
 
-/* To avoid potentially different definitions of true (e.g. 0x01 versus 0xFF),
- * never compare against kFalse or kTrue. Instead, rely on the default
- * behavior of if statements that consider non-zero values to be true.
- */
-typedef uint8_t Bool;
-#define FALSE   0
-#define TRUE    1
-
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
-typedef uint8_t PinIndex; /* Pins on the RC */
-typedef uint8_t AnalogInIndex;  /* The union of OI inputs and the PinIndex*/
-typedef uint8_t AnalogOutIndex; /* Just the PWMs */
-typedef uint8_t InterruptIndex;
+typedef uint8_t PinIx; /* Pins on the RC */
+typedef uint8_t AnalogInIx;  /* The union of OI inputs and the PinIx*/
+typedef uint8_t AnalogOutIx; /* Just the PWMs */
+typedef uint8_t InterruptIx;
 
 /* Configuration options to be applied to each input. */
 typedef enum {
 	kInput,
 	kOutput
 } PinMode;
+
+
+typedef int8_t AnalogOut;
+#define kAnalogOutMin -127
+#define kAnalogOutMax +127
 
 /* Motor speed type, where kMotorMin represents full reverse speed
  * and kMotorMax represents full foward speed.
@@ -108,7 +106,7 @@ void loop_2(void);
 /* Check if there is new data available, triggering the invocation of the
  * loop() function.
  */
-Bool new_data_received(void);
+bool new_data_received(void);
 
 /* Determines if the robot is in autonomous or operator-control mode */
 CtrlMode get_mode(void);
@@ -118,44 +116,46 @@ CtrlMode get_mode(void);
  * ANALOG AND DIGITAL INPUTS
  */
 /* Expected to be invoked exactly once, in the setup() function. */
-void pin_set_io(PinIndex, PinMode);
+void pin_set_io(PinIx, PinMode);
 
-/* Get a raw analog value from the input with the specified index. Produces
+/* Get a raw analog value from the input with the specified Ix. Produces
  * undefined results if the input is configured as a digital
  * sensor.
  */
-uint16_t analog_get(AnalogInIndex);
+uint16_t analog_get(AnalogInIx);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(PinIndex, Bool);
-Bool digital_get(PinIndex);
+void digital_set(PinIx, bool);
+bool digital_get(PinIx);
 
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
+/* More raw function, bounded by kAnalogOut{Max,Min} */
+void analog_set(AnalogOutIx, AnalogOut);
+
 /* Motor's speed must be bounded by kMotorMin and kMotorMax. */
-void motor_set(AnalogOutIndex, MotorSpeed);
+void motor_set(AnalogOutIx, MotorSpeed);
 
 /* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(AnalogOutIndex, ServoPosition);
-
+void servo_set(AnalogOutIx, ServoPosition);
 
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-void interrupt_reg_isr(InterruptIndex, InterruptServiceRoutine);
+void interrupt_reg_isr(InterruptIx, InterruptServiceRoutine);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations. 
  * And so that you can actually enable them in the first place.
  */
-void interrupt_set(InterruptIndex, Bool);
-void interrupt_enable(InterruptIndex);
-void interrupt_disable(InterruptIndex);
+void interrupt_set(InterruptIx, bool);
+void interrupt_enable(InterruptIx);
+void interrupt_disable(InterruptIx);
 
 
 /*

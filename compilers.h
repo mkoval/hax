@@ -7,6 +7,7 @@
 #if defined(__18CXX)
 
 #define __noreturn 
+#define __rom	rom
 
 #else
 
@@ -14,4 +15,4 @@
 
 #endif
 
-#endif
+#endif /* COMPILERS_H_ */
