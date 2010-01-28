@@ -1,28 +1,33 @@
 #include "hax.h"
 
-uint8_t kNumAnalogInputs = 2;
+uint8_t kNumAnalogInputs = 16;
 
 void init(void) {
-	putc('I');
+	puts("Initialization\n");
 }
 
 void auton_loop(void) {
-	putc('A');
-	putc('l');
 }
 	
 void auton_spin(void) {
-	putc('A');
-	putc('s');
 }
 
 void telop_loop(void) {
-	putc('T');
-	putc('l');
+	int i;
+
+	puts("Digitals : ");
+	for (i = 0; i <= 16; ++i) {
+		_puth(i);
+		putc(':');
+		_puth(digital_get(i));
+		putc(':');
+		_puth2(analog_get(i));
+		puts(" ; ");
+	}
+	putc('\n');
+
 }
 
 void telop_spin(void) {
-	putc('T');
-	putc('s');
 }
 
