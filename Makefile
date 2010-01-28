@@ -1,5 +1,6 @@
 RM      = rm -rf
 
+srcdir  = .
 VPATH   = $(srcdir)
 
 PROGS   = test skel
