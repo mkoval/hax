@@ -11,9 +11,9 @@ if [ $# != 1 ]; then
 	exit 2
 fi
 
-cyg_=$(which cygpath)
+cyg_=$(which cygpath 2>/dev/null)
 cyg=$?
-wine_=$(which winepath)
+wine_=$(which winepath 2>/dev/null)
 wine=$?
 
 if [ $cyg -eq 0 ] ; then 
