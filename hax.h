@@ -10,6 +10,8 @@
  */
 void main(void) __noreturn;
 
+typedef int8_t tris; /* 3 states: 1 | 0 | -1 */
+
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
 typedef uint8_t PinIx; /* Pins on the RC */
 typedef uint8_t AnalogInIx;  /* The union of OI inputs and the PinIx*/
@@ -128,7 +130,7 @@ uint16_t analog_get(AnalogInIx);
  * undefined results if the input is configured as an analog sensor.
  */
 void digital_set(PinIx, bool);
-bool digital_get(PinIx);
+tris digital_get(PinIx);
 
 
 /*
@@ -167,9 +169,11 @@ void interrupt_disable(InterruptIx);
  */
 void putc(char);
 void puth(uint16_t);
+void _puth(uint8_t);
+void _puth2(uint16_t);
 void puti(uint16_t);
 void putf(float);
-void puts(char *c);
+void puts(char __rom const *c);
 
 
 #endif
