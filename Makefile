@@ -9,7 +9,8 @@ ARCHs   = vex_pic cortex
 PROG    = test
 ARCH    = vex_pic
 
-CSOURCE = hax_main.c
+CSOURCE = hax_main.c \
+          hax_serial.c
 HEADERS = stdint.h \
           hax.h
 
