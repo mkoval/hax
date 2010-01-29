@@ -164,7 +164,7 @@ void pin_set_io(PinIx i, PinMode mode) {
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
-tris digital_get(PinIx i) {
+int8_t digital_get(PinIx i) {
 
 	switch (i) {
 	
