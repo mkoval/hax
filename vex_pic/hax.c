@@ -206,8 +206,9 @@ int8_t digital_get(PinIx i) {
 uint16_t analog_get(AnalogInIx ain) {
 	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* 0 <= ain < 16 */
-		/* read ADC */
-		SetChanADC(ain);
+		/* read ADC (0b10000111 = 0x87) */
+		uint8_t chan = 0x87 | ain << 3;
+		SetChanADC(chan);
 		Delay10TCYx( 20 ); /* Wait for capacitor to charge */
 		ConvertADC();
 		while( BusyADC() );
