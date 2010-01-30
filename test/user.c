@@ -24,8 +24,11 @@ void telop_loop(void) {
 		_puth2(analog_get(i));
 		puts(" ; ");
 	}
-	putc('\n');
 
+	/* Test motor output. */
+	for (i = 0; i < 7; ++i) {
+		motor_set(i, kMotorMax);
+	}
 }
 
 void telop_spin(void) {
