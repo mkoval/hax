@@ -11,8 +11,8 @@
 void main(void) __noreturn;
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
+typedef uint8_t OIIx; /* OI inputs */
 typedef uint8_t PinIx; /* Pins on the RC */
-typedef uint8_t AnalogInIx;  /* The union of OI inputs and the PinIx*/
 typedef uint8_t AnalogOutIx; /* Just the PWMs */
 typedef uint8_t InterruptIx;
 
@@ -122,7 +122,8 @@ void pin_set_io(PinIx, PinMode);
  * undefined results if the input is configured as a digital
  * sensor.
  */
-uint16_t analog_get(AnalogInIx);
+int8_t analog_oi_get(OIIx);
+uint16_t analog_adc_get(PinIx);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.

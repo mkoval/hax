@@ -203,22 +203,16 @@ int8_t digital_get(PinIx i) {
 	}
 }
 
-uint16_t analog_get(AnalogInIx ain) {
+uint16_t analog_adc_get(PinIx ain) {
 	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* 0 <= ain < 16 */
 		/* read ADC (0b10000111 = 0x87) */
 		uint8_t chan = 0x87 | ain << 3;
 		SetChanADC(chan);
-		Delay10TCYx( 20 ); /* Wait for capacitor to charge */
+		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
 		ConvertADC();
 		while( BusyADC() );
 		return ReadADC();
-	}
-	else if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
-		/* 127 <= ain < (127 + 16) */
-		/* ain refers to one of the off robot inputs */
-		/* get oi data */
-		return rxdata.oi_analog[ ain - kAnalogSplit ];
 	}
 	else {
 		/* ain is not valid */
@@ -226,12 +220,24 @@ uint16_t analog_get(AnalogInIx ain) {
 	}
 }
 
+int8_t analog_oi_get(OIIx ain) {
+	if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
+		/* 127 <= ain < (127 + 16) */
+		/* ain refers to one of the off robot inputs */
+		int8_t v = rxdata.oi_analog[ ain - kAnalogSplit ] - 128;
+		return (v < 0) ? v + 1 : v;
+	}
+	return 0;
+}
+
 void analog_set(AnalogOutIx aout, AnalogOut sp) {
 	if ( aout < kVPMaxMotors ) {
-		uint8_t val = sp + (uint8_t)127;
+		uint8_t val;
+		sp = ( sp < 0 && sp != 128) ? sp - 1 : sp;
+		val = sp + 128;
 
 		/* 127 & 128 are treated as the same, apparently. */
-		txdata.rc_pwm[aout] = (val > 127) ? val+1 : val;
+		txdata.rc_pwm[aout] = val; //(val > 127) ? val+1 : val;
 	}
 }
 
