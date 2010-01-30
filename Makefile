@@ -14,6 +14,8 @@ CSOURCE = hax_main.c \
 HEADERS = stdint.h \
           hax.h
 
+TARGET  = $(PROG)-$(ARCH).$(ARCHEXT)
+
 include $(ARCH)/Makefile
 include $(PROG)/Makefile
 
