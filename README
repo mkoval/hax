@@ -9,3 +9,11 @@ Archs:
 	have easy access to.
 * 'cortex' is the yet to be released [insert silly branded name here], and the
 	excuse we used to force the writing of this project.
+
+Unimplemented or Untested Features:
+* Motor output
+* Servo output
+* printf()
+* puti() SIGNED
+* putf()
+
