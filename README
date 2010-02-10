@@ -1,6 +1,7 @@
 -- HAX --
 
 User Code:
+* 'mikish' is code for mike & nitishes design
 * 'skel' shows the minimal amount of implimentation neccisarry.
 * 'test' is the code we are using to test HAX
 
@@ -11,8 +12,6 @@ Archs:
 	excuse we used to force the writing of this project.
 
 Unimplemented or Untested Features:
-* Motor output
-* Servo output
 * printf()
 * puti() SIGNED
 * putf()
