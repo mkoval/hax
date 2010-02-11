@@ -13,14 +13,14 @@ void puth(uint16_t data) {
 		data <<= 4;
 		
 		if (digit < 10) {
-			putc('0' + digit);
+			_putc('0' + digit);
 		} else {
-			putc('A' + digit - 10);
+			_putc('A' + digit - 10);
 		}
 	}
 }
 
-void puti(uint16_t data) {
+void _puti(uint16_t data) {
 	char buf[6];
 	uint8_t i;
 	
@@ -34,7 +34,7 @@ void puti(uint16_t data) {
 	
 	/* Reverse the string prior to sending it to the serial port. */
 	for (++i; i > 0; --i) {
-		putc(buf[i - 1]);
+		_putc(buf[i - 1]);
 	}
 }
 
@@ -60,9 +60,9 @@ void putf(float data) {
 }
 #endif
 
-void puts(char __rom const *data) {
+void _puts(char __rom const *data) {
 	for (; *data; ++data) {
-		putc(*data);
+		_putc(*data);
 	}
 }
 
@@ -71,7 +71,7 @@ void puts(char __rom const *data) {
 // If the calculated character is not in the numeric range, push it into the
 //  Capital letter range ( 7 away in ascii )
 #define H2ASCI( z ) ( AA(z) > '9' )?( AA(z) + 7) : ( AA(z) )
-#define PUTH4( y ) putc( H2ASCI(y) ) 
+#define PUTH4( y ) _putc( H2ASCI(y) ) 
 #define PUTH8( x ) ( PUTH4( (x) >> 4 ) , PUTH4( (x) & 0xF ) )
 
 void _puth(uint8_t data) {

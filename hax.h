@@ -166,13 +166,13 @@ void interrupt_disable(InterruptIx);
  * readable manner. Hex values, written with puth, are not prefixed with "0x"
  * unless manually printed with the other put() methods.
  */
-void putc(char);
+void _putc(char);
 void puth(uint16_t);
 void _puth(uint8_t);
 void _puth2(uint16_t);
-void puti(uint16_t);
-void putf(float);
-void puts(char __rom const *c);
+void _puti(uint16_t);
+void _putf(float);
+void _puts(char __rom const *c);
 
 
 #endif
