@@ -1,4 +1,5 @@
 #include "hax.h"
+#include <stdio.h>
 
 uint8_t kNumAnalogInputs = 2;
 
@@ -29,7 +30,7 @@ enum {
 
 
 void init(void) {
-	puts("Initialization\n");
+	_puts("Initialization\n");
 }
 
 void auton_loop(void) {
@@ -49,71 +50,92 @@ int8_t button(int8_t v) {
 		return 0;
 }
 
-#define ABS(x)  ( x > 0 ? x : -x )
-#define MAX(x,y) ( x > y ? x : y )
+#define ABS(x)  ( (x) > 0 ? (x) : -(x) )
+#define MAX(x,y) ( (x) > (y) ? (x) : (y) )
 #define AMAX4(a,b,c,d) MAX(MAX(ABS(a),ABS(b)),MAX(ABS(c),ABS(d)))
 
-#if 0
+static int16_t max4(int16_t a, int16_t b, int16_t c, int16_t d) {
+	if ( a >= b ) {
+		if ( a >= c ) {
+			if ( a >= d ) {
+				return a;
+			} else {
+				return d;
+			}
+		} else {
+			if ( c >= d ) {
+				return c;
+			} else {
+				return d;
+			}
+		}
+	} else {
+		if ( b >= c ) {
+			if ( b >= d ) {
+				return b;
+			} else {
+				return d;
+			}
+		} else {
+			if ( c >= d ) {
+				return c;
+			} else {
+				return d;
+			}
+		}
+	}
+}
+
+/*
+x = side to side (+ = right)
+y = forwards & backwards (+ = forwards)
+z = spin (+ = clockwise)
+*/
 void omni(int8_t x, int8_t y, int8_t z) {
-	/*
-	x : strafing l & r 
-	y : fwd & back motion
-	z : spin
-	*/
+	int16_t F = (int16_t) x + z;
+	int16_t R = (int16_t)-y + z;
+	int16_t B = (int16_t)-x + z;
+	int16_t L = (int16_t) y + z;
 
-	int L = (int)x + z;
-	int R = (int)x - z;
-	int B = (int)y + z;
-	int F = (int)y - z;
-
-	int max = AMAX4(L,R,B,F);
-
+	int16_t max = max4(ABS(L),ABS(R),ABS(B),ABS(F));
+	printf("F:%4d R:%4d B:%4d L:%4d max:%4d :: ",F,R,B,L,max);
 	if ( max > kMotorMax ) {
 		/* scale */
-		float div = fabs( (float)max / kMotorMax );
-		L /= div;
-		R /= div;
-		B /= div;
-		F /= div;
-
+		L = L * kMotorMax / max;
+		R = R * kMotorMax / max;
+		B = B * kMotorMax / max;
+		F = F * kMotorMax / max;
+		printf("F:%4d R:%4d B:%4d L:%4d\n",F,R,B,L);	
+	} else { 
+		printf("F:%4d R:%4d B:%4d L:%4d\n",F,R,B,L);
 	}
-
-	motor_set(MTR_DRIVE_L,L);
-	motor_set(MTR_DRIVE_R,-R);
-	motor_set(MTR_DRIVE_B,B);
-	motor_set(MTR_DRIVE_F,-F);
-
+	motor_set(MTR_DRIVE_L, L);
+	motor_set(MTR_DRIVE_R, R);
+	motor_set(MTR_DRIVE_B, B);
+	motor_set(MTR_DRIVE_F, F);
 }
-#endif
 
 void telop_loop(void) {
 	int8_t fwrd = analog_oi_get(OI_L_Y);
 	int8_t side = analog_oi_get(OI_L_X); 
 	int8_t arm  = button(analog_oi_get(OI_L_B)) * kMotorMax;
-	/* int8_t spin = analog_oi_get(OI_R_X);*/
-	int8_t lift = analog_oi_get(OI_R_B);
+	int8_t spin = analog_oi_get(OI_R_X);
+	int8_t lift = button(analog_oi_get(OI_R_B)) * kMotorMax;
 
-	motor_set(MTR_DRIVE_L, fwrd);
-	motor_set(MTR_DRIVE_R, -fwrd);
-	motor_set(MTR_DRIVE_F, -side);
-	motor_set(MTR_DRIVE_B, side);
-	
-	/*
-	omni(side,frwd,spin)
-	*/
+	//printf("F:%d R:%d B:%d L:%d\n",side,-fwrd,-side,fwrd);
+
+	//motor_set(MTR_DRIVE_F,  side);
+	//motor_set(MTR_DRIVE_R, -fwrd);
+	//motor_set(MTR_DRIVE_B, -side);
+	//motor_set(MTR_DRIVE_L,  fwrd);
+
+	omni(-side, fwrd, -spin);
 
 	motor_set(MTR_ARM_L, arm);
 	motor_set(MTR_ARM_R, -arm);
 
-	/* Lift the scissors. */
 	motor_set(MTR_SCISSOR_L, lift);
 	motor_set(MTR_SCISSOR_R, -lift);
-
-	puts("F:S :: ");
-	_puth(fwrd);
-	putc(':');
-	_puth(side);
-	putc('\n');
 }
 
 void telop_spin(void) {
