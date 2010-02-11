@@ -69,7 +69,7 @@ void setup_1(void) {
 	 * where x counts the number of DIGITAL ports. In total, there are
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
-	puts("[ADC INIT : "); 
+	_puts("[ADC INIT : "); 
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
 		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the FOSC
@@ -82,9 +82,9 @@ void setup_1(void) {
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
-		puts("DONE ]\n");
+		_puts("DONE ]\n");
 	} else { 
-		puts("FAIL ]\n");
+		_puts("FAIL ]\n");
 	}
 
 }
@@ -252,7 +252,7 @@ void servo_set(AnalogOutIx aout, ServoPosition sp) {
 /*
  * STREAM IO
  */
-void putc(char data) {
+void _putc(char data) {
 	/* From the Microchip C Library Docs */
 	while(Busy1USART());
 	Write1USART(data);
