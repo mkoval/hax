@@ -1,7 +1,7 @@
 #include "hax.h"
 #include <stdio.h>
 
-uint8_t kNumAnalogInputs = 2;
+uint8_t kNumAnalogInputs = 5;
 
 enum {
 	MTR_DRIVE_F = 0,
@@ -24,9 +24,27 @@ enum {
 };
 
 enum {
+	/* Potentiometers */
 	SEN_SCISSOR_L = 0,
-	SEN_SCISSOR_R
+	SEN_SCISSOR_R,
+	SEN_SHOULDER,
+	/* Infrared Rangers */
+	SEN_IR_LEFT,
+	SEN_IR_RIGHT,
+	/* Rear bump sensors. */
+	SEN_BUMP_L,
+	SEN_BUMP_R
 };
+
+enum {
+	/* Encoders on the left, right, and back wheels */ 
+	INT_ENC_L1 = 0,
+	INT_ENC_L2,
+	INT_ENC_R1,
+	INT_ENC_R2,
+	INT_ENC_B1,
+	INT_ENC_B2
+}
 
 
 void init(void) {
@@ -123,11 +141,6 @@ void telop_loop(void) {
 	int8_t lift = button(analog_oi_get(OI_R_B)) * kMotorMax;
 
 	//printf("F:%d R:%d B:%d L:%d\n",side,-fwrd,-side,fwrd);
-
-	//motor_set(MTR_DRIVE_F,  side);
-	//motor_set(MTR_DRIVE_R, -fwrd);
-	//motor_set(MTR_DRIVE_B, -side);
-	//motor_set(MTR_DRIVE_L,  fwrd);
 
 	omni(-side, fwrd, -spin);
 
