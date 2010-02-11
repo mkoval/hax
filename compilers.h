@@ -8,6 +8,7 @@
 
 #define __noreturn 
 #define __rom	rom
+#define __overlay overlay
 
 #else
 
