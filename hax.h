@@ -22,7 +22,6 @@ typedef enum {
 	kOutput
 } PinMode;
 
-
 typedef int8_t AnalogOut;
 #define kAnalogOutMin -127
 #define kAnalogOutMax +127
@@ -64,6 +63,7 @@ extern uint8_t kNumAnalogInputs;
 
 /* The number below which Analog inputs are ADC, and above which are OI */
 #define kAnalogSplit 127
+
 
 /*
  * USER CONTROLLER CODE
@@ -108,8 +108,11 @@ void loop_2(void);
  */
 bool new_data_received(void);
 
-/* Determines if the robot is in autonomous or operator-control mode */
-CtrlMode get_mode(void);
+/* Determines if the robot is in autonomous or telop mode. */
+CtrlMode mode_get(void);
+
+/* Puts the robot in autonomous or telop mode. */
+void mode_set(CtrlMode);
 
 
 /*

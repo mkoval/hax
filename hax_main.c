@@ -9,7 +9,7 @@ void main() {
 	setup_2();
 	
 	for(;;) {
-		mode = get_mode();
+		mode = mode_get();
 		
 		/* The "slow loop", executes once every kSlowSpeed microseconds. */
 		if (new_data_received()) {

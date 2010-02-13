@@ -41,6 +41,7 @@ void setup_1(void) {
 
 	IFI_Initialization();
 
+	/* Initialize serial port communication. */
 	statusflag.NEW_SPI_DATA = 0;
 
 	Open1USART(USART_TX_INT_OFF &
@@ -52,8 +53,10 @@ void setup_1(void) {
 		kBaud115);
 	Delay1KTCYx( 50 ); 
 
-	/* Enable autonomous mode. FIXME: Magic Number (we need an enum of valid "user_cmd"s) */
-	/* txdata.user_cmd = 0x02; */
+	/* Tentatively enable teleop mode; overriden by the user calling
+	 * mode_set() in the the init() function.
+	 */
+	mode_set(kTelop);
 
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
@@ -109,8 +112,12 @@ bool new_data_received(void) {
 	return statusflag.NEW_SPI_DATA;
 }
 
-CtrlMode get_mode(void) {
+CtrlMode mode_get(void) {
 	return (rxdata.rcmode.mode.autonomous) ? kAuton : kTelop;
+}
+
+void mode_set(CtrlMode mode) {
+	rxdata.rcmode.mode.autonomous = (mode == kAuton) ? 0x02 : 0x00;
 }
 
 /*
