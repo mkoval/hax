@@ -25,6 +25,11 @@ TxData txdata;
 RxData rxdata;
 StatusFlags statusflag;
 
+/* Used to save the state of port b before the interrupt handler for ports 3
+ * through 6 are called.
+ */
+unsigned char volatile portb = 0xFF;
+
 typedef enum
 {
   kBaud19 = 128,
@@ -41,6 +46,9 @@ void setup_1(void) {
 
 	IFI_Initialization();
 
+	/* Take a snapshot of port b before we enable interrupts. */
+	portb = PORTB;
+
 	/* Initialize serial port communication. */
 	statusflag.NEW_SPI_DATA = 0;
 
@@ -52,11 +60,6 @@ void setup_1(void) {
 		USART_BRGH_HIGH,
 		kBaud115);
 	Delay1KTCYx( 50 ); 
-
-	/* Tentatively enable teleop mode; overriden by the user calling
-	 * mode_set() in the the init() function.
-	 */
-	mode_set(kTelop);
 
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
@@ -257,6 +260,112 @@ void servo_set(AnalogOutIx aout, ServoPosition sp) {
 }
 
 /*
+ * INTERRUPTS
+ */
+InterruptServiceRoutine isr_callbacks[6] = { 0, 0, 0, 0, 0, 0 };
+
+void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
+	isr_callbacks[index] = isr;
+}
+
+#if   defined(MCC18_30)
+#pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
+#elif defined(MCC18_24)
+#pragma interruptlow interrupt_handler save=PROD,section("MATH_DATA"),section(".tmpdata")
+#else
+#error Bad complier
+#endif
+void interrupt_handler(void) {
+	static uint8_t delta, portb_old;
+
+	/* Interrupt 1 */
+	if (INTCON3bits.INT2IF && INTCON3bits.INT2IE) { 
+		INTCON3bits.INT2IF = 0;
+		if (isr_callbacks[0])
+			isr_callbacks[0]();
+	}
+	/* Interrupt 2 */
+	else if (INTCON3bits.INT3IF && INTCON3bits.INT3IE) {
+		INTCON3bits.INT3IF = 0;
+		if (isr_callbacks[1])
+			isr_callbacks[1]();
+	}
+	else if (INTCONbits.RBIF && INTCONbits.RBIE) {
+		/* Remove the "mismatch condition" by reading port b. */
+		portb           = PORTB;
+		INTCONbits.RBIF = 0;
+		delta           = portb ^ portb_old;
+		portb_old       = portb;
+	 
+		/* Interrupt 3 */
+		if(delta & 0x10 && isr_callbacks[2]) {
+			isr_callbacks[2]();
+			/* Int_3_ISR(!!(Port_B & 0x10)); */
+		}
+
+		/* Interrupt 4 */
+		if(delta & 0x20 && isr_callbacks[3]) {
+			isr_callbacks[3]();
+			/* Int_4_ISR(!!(Port_B & 0x20)); */
+		}
+
+		/* Interrupt 5 */
+		if(delta & 0x40 && isr_callbacks[4]) {
+			isr_callbacks[4]();
+			/* Int_5_ISR(!!(Port_B & 0x40)); */
+		}
+
+		/* Interrupt 6 */
+		if(delta & 0x80 && isr_callbacks[5]) {
+			isr_callbacks[5]();
+			/* Int_6_ISR(!!(Port_B & 0x80)); */
+		}
+	}
+}
+
+#pragma code interrupt_vector = LOW_INT_VECTOR
+void interrupt_vector(void) {
+	/* There's not much space for this function... */
+	_asm
+	goto interrupt_handler
+	_endasm
+}
+#pragma code
+
+void interrupt_enable(InterruptIx index) {
+	switch (index) {
+	case 0:
+		TRISBbits.TRISB2    = 1;
+		//INTCON3bits.INT2IP  = 0;
+		INTCON3bits.INT2IF  = 0;
+		INTCON2bits.INTEDG2 = 1;
+		INTCON3bits.INT2IE  = 1;
+		break;
+	
+	case 1:
+		TRISBbits.TRISB3    = 1;
+		//INTCON2bits.INT3IP  = 0;
+		INTCON2bits.INTEDG3 = 1;
+		INTCON3bits.INT3IF  = 0;
+		INTCON3bits.INT3IE  = 1;
+		break;
+	
+	case 2:
+	case 3:
+	case 4:
+	case 5:
+		TRISBbits.TRISB4 = 1;
+		TRISBbits.TRISB5 = 1;
+		TRISBbits.TRISB6 = 1;
+		TRISBbits.TRISB7 = 1;
+  		//INTCON2bits.RBIP = 0;
+		INTCONbits.RBIF  = 0;
+		INTCONbits.RBIE  = 1;
+		break;
+	}
+}
+
+/*
  * STREAM IO
  */
 void _putc(char data) {
@@ -264,8 +373,9 @@ void _putc(char data) {
 	while(Busy1USART());
 	Write1USART(data);
 }
-
+ 
 /* IFI lib uses this. (IT BURNNNNSSSS) */
 void Wait4TXEmpty(void) {
 	while(Busy1USART());
 }
+

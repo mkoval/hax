@@ -1,6 +1,8 @@
 #ifndef USER_H_
 #define USER_H_
 
+#include "stdbool.h"
+
 /*!
  * Converts an OI button input into one of three values: -1 (bottom button
  * pressed), 0 (no button pressed), and 1 (top button pressed). Undefined
@@ -22,12 +24,22 @@ int8_t button(int8_t);
 void drive_omni(int8_t, int8_t, int8_t);
 
 /*!
- * Move the arm to the desired location, as specified in potentiometer units
- * that range from SEN_SHOULDER_LOW to SEN_SHOULDER_HIGH.
+ * Move the arm at the desired rate of speed, where positive values indicate
+ * up and negative values indicate down. Does not allow movement outside of a
+ * potentiometer-defined range.
  *
- * \param angle desired potentiometer reading
+ * \param pwr signed motor velocity
  */
-void lift_arm(int16_t);
+bool lift_arm(int8_t);
+
+/*!
+ * Raise or lower the basket at the desired rate of speed, where positive
+ * values indicate up and negative values indicate down. Does not allow
+ * movement outside of a potentiometer-defined range.
+ *
+ * \param pwr signed motor velocity
+ */
+bool lift_basket(int8_t);
 
 #endif
 

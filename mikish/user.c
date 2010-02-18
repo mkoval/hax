@@ -1,19 +1,40 @@
 #include <stdio.h>
+#include "auton.h"
 #include "hax.h"
 #include "user.h"
+#include "util.h"
 #include "ports.h"
 
-#define ABS(x) ((x) > 0 ? (x) : -(x))
+uint8_t kNumAnalogInputs = 6;
 
-uint8_t kNumAnalogInputs = 5;
+void isr_test(void) {
+	_putc('!');
+	_puts("INTERRUPTS\n");
+}
 
 void init(void) {
 	_puts("Initialization\n");
+
+#if 0
+	/* Test interrupts. */
+	interrupt_reg_isr(0, isr_test);
+	interrupt_reg_isr(1, isr_test);
+	interrupt_reg_isr(2, isr_test);
+	interrupt_reg_isr(3, isr_test);
+	interrupt_reg_isr(4, isr_test);
+	interrupt_reg_isr(5, isr_test);
+	interrupt_enable(0);
+	interrupt_enable(1);
+	interrupt_enable(2);
+	interrupt_enable(3);
+	interrupt_enable(4);
+	interrupt_enable(5);
+#endif
 }
 
 void auton_loop(void) {
-	_puts("AUTO\n");
-	/* there is no autonomous mode */
+	printf((char *)"[MODE auton]\n");
+	auton_do();
 }
 	
 void auton_spin(void) {
@@ -82,19 +103,31 @@ void drive_omni(int8_t x, int8_t y, int8_t omega) {
 	motor_set(MTR_DRIVE_F, f);
 }
 
-void lift_arm(int16_t angle) {
+bool lift_arm(int8_t pwr) {
 	int16_t pos = analog_adc_get(SEN_POT_ARM);
 
-	if (pos < angle) {
-		motor_set(MTR_ARM_L, kMotorMax);
-		motor_set(MTR_ARM_R, -kMotorMax);
-	} else if (pos > angle) {
-		motor_set(MTR_ARM_L, -kMotorMax);
-		motor_set(MTR_ARM_R, kMotorMax);
-	} else {
-		motor_set(MTR_ARM_L, 0);
-		motor_set(MTR_ARM_R, 0);
-	}
+	bool move = (pos > SEN_POT_ARM_HIGH && pwr > 0)
+	         || (pos < SEN_POT_ARM_LOW  && pwr < 0);
+	
+	motor_set(MTR_ARM_L, -pwr * move);
+	motor_set(MTR_ARM_R, +pwr * move);
+
+	return move;
+}
+
+bool lift_basket(int8_t pwr) {
+	int16_t left  = analog_adc_get(SEN_POT_SCISSOR_L);
+	int16_t right = analog_adc_get(SEN_POT_SCISSOR_R);
+
+	bool mv_left  = (left  < SEN_POT_SCISSOR_L_HIGH && pwr > 0)
+	             || (left  > SEN_POT_SCISSOR_L_LOW  && pwr < 0);
+	bool mv_right = (right < SEN_POT_SCISSOR_R_HIGH && pwr > 0)
+	             || (right > SEN_POT_SCISSOR_R_LOW  && pwr < 0);
+
+	motor_set(MTR_SCISSOR_L, +pwr * mv_left);
+	motor_set(MTR_SCISSOR_R, -pwr * mv_right);
+
+	return mv_left || mv_right;
 }
 
 void telop_loop(void) {
@@ -103,11 +136,33 @@ void telop_loop(void) {
 	int8_t spin = analog_oi_get(OI_R_X);
 	int8_t lift = button(analog_oi_get(OI_R_B)) * kMotorMax;
 	int8_t arm  = button(analog_oi_get(OI_L_B)) * kMotorMax;
+	uint8_t i;
 
-	printf((char *)"Arm: %d\n", analog_adc_get(SEN_POT_ARM));
+	/* IR Sensor calibration. */
+#if 0
+	printf((char *)"%u,%u,%u,%u,%u,%u\n",
+		analog_adc_get(0),
+		analog_adc_get(1),
+		analog_adc_get(2),
+		analog_adc_get(3),
+		analog_adc_get(4),
+		analog_adc_get(5)
+	);
+#endif
 
+	/* Reset all motor values. */
+	for (i = 0; i < 8; ++i) {
+		motor_set(i, 0);
+	}
+
+	/* Give the user direct control over the robot for now. */
 	drive_omni(-side, fwrd, -spin);
-	// lift_arm(arm);
+	lift_arm(arm);
+	lift_basket(lift);
+
+	/* TODO Move this into the auton_loop() function so it actually works in
+	 * competition.
+	 */
 }
 
 void telop_spin(void) {

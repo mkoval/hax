@@ -5,6 +5,7 @@
  * User Guide.
  */
 #if defined(__18CXX)
+#define MCC18_24 1
 
 #define __noreturn 
 #define __rom	rom

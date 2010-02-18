@@ -1,1 +1,1 @@
-CSOURCE += $(PROG)/user.c
+CSOURCE += $(PROG)/user.c $(PROG)/auton.c

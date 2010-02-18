@@ -26,23 +26,24 @@ enum {
 /* Analog and Digital Sensors */
 enum {
 	/* Potentiometers */
-	SEN_POT_SCISSOR_L = 0,
+	SEN_POT_ARM = 0,
+	SEN_POT_SCISSOR_L,
 	SEN_POT_SCISSOR_R,
-	SEN_POT_ARM,
 	/* Infrared Rangers */
-	SEN_IR_LEFT,
-	SEN_IR_RIGHT,
+	SEN_IR_FRONT,
+	SEN_IR_SIDE_F,
+	SEN_IR_SIDE_B,
 	/* Rear bump sensors. */
-	SEN_BUMP_L,
-	SEN_BUMP_R
+	SEN_BUMP_L = 10,
+	SEN_BUMP_R = 11
 };
 
-#define SEN_SCISSOR_L_LOW  0
-#define SEN_SCISSOR_L_HIGH 1024
-#define SEN_SCISSOR_R_LOW  0
-#define SEN_SCISSOR_R_HIGH 1024
-#define SEN_SHOULDER_LOW   0
-#define SEN_SHOULDER_HIGH  1024
+#define SEN_POT_SCISSOR_L_LOW  164
+#define SEN_POT_SCISSOR_L_HIGH 420
+#define SEN_POT_SCISSOR_R_LOW  560
+#define SEN_POT_SCISSOR_R_HIGH 800
+#define SEN_POT_ARM_LOW        971
+#define SEN_POT_ARM_HIGH       300
 
 /* Digital Interrupts */
 enum {

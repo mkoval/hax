@@ -134,7 +134,6 @@ uint16_t analog_adc_get(PinIx);
 void digital_set(PinIx, bool);
 int8_t digital_get(PinIx);
 
-
 /*
  * MOTOR AND SERVO OUTPUTS
  */
