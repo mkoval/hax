@@ -17,12 +17,21 @@ uint16_t ir_to_cm(uint8_t sen) {
 	case SEN_IR_SIDE_F:
 	case SEN_IR_SIDE_B:
 	default:
-		return 0u;
+		return val;
 	}
 }
 
 GlobalState turn(void) {
-	return AUTO_IDLE;
+	static uint16_t t = 0u;
+
+	if (t < FU_TURN_TICKS) {
+		drive_omni(0, 0, kMotorMax);
+		++t;
+		return AUTO_TURN;
+	} else {
+		t = 0;
+		return AUTO_IDLE;
+	}
 }
 
 GlobalState cruise(void) {
@@ -120,7 +129,7 @@ GlobalState pickup(void) {
 }
 
 void auton_do(void) {
-	static GlobalState state = AUTO_DEPOSIT;
+	static GlobalState state = AUTO_TURN;
 
 	switch (state) {
 	/* Move balls from the arm into the basket. */

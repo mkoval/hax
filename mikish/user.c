@@ -163,6 +163,7 @@ void telop_loop(void) {
 	/* TODO Move this into the auton_loop() function so it actually works in
 	 * competition.
 	 */
+	auton_do();
 }
 
 void telop_spin(void) {

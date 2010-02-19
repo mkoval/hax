@@ -10,6 +10,8 @@
 #define FU_SEN_IR_OMEGA_ERR  5
 #define FU_SEN_IR_STRAFE_ERR 5
 
+#define FU_TURN_TICKS 48
+
 /* Parameters for the AUTO_CRUISE state, all specified in centimeters. */
 #define CRUISE_STOP_CM 30
 #define CRUISE_DIST_CM 20
