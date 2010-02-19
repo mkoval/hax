@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "auton.h"
 #include "hax.h"
+#include "ir.h"
 #include "ports.h"
 #include "user.h"
 #include "util.h"
@@ -12,12 +13,13 @@ uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) 
 
 uint16_t ir_to_cm(uint8_t sen) {
 	uint16_t val = analog_adc_get(sen);
+	uint16_t cal = ir_long_to_in10(val);
 
 	switch (sen) {
 	case SEN_IR_FRONT:
 	case SEN_IR_SIDE_F:
 	case SEN_IR_SIDE_B:
-		return val;
+		return cal;
 	
 	default:
 		return 0;
@@ -70,31 +72,34 @@ bool cruise(void) {
 
 bool deposit(void) {
 	static DepositState state = DEPOSIT_REVERSE;
+	static uint16_t time = 0u;
+
 
 	switch (state) {
 	/* Reverse until both limit switches are depressed. */
 	case DEPOSIT_REVERSE: {
-		bool left    = digital_get(SEN_BUMP_L);
-		bool right   = digital_get(SEN_BUMP_R);
-		int8_t omega;
+		bool left  = digital_get(SEN_BUMP_L);
+		bool right = digital_get(SEN_BUMP_R);
 
-		if (!left && right) {
-			omega = kMotorMin;
-		} else if (left && !right) {
-			omega = kMotorMax;
+		if (left || right) {
+			drive_omni(0, kMotorMax, 0);
 		} else {
-			omega = 0;
-		}
-
-		drive_omni(0, kMotorMin, omega);
-		
-		return (state = DEPOSIT_RAISE);
+			state = DEPOSIT_RAISE;
 		}
 		return true;
+	}
 	
 	/* Raise the basket to its maximum height, dumping it in the process. */
 	case DEPOSIT_RAISE:
 		if (!lift_basket(+127)) {
+			state = DEPOSIT_WAIT;
+		}
+		return true;
+	
+	case DEPOSIT_WAIT:
+		++time;
+		if (time > 500) {
+			time = 0;
 			state = DEPOSIT_LOWER;
 		}
 		return true;
@@ -143,7 +148,7 @@ bool pickup(void) {
 }
 
 void auton_do(void) {
-	static GlobalState state = AUTO_DUMP;
+	static GlobalState state = AUTO_RAISE;
 	static GlobalState prev  = AUTO_IDLE;
 
 	/* Debug state change message. */
@@ -153,13 +158,20 @@ void auton_do(void) {
 	}
 
 	switch (state) {
-	/* Dump the pre-loaded balls. */
-	case AUTO_DUMP:
-		if (!pickup()) {
-			state = AUTO_IDLE;
+	/* Get out of the storage position. */
+	case AUTO_RAISE:
+		if (!lift_arm(-127)) {
+			state = AUTO_DUMP;
 		}
 		break;
 	
+	/* Dump the pre-loaded balls. */
+	case AUTO_DUMP:
+		if (!deposit()) {
+			state = AUTO_IDLE;
+		}
+		break;
+
 	/* Do nothing... */
 	case AUTO_IDLE:
 	default:

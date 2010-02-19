@@ -13,8 +13,8 @@
 #define FU_TURN_TICKS 48
 
 /* Parameters for the AUTO_CRUISE state, all specified in centimeters. */
-#define CRUISE_STOP_CM 30
-#define CRUISE_DIST_CM 20
+#define CRUISE_STOP_CM 200
+#define CRUISE_DIST_CM 100
 
 #include "stdbool.h"
 
@@ -23,7 +23,9 @@
  */
 typedef enum {
 	AUTO_IDLE,
-	AUTO_DUMP
+	AUTO_RAISE,
+	AUTO_DUMP,
+	AUTO_CRUISE
 } GlobalState;
 
 /* Sub-states of the AUTO_PICKUP state. */
@@ -36,6 +38,7 @@ typedef enum {
 typedef enum {
 	DEPOSIT_REVERSE,
 	DEPOSIT_RAISE,
+	DEPOSIT_WAIT,
 	DEPOSIT_LOWER
 } DepositState;
 

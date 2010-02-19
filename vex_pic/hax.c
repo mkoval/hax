@@ -28,7 +28,6 @@ StatusFlags statusflag;
 /* Used to save the state of port b before the interrupt handler for ports 3
  * through 6 are called.
  */
-unsigned char volatile portb = 0xFF;
 
 typedef enum
 {
@@ -45,9 +44,6 @@ void setup_1(void) {
 	uint8_t i;
 
 	IFI_Initialization();
-
-	/* Take a snapshot of port b before we enable interrupts. */
-	portb = PORTB;
 
 	/* Initialize serial port communication. */
 	statusflag.NEW_SPI_DATA = 0;
@@ -276,19 +272,25 @@ void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 #error Bad complier
 #endif
 void interrupt_handler(void) {
-	static uint8_t delta, portb_old;
+	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
 	/* Interrupt 1 */
 	if (INTCON3bits.INT2IF && INTCON3bits.INT2IE) { 
 		INTCON3bits.INT2IF = 0;
-		if (isr_callbacks[0])
-			isr_callbacks[0]();
+
+		if (isr_callbacks[0]) {
+			isr_callbacks[0](INTCON2bits.INTEDG2);
+			INTCON2bits.INTEDG2 ^= 1;
+		}
 	}
 	/* Interrupt 2 */
 	else if (INTCON3bits.INT3IF && INTCON3bits.INT3IE) {
 		INTCON3bits.INT3IF = 0;
-		if (isr_callbacks[1])
-			isr_callbacks[1]();
+
+		if (isr_callbacks[1]) {
+			isr_callbacks[1](INTCON2bits.INTEDG3);
+			INTCON2bits.INTEDG3 ^= 1;
+		}
 	}
 	else if (INTCONbits.RBIF && INTCONbits.RBIE) {
 		/* Remove the "mismatch condition" by reading port b. */
@@ -298,32 +300,28 @@ void interrupt_handler(void) {
 		portb_old       = portb;
 	 
 		/* Interrupt 3 */
-		if(delta & 0x10 && isr_callbacks[2]) {
-			isr_callbacks[2]();
-			/* Int_3_ISR(!!(Port_B & 0x10)); */
+		if((delta & 0x10) && isr_callbacks[2]) {
+			isr_callbacks[2]((portb & (1<<4)) >> 4);
 		}
 
 		/* Interrupt 4 */
-		if(delta & 0x20 && isr_callbacks[3]) {
-			isr_callbacks[3]();
-			/* Int_4_ISR(!!(Port_B & 0x20)); */
+		if((delta & 0x20) && isr_callbacks[3]) {
+			isr_callbacks[3]((portb & (1<<5)) >> 5);
 		}
 
 		/* Interrupt 5 */
-		if(delta & 0x40 && isr_callbacks[4]) {
-			isr_callbacks[4]();
-			/* Int_5_ISR(!!(Port_B & 0x40)); */
+		if((delta & 0x40) && isr_callbacks[4]) {
+			isr_callbacks[4]((portb & (1<<6)) >> 6);
 		}
 
 		/* Interrupt 6 */
-		if(delta & 0x80 && isr_callbacks[5]) {
-			isr_callbacks[5]();
-			/* Int_6_ISR(!!(Port_B & 0x80)); */
+		if((delta & 0x80) && isr_callbacks[5]) {
+			isr_callbacks[5]((portb & (1<<7)) >> 7);
 		}
 	}
 }
 
-#pragma code interrupt_vector = LOW_INT_VECTOR
+#pragma code interrupt_vector=0x818
 void interrupt_vector(void) {
 	/* There's not much space for this function... */
 	_asm
@@ -336,7 +334,7 @@ void interrupt_enable(InterruptIx index) {
 	switch (index) {
 	case 0:
 		TRISBbits.TRISB2    = 1;
-		//INTCON3bits.INT2IP  = 0;
+		INTCON3bits.INT2IP  = 0;
 		INTCON3bits.INT2IF  = 0;
 		INTCON2bits.INTEDG2 = 1;
 		INTCON3bits.INT2IE  = 1;
@@ -344,7 +342,7 @@ void interrupt_enable(InterruptIx index) {
 	
 	case 1:
 		TRISBbits.TRISB3    = 1;
-		//INTCON2bits.INT3IP  = 0;
+		INTCON2bits.INT3IP  = 0;
 		INTCON2bits.INTEDG3 = 1;
 		INTCON3bits.INT3IF  = 0;
 		INTCON3bits.INT3IE  = 1;
@@ -358,7 +356,7 @@ void interrupt_enable(InterruptIx index) {
 		TRISBbits.TRISB5 = 1;
 		TRISBbits.TRISB6 = 1;
 		TRISBbits.TRISB7 = 1;
-  		//INTCON2bits.RBIP = 0;
+  		INTCON2bits.RBIP = 0;
 		INTCONbits.RBIF  = 0;
 		INTCONbits.RBIE  = 1;
 		break;

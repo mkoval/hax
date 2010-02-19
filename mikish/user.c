@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <p18cxxx.h>
 #include "auton.h"
 #include "hax.h"
 #include "user.h"
@@ -7,29 +8,81 @@
 
 uint8_t kNumAnalogInputs = 6;
 
-void isr_test(void) {
+void isr_test(int8_t level) {
 	_putc('!');
 	_puts("INTERRUPTS\n");
 }
 
+
+volatile static long count[3];
+
+#define ENCODER(_flip_,_other_,_num_) \
+	if (_flip_) {                     \
+		if (_other_)                  \
+			count[_num_]--;           \
+		else                          \
+			count[_num_]++;           \
+	} else {                          \
+		if (_other_)                  \
+			count[_num_]++;           \
+		else                          \
+			count[_num_]--;           \
+	}
+
+void encoder_0a(int8_t l) {
+	ENCODER(l,PORTBbits.RB3,0) // 2
+	/*
+	if (l) {
+		if (other)
+			count[0]--;
+		else
+			count[0]++;
+	} else {
+		if (other)
+			count[0]++;
+		else
+			count[0]--;
+	}
+	*/
+}
+
+void encoder_0b(int8_t l) {
+	ENCODER(!l,PORTBbits.RB2,0) // 3
+}
+
+void encoder_1a(int8_t l) {
+	ENCODER( l,PORTBbits.RB5,1) // 4
+}
+
+void encoder_1b(int8_t l) {
+	ENCODER(!l,PORTBbits.RB4,1) // 5
+}
+
+void encoder_2a(int8_t l) {
+	ENCODER( l,PORTBbits.RB7,2) // 6
+}
+
+void encoder_2b(int8_t l) {
+	ENCODER(!l,PORTBbits.RB6,2) // 7
+}
+
+
 void init(void) {
 	_puts("Initialization\n");
 
-#if 0
 	/* Test interrupts. */
-	interrupt_reg_isr(0, isr_test);
-	interrupt_reg_isr(1, isr_test);
-	interrupt_reg_isr(2, isr_test);
-	interrupt_reg_isr(3, isr_test);
-	interrupt_reg_isr(4, isr_test);
-	interrupt_reg_isr(5, isr_test);
+	interrupt_reg_isr(0, encoder_0a);
+	interrupt_reg_isr(1, encoder_0b);
+	interrupt_reg_isr(2, encoder_1a);
+	interrupt_reg_isr(3, encoder_1b);
+	interrupt_reg_isr(4, encoder_2a);
+	interrupt_reg_isr(5, encoder_2b);
 	interrupt_enable(0);
 	interrupt_enable(1);
 	interrupt_enable(2);
 	interrupt_enable(3);
 	interrupt_enable(4);
 	interrupt_enable(5);
-#endif
 }
 
 void auton_loop(void) {
@@ -38,7 +91,6 @@ void auton_loop(void) {
 }
 	
 void auton_spin(void) {
-	/* there is no autonomous mode */
 }
 
 int8_t button(int8_t v) {
@@ -155,15 +207,12 @@ void telop_loop(void) {
 		motor_set(i, 0);
 	}
 
+	//printf((char *)"Encoders: %li %li %li\n",count[0],count[1],count[2]);
+
 	/* Give the user direct control over the robot for now. */
 	drive_omni(side, fwrd, spin);
 	lift_arm(arm);
 	lift_basket(lift);
-
-	/* TODO Move this into the auton_loop() function so it actually works in
-	 * competition.
-	 */
-	auton_do();
 }
 
 void telop_spin(void) {
