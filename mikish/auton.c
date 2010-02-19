@@ -4,6 +4,7 @@
 #include "ports.h"
 #include "user.h"
 #include "util.h"
+#include "stdbool.h"
 
 uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) {
 	return minOut + (maxOut - minOut) * err / maxErr;
@@ -16,25 +17,27 @@ uint16_t ir_to_cm(uint8_t sen) {
 	case SEN_IR_FRONT:
 	case SEN_IR_SIDE_F:
 	case SEN_IR_SIDE_B:
-	default:
 		return val;
+	
+	default:
+		return 0;
 	}
 }
 
-GlobalState turn(void) {
+bool turn(void) {
 	static uint16_t t = 0u;
 
 	if (t < FU_TURN_TICKS) {
 		drive_omni(0, 0, kMotorMax);
 		++t;
-		return AUTO_TURN;
+		return true;
 	} else {
 		t = 0;
-		return AUTO_IDLE;
+		return false;
 	}
 }
 
-GlobalState cruise(void) {
+bool cruise(void) {
 	uint16_t sf = ir_to_cm(SEN_IR_SIDE_F);
 	uint16_t sb = ir_to_cm(SEN_IR_SIDE_B);
 	uint16_t f  = ir_to_cm(SEN_IR_FRONT);
@@ -56,50 +59,61 @@ GlobalState cruise(void) {
 		strafe  = prop_scale(0, kMotorMax, FU_SEN_IR_STRAFE_ERR, ABS(err_dist));
 		strafe *= SIGN(err_dist);
 
-		drive_omni(strafe, -kMotorMax, omega);
-		return AUTO_CRUISE;
+		drive_omni(strafe, kMotorMin, omega);
+		return true;
 	}
 	/* Close enough to start picking up balls... */
 	else {
-		return AUTO_PICKUP;
+		return false;
 	}
 }
 
-GlobalState deposit(void) {
+bool deposit(void) {
 	static DepositState state = DEPOSIT_REVERSE;
 
 	switch (state) {
 	/* Reverse until both limit switches are depressed. */
-	case DEPOSIT_REVERSE:
-		drive_omni(0, kMotorMax, 0);
+	case DEPOSIT_REVERSE: {
+		bool left    = digital_get(SEN_BUMP_L);
+		bool right   = digital_get(SEN_BUMP_R);
+		int8_t omega;
 
-		if (!digital_get(SEN_BUMP_L) && !digital_get(SEN_BUMP_R)) {
-			state = DEPOSIT_RAISE;
+		if (!left && right) {
+			omega = kMotorMin;
+		} else if (left && !right) {
+			omega = kMotorMax;
+		} else {
+			omega = 0;
 		}
-		return AUTO_DEPOSIT;
+
+		drive_omni(0, kMotorMin, omega);
+		
+		return (state = DEPOSIT_RAISE);
+		}
+		return true;
 	
 	/* Raise the basket to its maximum height, dumping it in the process. */
 	case DEPOSIT_RAISE:
 		if (!lift_basket(+127)) {
 			state = DEPOSIT_LOWER;
 		}
-		return AUTO_DEPOSIT;
+		return true;
 	
 	/* Lower the basket to its resting height. */
 	case DEPOSIT_LOWER:
 		if (!lift_basket(-127)) {
 			state = DEPOSIT_REVERSE;
-			return AUTO_IDLE;
+			return false;
 		} else {
-			return AUTO_DEPOSIT;
+			return true;
 		}
 	
 	default:
-		return AUTO_IDLE;
+		return false;
 	}
 }
 
-GlobalState pickup(void) {
+bool pickup(void) {
 	static PickupState state = PICKUP_RAISE;
 	int16_t pos = analog_adc_get(SEN_POT_ARM);
 
@@ -109,57 +123,46 @@ GlobalState pickup(void) {
 		if (!lift_arm(+127)) {
 			state = PICKUP_LOWER;
 		}
-		return AUTO_PICKUP;
+		return true;
 
 	case PICKUP_LOWER:
 		/* Lowering the arm. */
 		if (lift_arm(-127)) {
-			return AUTO_PICKUP;
+			return true;
 		}
 		/* Just reached the bottom; this action is complete. */
 		else {
 			state = PICKUP_RAISE;
-			return AUTO_IDLE;
+			return false;
 		}
 	
 	/* Safe default... */
 	default:
-		return AUTO_IDLE;
+		return false;
 	}
 }
 
 void auton_do(void) {
-	static GlobalState state = AUTO_TURN;
+	static GlobalState state = AUTO_DUMP;
+	static GlobalState prev  = AUTO_IDLE;
+
+	/* Debug state change message. */
+	if (state != prev) {
+		printf((char *)"State: %d\n", state);
+		prev = state;
+	}
 
 	switch (state) {
-	/* Move balls from the arm into the basket. */
-	case AUTO_PICKUP:
-		_puts("[STATE pickup]\n");
-		state = pickup();
+	/* Dump the pre-loaded balls. */
+	case AUTO_DUMP:
+		if (!pickup()) {
+			state = AUTO_IDLE;
+		}
 		break;
 	
-	/* Back into the nearest wall and dump the basket. */
-	case AUTO_DEPOSIT:
-		_puts("[STATE DEPOSIT]\n");
-		state = deposit();
-		break;
-	
-	/* Follow the wall at a fixed distance. */
-	case AUTO_CRUISE:
-		_puts("[STATE CRUISE]\n");
-		state = cruise();
-		break;
-	
-	/* Turn 90-degrees to the left. */
-	case AUTO_TURN:
-		_puts("[STATE TURN]\n");
-		state = turn();
-		break;
-
 	/* Do nothing... */
 	case AUTO_IDLE:
 	default:
-		_puts("[STATE idle]\n");
 		break;
 	}
 }

@@ -83,10 +83,10 @@ static int16_t max4(int16_t a, int16_t b, int16_t c, int16_t d) {
 }
 
 void drive_omni(int8_t x, int8_t y, int8_t omega) {
-	int16_t f = (int16_t) x + omega;
-	int16_t r = (int16_t)-y + omega;
-	int16_t b = (int16_t)-x + omega;
-	int16_t l = (int16_t) y + omega;
+	int16_t f = (int16_t)-x - omega;
+	int16_t r = (int16_t)-y - omega;
+	int16_t b = (int16_t) x - omega;
+	int16_t l = (int16_t) y - omega;
 	int16_t max = max4(ABS(l), ABS(r), ABS(b), ABS(f));
 
 	/* Scale the values to not exceed kMotorMax. */
@@ -156,7 +156,7 @@ void telop_loop(void) {
 	}
 
 	/* Give the user direct control over the robot for now. */
-	drive_omni(-side, fwrd, -spin);
+	drive_omni(side, fwrd, spin);
 	lift_arm(arm);
 	lift_basket(lift);
 

@@ -16,15 +16,14 @@
 #define CRUISE_STOP_CM 30
 #define CRUISE_DIST_CM 20
 
+#include "stdbool.h"
+
 /* Macroscopic states that describe the general behavior of the robot. Each of
  * these states corresponds to a single action or a smaller state machine.
  */
 typedef enum {
-	AUTO_CRUISE,
-	AUTO_DEPOSIT,
-	AUTO_PICKUP,
 	AUTO_IDLE,
-	AUTO_TURN
+	AUTO_DUMP
 } GlobalState;
 
 /* Sub-states of the AUTO_PICKUP state. */
@@ -49,17 +48,17 @@ uint16_t ir_to_cm(uint8_t);
 /* Drive in a straight line by using the difference between two side-mounted IR
  * sensor readings. Stops far enough from a wall to safely lift the arm.
  */
-GlobalState cruise(void);
+bool cruise(void);
 
 /* Reverse until a wall is encountered. When a wall is found, all balls in the
  * robot's basket are dumped and the the basket is restored to rest.
  */
-GlobalState deposit(void);
+bool deposit(void);
 
 /* Pickup all of the balls currently on the arm and desposit them into the rear
  * storage basket.
  */
-GlobalState pickup(void);
+bool pickup(void);
 
 /* General-purpose autonomous mode function; invoked once per slow loop. */
 void auton_do(void);
