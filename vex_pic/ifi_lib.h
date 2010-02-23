@@ -6,14 +6,17 @@
  
 #include "master.h"
  
-typedef struct {
-	uint8_t NEW_SPI_DATA:1;
-	uint8_t TX_UPDATED:1;
-	uint8_t FIRST_TIME:1;
-	uint8_t TX_BUFFSELECT:1;
-	uint8_t RX_BUFFSELECT:1;
-	uint8_t SPI_SEMAPHORE:1;
-	uint8_t unknown:2;
+typedef union {
+	struct {
+		uint8_t NEW_SPI_DATA:1;
+		uint8_t TX_UPDATED:1;
+		uint8_t FIRST_TIME:1;
+		uint8_t TX_BUFFSELECT:1;
+		uint8_t RX_BUFFSELECT:1;
+		uint8_t SPI_SEMAPHORE:1;
+		uint8_t unknown:2;
+	} b;
+	uint8_t a;
 } StatusFlags;
 
 
@@ -27,7 +30,6 @@ extern StatusFlags statusflag;
  * from the high priority interrupt vector.
  */
 void InterruptHandlerHigh(void);
-
 
 /* Configure registers and initializes the SPI RX/TX buffers. Called from the
  * setup() HAX function during robot initalization.

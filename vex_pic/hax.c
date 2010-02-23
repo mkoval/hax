@@ -6,6 +6,7 @@
 #include <usart.h>
 #include <adc.h>
 #include <delays.h>
+#include <stdio.h>
 #include "hax.h"
 #include "vex_pic/master.h"
 #include "vex_pic/ifi_lib.h"
@@ -46,7 +47,7 @@ void setup_1(void) {
 	IFI_Initialization();
 
 	/* Initialize serial port communication. */
-	statusflag.NEW_SPI_DATA = 0;
+	statusflag.b.NEW_SPI_DATA = 0;
 
 	Open1USART(USART_TX_INT_OFF &
 		USART_RX_INT_OFF &
@@ -60,7 +61,7 @@ void setup_1(void) {
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
 
-	for (i = 0; i < 16; ++i) {
+	for (i = 0; i < 22; ++i) {
 		pin_set_io( i, kInput);
 	}
 
@@ -101,6 +102,42 @@ void spin(void) {
 
 void loop_1(void) {
 	Getdata(&rxdata);
+	#ifdef DEBUG
+	{
+	uint8_t i;
+	printf((char*)
+		   "rxdata:\n"
+		   "  packet_num      : %i\n"
+		   "  rcmode          : %i\n"
+		   "  rcstatusflag    : %i\n"
+		   , rxdata.packet_num
+		   , rxdata.rcmode.allbits
+		   , rxdata.rcstatusflag.allbits);
+		
+	_puts( "  reserved_1[0..2]: ");
+	for(i = 0; i < 3; i++) {
+		printf((char*)"%i, ",rxdata.reserved_1[i]);
+	}
+
+	_puts( "\n"
+		   "  reserved_2[0..8]: ");
+	for(i = 0; i < 8; i++) {
+		printf((char*)"%i, ",rxdata.reserved_2[i]);
+	}
+
+	printf((char*) "\n"
+		   "  master_version: %i\n", rxdata.master_version);
+
+
+	printf((char*)
+		    "statusflag: 0x%02x\n"
+			"  ",statusflag.a);
+	for(i = 0; i < 8; i++) {
+		printf((char*)"%i, ", (statusflag.a & (1<<i) ) >> i);
+	}
+	_putc('\n');
+	}
+	#endif
 }
 
 void loop_2(void) {
@@ -108,11 +145,12 @@ void loop_2(void) {
 }
 
 bool new_data_received(void) {
-	return statusflag.NEW_SPI_DATA;
+	return statusflag.b.NEW_SPI_DATA;
 }
 
 CtrlMode mode_get(void) {
-	switch (rxdata.rc_status_byte) {
+#if 0
+	switch (rxdata.rcstatusflag) {
 	case 0:
 		//return kDisable;
 	case 4:
@@ -121,6 +159,8 @@ CtrlMode mode_get(void) {
 		default:
 		return kTelop;
 	}
+#endif
+	return kTelop;
 }
 
 void mode_set(CtrlMode mode) {
