@@ -112,11 +112,23 @@ bool new_data_received(void) {
 }
 
 CtrlMode mode_get(void) {
-	return (rxdata.rcmode.mode.autonomous) ? kAuton : kTelop;
+	switch (rxdata.rc_status_byte) {
+	case 0:
+		//return kDisable;
+	case 4:
+		return kAuton;
+	case 1:
+		default:
+		return kTelop;
+	}
 }
 
 void mode_set(CtrlMode mode) {
-	rxdata.rcmode.mode.autonomous = (mode == kAuton) ? 0x02 : 0x00;
+	if (mode == kAuton) {
+		txdata.user_cmd |= 0x02;
+	} else {
+		txdata.user_cmd &= ~0x02;
+	}
 }
 
 /*

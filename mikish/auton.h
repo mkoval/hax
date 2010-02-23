@@ -22,6 +22,7 @@
  * these states corresponds to a single action or a smaller state machine.
  */
 typedef enum {
+	AUTO_FIELD,
 	AUTO_IDLE,
 	AUTO_RAISE,
 	AUTO_DUMP,
@@ -37,8 +38,10 @@ typedef enum {
 /* Sub-states of the AUTO_DEPOSIT state. */
 typedef enum {
 	DEPOSIT_REVERSE,
+	DEPOSIT_ARM,
 	DEPOSIT_RAISE,
 	DEPOSIT_WAIT,
+	DEPOSIT_FORWARD,
 	DEPOSIT_LOWER
 } DepositState;
 

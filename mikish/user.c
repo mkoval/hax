@@ -71,6 +71,7 @@ void init(void) {
 	_puts("Initialization\n");
 
 	/* Test interrupts. */
+#if 0
 	interrupt_reg_isr(0, encoder_0a);
 	interrupt_reg_isr(1, encoder_0b);
 	interrupt_reg_isr(2, encoder_1a);
@@ -83,10 +84,31 @@ void init(void) {
 	interrupt_enable(3);
 	interrupt_enable(4);
 	interrupt_enable(5);
+#endif
+
+	/* Use a jumper to test autonomous mode. */
+	if (!digital_get(SEN_AUTON)) {
+		printf((char *)"[AUTON forced]\n");
+		mode_set(kAuton);
+	}
 }
 
 void auton_loop(void) {
+	uint8_t  i = 0;
+	uint16_t t = 0;
 	printf((char *)"[MODE auton]\n");
+
+	++t;
+	if (t >= 2200) {
+		t = 0;
+		mode_set(kTelop);
+	}
+
+	/* Reset all motor values. */
+	for (i = 0; i < 8; ++i) {
+		motor_set(i, 0);
+	}
+
 	auton_do();
 }
 	

@@ -46,7 +46,8 @@ typedef void (*InterruptServiceRoutine)(int8_t level);
 /* Operating mode of the robot (autonomous or operator controlled). */
 typedef enum {
 	kAuton,
-	kTelop
+	kTelop,
+	kDisable
 } CtrlMode;
 
 /* Number of microseconds between two consecutive instances of the processor

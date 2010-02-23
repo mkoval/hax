@@ -17,7 +17,7 @@ void main() {
 			
 			if (mode == kAuton) {
 				auton_loop();
-			} else {
+			} else if (mode == kTelop) {
 				telop_loop();
 			}
 			
@@ -29,7 +29,7 @@ void main() {
 		if (mode == kAuton) {
 			auton_spin();
 		}
-		else {
+		else if (mode == kTelop) {
 			telop_spin();
 		}
 	}

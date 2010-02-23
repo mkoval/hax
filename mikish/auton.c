@@ -73,6 +73,7 @@ bool cruise(void) {
 bool deposit(void) {
 	static DepositState state = DEPOSIT_REVERSE;
 	static uint16_t time = 0u;
+	static pot_initial = analog_get(SEN_POT_ARM);
 
 
 	switch (state) {
@@ -82,23 +83,62 @@ bool deposit(void) {
 		bool right = digital_get(SEN_BUMP_R);
 
 		if (left || right) {
-			drive_omni(0, kMotorMax, 0);
+			drive_omni(0, 3 * kMotorMax / 4, 0);
 		} else {
-			state = DEPOSIT_RAISE;
+			state = DEPOSIT_ARM;
+			time  = 0;
 		}
+		
+		++time;
+		if (time > 325) {
+			state = DEPOSIT_ARM;
+			time  = 0;
+		}
+
 		return true;
 	}
-	
+
+	/* Lower the arm before raising the basket. */
+	case DEPOSIT_ARM:
+		if (!lift_arm(-127)) {
+			state = DEPOSIT_RAISE;
+			time  = 0;
+		}
+
+		++time;
+		if (time > 200) {
+			time  = 0;
+			return false;
+		}
+		break;
+
 	/* Raise the basket to its maximum height, dumping it in the process. */
 	case DEPOSIT_RAISE:
 		if (!lift_basket(+127)) {
 			state = DEPOSIT_WAIT;
 		}
+
+		++time;
+		if (time > 200) {
+			time = 0;
+			return false;
+		}
+
 		return true;
 	
 	case DEPOSIT_WAIT:
 		++time;
 		if (time > 500) {
+			time = 0;
+			state = DEPOSIT_FORWARD;
+		}
+		return true;
+	
+	case DEPOSIT_FORWARD:
+		drive_omni(0, 3 * kMotorMin / 4, 0);
+
+		++time;
+		if (time > 25) {
 			time = 0;
 			state = DEPOSIT_LOWER;
 		}
@@ -106,10 +146,18 @@ bool deposit(void) {
 	
 	/* Lower the basket to its resting height. */
 	case DEPOSIT_LOWER:
+		++time;
+		if (time > 500) {
+			time = 0;
+			return false;
+		}
+
 		if (!lift_basket(-127)) {
+			time  = 0;
 			state = DEPOSIT_REVERSE;
 			return false;
 		} else {
+			time = 0;
 			return true;
 		}
 	
@@ -119,17 +167,10 @@ bool deposit(void) {
 }
 
 bool pickup(void) {
-	static PickupState state = PICKUP_RAISE;
+	static PickupState state = PICKUP_LOWER;
 	int16_t pos = analog_adc_get(SEN_POT_ARM);
 
 	switch (state) {
-	case PICKUP_RAISE:
-		/* Raising the arm. */
-		if (!lift_arm(+127)) {
-			state = PICKUP_LOWER;
-		}
-		return true;
-
 	case PICKUP_LOWER:
 		/* Lowering the arm. */
 		if (lift_arm(-127)) {
@@ -148,8 +189,9 @@ bool pickup(void) {
 }
 
 void auton_do(void) {
-	static GlobalState state = AUTO_RAISE;
+	static GlobalState state = AUTO_FIELD;
 	static GlobalState prev  = AUTO_IDLE;
+	static uint16_t start    = AUTO_
 
 	/* Debug state change message. */
 	if (state != prev) {
@@ -159,10 +201,8 @@ void auton_do(void) {
 
 	switch (state) {
 	/* Get out of the storage position. */
-	case AUTO_RAISE:
-		if (!lift_arm(-127)) {
-			state = AUTO_DUMP;
-		}
+
+	case AUTO_FIELD:
 		break;
 	
 	/* Dump the pre-loaded balls. */

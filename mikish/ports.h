@@ -35,7 +35,9 @@ enum {
 	SEN_IR_SIDE_B,
 	/* Rear bump sensors. */
 	SEN_BUMP_L = 10,
-	SEN_BUMP_R = 11
+	SEN_BUMP_R = 11,
+	/* Autonomous jumper. */
+	SEN_AUTON  = 12
 };
 
 #define SEN_POT_SCISSOR_L_LOW  164
