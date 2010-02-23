@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <p18cxxx.h>
+#include "stdbool.h"
 #include "auton.h"
 #include "hax.h"
 #include "user.h"
@@ -13,59 +13,45 @@ void isr_test(int8_t level) {
 	_puts("INTERRUPTS\n");
 }
 
-
 volatile static long count[3];
 
 #define ENCODER(_flip_,_other_,_num_) \
+	bool other = digital_get(_other_);\
 	if (_flip_) {                     \
-		if (_other_)                  \
+		if (other)                    \
 			count[_num_]--;           \
 		else                          \
 			count[_num_]++;           \
 	} else {                          \
-		if (_other_)                  \
+		if (other)                    \
 			count[_num_]++;           \
 		else                          \
 			count[_num_]--;           \
 	}
 
 void encoder_0a(int8_t l) {
-	ENCODER(l,PORTBbits.RB3,0) // 2
-	/*
-	if (l) {
-		if (other)
-			count[0]--;
-		else
-			count[0]++;
-	} else {
-		if (other)
-			count[0]++;
-		else
-			count[0]--;
-	}
-	*/
+	ENCODER( l,17,0) // 2
 }
 
 void encoder_0b(int8_t l) {
-	ENCODER(!l,PORTBbits.RB2,0) // 3
+	ENCODER(!l,16,0) // 3
 }
 
 void encoder_1a(int8_t l) {
-	ENCODER( l,PORTBbits.RB5,1) // 4
+	ENCODER( l,19,1) // 4
 }
 
 void encoder_1b(int8_t l) {
-	ENCODER(!l,PORTBbits.RB4,1) // 5
+	ENCODER(!l,18,1) // 5
 }
 
 void encoder_2a(int8_t l) {
-	ENCODER( l,PORTBbits.RB7,2) // 6
+	ENCODER( l,21,2) // 6
 }
 
 void encoder_2b(int8_t l) {
-	ENCODER(!l,PORTBbits.RB6,2) // 7
+	ENCODER(!l,20,2) // 7
 }
-
 
 void init(void) {
 	_puts("Initialization\n");
@@ -203,6 +189,7 @@ bool lift_basket(int8_t pwr) {
 
 	return mv_left || mv_right;
 }
+
 
 void telop_loop(void) {
 	int8_t fwrd = analog_oi_get(OI_L_Y);

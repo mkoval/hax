@@ -177,6 +177,15 @@ void pin_set_io(PinIx i, PinMode mode) {
 	case 15:
 		BIT_SET(TRISH, (i - 12) + 4, bit);
 		break;
+	
+	/* access the interrupt pins */
+	case 16:
+	case 17:
+	case 18:
+	case 19:
+	case 20:
+	case 21:
+		BIT_SET(TRISB, (i - 16) + 2, bit);
 	}
 }
 
@@ -215,6 +224,16 @@ int8_t digital_get(PinIx i) {
 	case 14:
 	case 15:
 		return BIT_GET(PORTH, (i - 12) + 4);
+
+	
+	/* access the interrupt pins */
+	case 16:
+	case 17:
+	case 18:
+	case 19:
+	case 20:
+	case 21:
+		return BIT_GET(PORTB, (i - 16) + 2);
 
 	default:
 		return -1;
