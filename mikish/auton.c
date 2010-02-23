@@ -73,8 +73,6 @@ bool cruise(void) {
 bool deposit(void) {
 	static DepositState state = DEPOSIT_REVERSE;
 	static uint16_t time = 0u;
-	static pot_initial = analog_get(SEN_POT_ARM);
-
 
 	switch (state) {
 	/* Reverse until both limit switches are depressed. */
@@ -191,7 +189,6 @@ bool pickup(void) {
 void auton_do(void) {
 	static GlobalState state = AUTO_FIELD;
 	static GlobalState prev  = AUTO_IDLE;
-	static uint16_t start    = AUTO_
 
 	/* Debug state change message. */
 	if (state != prev) {
