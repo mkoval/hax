@@ -19,6 +19,8 @@ void main() {
 				auton_loop();
 			} else if (mode == kTelop) {
 				telop_loop();
+			} else if (mode == kDisable) {
+				disable_loop();
 			}
 			
 			loop_2();
@@ -26,11 +28,13 @@ void main() {
 		
 		/* Executes as fast as the hardware allows. */
 		spin();
+
 		if (mode == kAuton) {
 			auton_spin();
-		}
-		else if (mode == kTelop) {
+		} else if (mode == kTelop) {
 			telop_spin();
+		} else if (mode == kDisable) {
+			disable_spin();
 		}
 	}
 }

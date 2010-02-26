@@ -3,6 +3,7 @@ MCCPATH   = /opt/mcc18
 WINPATH   = $(srcdir)/vex_pic/winpath.sh
 CC        = '$(MCCPATH)/bin/mcc18'
 LD        = '$(MCCPATH)/bin/mplink'
+AS        = '$(MCCPATH)/mpasm/mpasm'
 IPATH     = '$(MCCPATH)/h'
 WIPATH   := '$(shell $(WINPATH) $(IPATH))'
 ARCH_CFLAGS = -I=$(WIPATH) -p=18F8520

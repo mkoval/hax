@@ -222,8 +222,15 @@ void telop_loop(void) {
 	drive_omni(side, fwrd, spin);
 	lift_arm(arm);
 	lift_basket(lift);
+
+	cruise();
 }
 
 void telop_spin(void) {
 }
 
+void disable_spin(void) {
+}
+
+void disable_loop(void) {
+}

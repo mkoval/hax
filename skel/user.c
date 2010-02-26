@@ -17,3 +17,8 @@ void telop_loop(void) {
 void telop_spin(void) {
 }
 
+void disable_loop(void) {
+}
+
+void disable_spin(void) {
+}

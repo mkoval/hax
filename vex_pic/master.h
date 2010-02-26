@@ -75,7 +75,6 @@ typedef struct {
 	uint8_t disabled:1;   /* Robot enable/disable flag. */
 } RCModes;
 
-
 /* This structure defines the contents of the data received from the master
  * processor.
  */
@@ -89,6 +88,10 @@ typedef struct {
 	
 	union {
 		uint8_t allbits; /* ??? */
+		struct {
+			uint8_t reserved:7;
+			uint8_t oi_off:1;
+		} b;
 	} rcstatusflag;
 	
 	uint8_t reserved_1[3];

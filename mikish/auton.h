@@ -6,8 +6,8 @@
 /* Maximum difference in between the two side sensor readings used for
  * proportional correction.
  */
-#define FU_CRUISE_DIST       20
-#define FU_SEN_IR_OMEGA_ERR  5
+#define FU_CRUISE_DIST       300
+#define FU_SEN_IR_OMEGA_ERR  50
 #define FU_SEN_IR_STRAFE_ERR 5
 
 #define FU_TURN_TICKS 48

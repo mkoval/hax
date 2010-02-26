@@ -19,7 +19,7 @@ TARGET  = $(PROG)-$(ARCH).$(ARCHEXT)
 include $(ARCH)/Makefile
 include $(PROG)/Makefile
 
-OBJECTS  = $(CSOURCE:=.o)
+OBJECTS  = $(CSOURCE:=.o) # $(ASOURCE:=.o)
 
 ALL_CFLAGS = $(ARCH_CFLAGS) $(CFLAGS)
 ALL_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
@@ -36,10 +36,14 @@ clean :
 
 %.hex : $(OBJECTS)
 	@echo "LDHEX $(@F)"
-	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT)$@ $^
+	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^
 
 %.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
 	@$(CC) $(ALL_CFLAGS) $< $(CCOUT_OPT)$@ -fe=$(@:.o=.err)
+
+#%.asm.o : %.asm $(HEADERS)
+#	@echo "AS $(@F)"
+#	@$(AS) $(ALL_ASFLAGS) $< $@
 
 .PHONY : all clean install rebuild

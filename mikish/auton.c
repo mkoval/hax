@@ -8,7 +8,7 @@
 #include "stdbool.h"
 
 uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) {
-	return minOut + (maxOut - minOut) * err / maxErr;
+	return (int32_t) minOut + ( maxOut - minOut) * err / maxErr;
 }
 
 uint16_t ir_to_cm(uint8_t sen) {
@@ -44,6 +44,8 @@ bool cruise(void) {
 	uint16_t sb = ir_to_cm(SEN_IR_SIDE_B);
 	uint16_t f  = ir_to_cm(SEN_IR_FRONT);
 
+	f = 1000;
+
 	/* Not close enough to a wall to start picking up balls yet. */
 	if (f > CRUISE_STOP_CM) {
 		int8_t strafe = 0, omega = 0;
@@ -60,6 +62,8 @@ bool cruise(void) {
 		/* Correct the robot's distance from the wall. */
 		strafe  = prop_scale(0, kMotorMax, FU_SEN_IR_STRAFE_ERR, ABS(err_dist));
 		strafe *= SIGN(err_dist);
+
+		printf((char *)"F:%4u B:%4u D:%4d O:%4d\n", sf, sb, err_omega, omega);
 
 		drive_omni(strafe, kMotorMin, omega);
 		return true;

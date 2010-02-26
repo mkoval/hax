@@ -77,7 +77,8 @@ void auton_loop(void);
 void auton_spin(void);
 void telop_loop(void);
 void telop_spin(void);
-
+void disable_loop(void);
+void disable_spin(void);
 
 /*
  * INITIALIZATION AND MISC
@@ -113,7 +114,7 @@ bool new_data_received(void);
 CtrlMode mode_get(void);
 
 /* Puts the robot in autonomous or telop mode. */
-void mode_set(CtrlMode);
+void mode_set(CtrlMode new_mode);
 
 
 /*

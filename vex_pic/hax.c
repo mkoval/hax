@@ -97,7 +97,6 @@ void setup_2(void) {
 }
 
 void spin(void) {
-
 }
 
 void loop_1(void) {
@@ -107,27 +106,24 @@ void loop_1(void) {
 	uint8_t i;
 	printf((char*)
 		   "rxdata:\n"
-		   "  packet_num      : %i\n"
-		   "  rcmode          : %i\n"
-		   "  rcstatusflag    : %i\n"
+		   "  packet_num rcmode rcstatusflag: %i %i %i\n"
 		   , rxdata.packet_num
 		   , rxdata.rcmode.allbits
 		   , rxdata.rcstatusflag.allbits);
 		
-	_puts( "  reserved_1[0..2]: ");
+	_puts( "  reserved_1[0..2] : ");
 	for(i = 0; i < 3; i++) {
 		printf((char*)"%i, ",rxdata.reserved_1[i]);
 	}
 
-	_puts( "\n"
-		   "  reserved_2[0..8]: ");
+	_puts( ";"
+		   "  reserved_2[0..8] : ");
 	for(i = 0; i < 8; i++) {
 		printf((char*)"%i, ",rxdata.reserved_2[i]);
 	}
 
 	printf((char*) "\n"
-		   "  master_version: %i\n", rxdata.master_version);
-
+		   "  master_version : %i\n", rxdata.master_version);
 
 	printf((char*)
 		    "statusflag: 0x%02x\n"
@@ -149,18 +145,7 @@ bool new_data_received(void) {
 }
 
 CtrlMode mode_get(void) {
-#if 0
-	switch (rxdata.rcstatusflag) {
-	case 0:
-		//return kDisable;
-	case 4:
-		return kAuton;
-	case 1:
-		default:
-		return kTelop;
-	}
-#endif
-	return kTelop;
+	return (rxdata.rcstatusflag.b.oi_off ? kDisable : kTelop);
 }
 
 void mode_set(CtrlMode mode) {
