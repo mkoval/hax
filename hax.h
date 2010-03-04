@@ -41,7 +41,7 @@ typedef int8_t ServoPosition;
 #define kServoMax +127
 
 /* Callback function invoked when a hardware interrupt is fired. */
-typedef void (*InterruptServiceRoutine)(int8_t level);
+typedef void (*InterruptServiceRoutine)(int8_t);
 
 /* Operating mode of the robot (autonomous or operator controlled). */
 typedef enum {
