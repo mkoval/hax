@@ -7,6 +7,8 @@
 #include "util.h"
 #include "stdbool.h"
 
+void do_stuff(void) { }
+
 uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) {
 	return (int32_t) minOut + ( maxOut - minOut) * err / maxErr;
 }
