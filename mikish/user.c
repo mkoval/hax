@@ -15,49 +15,50 @@ void isr_test(int8_t level) {
 
 volatile static long count[3];
 
-#define ENCODER(_flip_,_other_,_num_) \
-	bool other = digital_get(_other_);\
-	if (_flip_) {                     \
-		if (other)                    \
-			count[_num_]--;           \
-		else                          \
-			count[_num_]++;           \
-	} else {                          \
-		if (other)                    \
-			count[_num_]++;           \
-		else                          \
-			count[_num_]--;           \
-	}
+#define ENCODER(_flip_,_other_,_num_)     \
+	do {                                  \
+		bool other = digital_get(_other_);\
+		if (_flip_) {                     \
+			if (other)                    \
+				count[_num_]--;           \
+			else                          \
+				count[_num_]++;           \
+		} else {                          \
+			if (other)                    \
+				count[_num_]++;           \
+			else                          \
+				count[_num_]--;           \
+		}                                 \
+	} while (0)
 
 void encoder_0a(int8_t l) {
-	ENCODER( l,17,0) // 2
+	ENCODER( l,17,0); // 2
 }
 
 void encoder_0b(int8_t l) {
-	ENCODER(!l,16,0) // 3
+	ENCODER(!l,16,0); // 3
 }
 
 void encoder_1a(int8_t l) {
-	ENCODER( l,19,1) // 4
+	ENCODER( l,19,1); // 4
 }
 
 void encoder_1b(int8_t l) {
-	ENCODER(!l,18,1) // 5
+	ENCODER(!l,18,1); // 5
 }
 
 void encoder_2a(int8_t l) {
-	ENCODER( l,21,2) // 6
+	ENCODER( l,21,2); // 6
 }
 
 void encoder_2b(int8_t l) {
-	ENCODER(!l,20,2) // 7
+	ENCODER(!l,20,2); // 7
 }
 
 void init(void) {
 	_puts("Initialization\n");
 
 	/* Test interrupts. */
-#if 0
 	interrupt_reg_isr(0, encoder_0a);
 	interrupt_reg_isr(1, encoder_0b);
 	interrupt_reg_isr(2, encoder_1a);
@@ -70,7 +71,6 @@ void init(void) {
 	interrupt_enable(3);
 	interrupt_enable(4);
 	interrupt_enable(5);
-#endif
 
 	/* Use a jumper to test autonomous mode. */
 	if (!digital_get(SEN_AUTON)) {
