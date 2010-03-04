@@ -79,27 +79,6 @@ void init(void) {
 	}
 }
 
-void auton_loop(void) {
-	uint8_t  i = 0;
-	uint16_t t = 0;
-	printf((char *)"[MODE auton]\n");
-
-	++t;
-	if (t >= 2200) {
-		t = 0;
-		mode_set(kTelop);
-	}
-
-	/* Reset all motor values. */
-	for (i = 0; i < 8; ++i) {
-		motor_set(i, 0);
-	}
-
-	auton_do();
-}
-	
-void auton_spin(void) {
-}
 
 int8_t button(int8_t v) {
 	if ( v > 50 )
@@ -191,6 +170,28 @@ bool lift_basket(int8_t pwr) {
 	return mv_left || mv_right;
 }
 
+void auton_loop(void) {
+	uint8_t  i = 0;
+	uint16_t t = 0;
+	printf((char *)"[MODE auton]\n");
+
+	++t;
+	if (t >= 2200) {
+		t = 0;
+		mode_set(kTelop);
+	}
+
+	/* Reset all motor values. */
+	for (i = 0; i < 8; ++i) {
+		motor_set(i, 0);
+	}
+
+	drive_omni(0,127,0);
+
+}
+	
+void auton_spin(void) {
+}
 
 void telop_loop(void) {
 	int8_t fwrd = analog_oi_get(OI_L_Y);
@@ -217,14 +218,12 @@ void telop_loop(void) {
 		motor_set(i, 0);
 	}
 
-	//printf((char *)"Encoders: %li %li %li\n",count[0],count[1],count[2]);
-
 	/* Give the user direct control over the robot for now. */
 	drive_omni(side, fwrd, spin);
 	lift_arm(arm);
 	lift_basket(lift);
 
-	cruise();
+	printf((char *)"0: %10ld 1: %10ld 2: %10ld\n", count[0],count[1],count[2]);
 }
 
 void telop_spin(void) {
