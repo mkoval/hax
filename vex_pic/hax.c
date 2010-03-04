@@ -144,16 +144,34 @@ bool new_data_received(void) {
 	return statusflag.b.NEW_SPI_DATA;
 }
 
+static CtrlMode mode_s = kAuton;
+
+uint8_t check_oi(void) {
+	uint8_t i;
+	for(i = 0; i < 16; i++) {
+		if ( (rxdata.oi_analog[i] > 0xdf) || (rxdata.oi_analog[i] < 0x1f) ) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 CtrlMode mode_get(void) {
-	return (rxdata.rcstatusflag.b.oi_off ? kDisable : kTelop);
+	if (rxdata.rcstatusflag.b.oi_on) {
+		if (mode_s != kTelop) {
+			if (check_oi()) {
+				mode_s = kTelop;
+			}
+		}
+		return mode_s;
+	} else {
+		mode_s = kAuton;
+		return kDisable;
+	}
 }
 
 void mode_set(CtrlMode mode) {
-	if (mode == kAuton) {
-		txdata.user_cmd |= 0x02;
-	} else {
-		txdata.user_cmd &= ~0x02;
-	}
+	
 }
 
 /*

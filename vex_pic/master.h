@@ -87,10 +87,10 @@ typedef struct {
 	} rcmode;
 	
 	union {
-		uint8_t allbits; /* ??? */
+		uint8_t a;
 		struct {
+			uint8_t oi_on:1;
 			uint8_t reserved:7;
-			uint8_t oi_off:1;
 		} b;
 	} rcstatusflag;
 	
