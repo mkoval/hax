@@ -5,6 +5,7 @@
 #include "user.h"
 #include "util.h"
 #include "ports.h"
+#include "mikish/encoder.h"
 
 uint8_t kNumAnalogInputs = 6;
 

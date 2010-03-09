@@ -171,7 +171,6 @@ CtrlMode mode_get(void) {
 }
 
 void mode_set(CtrlMode mode) {
-	
 }
 
 /*

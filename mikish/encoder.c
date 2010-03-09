@@ -1,20 +1,23 @@
 #include "stdbool.h"
 #include "stdint.h"
+#include "hax.h"
+#include "mikish/encoder.h"
 
 static volatile uint32_t ct[6];
+
 #define ENCODER(_flip_,_other_,_num_)              \
 	do {                                       \
 		bool other = digital_get(_other_); \
 		if (_flip_) {                      \
 			if (other)                 \
-				ct[2*_num_+1]++;\
+				ct[2*_num_+1]++;   \
 			else                       \
-				ct[2*_num_]++;  \
+				ct[2*_num_]++;     \
 		} else {                           \
 			if (other)                 \
-				ct[2*_num_]++;  \
+				ct[2*_num_]++;     \
 			else                       \
-				ct[2*_num_+1]++;\
+				ct[2*_num_+1]++;   \
 		}                                  \
 	} while (0)
 
@@ -34,7 +37,7 @@ void encoder_1b(int8_t l) {
 void encoder_2a(int8_t l) {
 	ENCODER( l,21,2); // 6
 }
-void encoder_2a(int8_t l) {
+void encoder_2b(int8_t l) {
 	ENCODER(!l,20,2); // 7
 }
 
