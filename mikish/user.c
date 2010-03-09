@@ -8,53 +8,6 @@
 
 uint8_t kNumAnalogInputs = 6;
 
-void isr_test(int8_t level) {
-	_putc('!');
-	_puts("INTERRUPTS\n");
-}
-
-volatile static long count[3];
-
-#define ENCODER(_flip_,_other_,_num_)     \
-	do {                                  \
-		bool other = digital_get(_other_);\
-		if (_flip_) {                     \
-			if (other)                    \
-				count[_num_]--;           \
-			else                          \
-				count[_num_]++;           \
-		} else {                          \
-			if (other)                    \
-				count[_num_]++;           \
-			else                          \
-				count[_num_]--;           \
-		}                                 \
-	} while (0)
-
-void encoder_0a(int8_t l) {
-	ENCODER( l,17,0); // 2
-}
-
-void encoder_0b(int8_t l) {
-	ENCODER(!l,16,0); // 3
-}
-
-void encoder_1a(int8_t l) {
-	ENCODER( l,19,1); // 4
-}
-
-void encoder_1b(int8_t l) {
-	ENCODER(!l,18,1); // 5
-}
-
-void encoder_2a(int8_t l) {
-	ENCODER( l,21,2); // 6
-}
-
-void encoder_2b(int8_t l) {
-	ENCODER(!l,20,2); // 7
-}
-
 void init(void) {
 	_puts("Initialization\n");
 
@@ -71,12 +24,6 @@ void init(void) {
 	interrupt_enable(3);
 	interrupt_enable(4);
 	interrupt_enable(5);
-
-	/* Use a jumper to test autonomous mode. */
-	if (!digital_get(SEN_AUTON)) {
-		printf((char *)"[AUTON forced]\n");
-		mode_set(kAuton);
-	}
 }
 
 
@@ -173,7 +120,7 @@ bool lift_basket(int8_t pwr) {
 void auton_loop(void) {
 	uint8_t  i = 0;
 	uint16_t t = 0;
-	printf((char *)"[MODE auton]\n");
+	_puts("[MODE auton]\n");
 
 	++t;
 	if (t >= 2200) {
@@ -223,7 +170,10 @@ void telop_loop(void) {
 	lift_arm(arm);
 	lift_basket(lift);
 
-	printf((char *)"0: %10ld 1: %10ld 2: %10ld\n", count[0],count[1],count[2]);
+	printf((char *)"0: %10ld 1: %10ld 2: %10ld\n", 
+			encoder_get(0),
+			encoder_get(1),
+			encoder_get(2));
 }
 
 void telop_spin(void) {

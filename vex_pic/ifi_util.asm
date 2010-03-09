@@ -1,4 +1,4 @@
-#include        Z:\opt\mcc18\mpasm\p18f8520.inc
+#include p18f8520.inc
 
 	radix   dec
 

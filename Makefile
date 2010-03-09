@@ -19,10 +19,11 @@ TARGET  = $(PROG)-$(ARCH).$(ARCHEXT)
 include $(ARCH)/Makefile
 include $(PROG)/Makefile
 
-OBJECTS  = $(CSOURCE:=.o) # $(ASOURCE:=.o)
+OBJECTS  = $(CSOURCE:=.o) $(ASOURCE:=.o)
 
 ALL_CFLAGS = $(ARCH_CFLAGS) $(CFLAGS)
 ALL_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
+ALL_AFLAGS = $(ARCH_AFLAGS) $(AFLAGS)
 
 .SECONDARY :
 
@@ -42,8 +43,8 @@ clean :
 	@echo "CC $(@F)"
 	@$(CC) $(ALL_CFLAGS) $< $(CCOUT_OPT)$@ -fe=$(@:.o=.err)
 
-#%.asm.o : %.asm $(HEADERS)
-#	@echo "AS $(@F)"
-#	@$(AS) $(ALL_ASFLAGS) $< $@
+%.asm.o : %.asm $(HEADERS)
+	@echo "AS $(@F)"
+	@$(AS) /q $(ALL_AFLAGS) $< /o$@
 
 .PHONY : all clean install rebuild
