@@ -50,13 +50,12 @@ enum {
 /* Digital Interrupts */
 enum {
 	/* Encoders on the left, right, and back wheels */ 
-	INT_ENC_L1 = 0,
-	INT_ENC_L2,
-	INT_ENC_R1,
-	INT_ENC_R2,
-	INT_ENC_B1,
-	INT_ENC_B2
+	INT_ENC_L = 0,
+	INT_ENC_R,
+	INT_ENC_B
 };
+
+
 
 #endif
 

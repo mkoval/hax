@@ -8,23 +8,21 @@
 #include "mikish/encoder.h"
 
 uint8_t kNumAnalogInputs = 6;
+bool auton = false;
 
 void init(void) {
 	_puts("Initialization\n");
 
-	/* Test interrupts. */
-	interrupt_reg_isr(0, encoder_0a);
-	interrupt_reg_isr(1, encoder_0b);
-	interrupt_reg_isr(2, encoder_1a);
-	interrupt_reg_isr(3, encoder_1b);
-	interrupt_reg_isr(4, encoder_2a);
-	interrupt_reg_isr(5, encoder_2b);
-	interrupt_enable(0);
-	interrupt_enable(1);
-	interrupt_enable(2);
-	interrupt_enable(3);
-	interrupt_enable(4);
-	interrupt_enable(5);
+	/* Enable left and right wheel interrupts. */
+	interrupt_reg_isr(2 * INT_ENC_L + 0, encoder_0a);
+	interrupt_reg_isr(2 * INT_ENC_L + 1, encoder_0b);
+	interrupt_reg_isr(2 * INT_ENC_R + 0, encoder_1a);
+	interrupt_reg_isr(2 * INT_ENC_R + 1, encoder_1b);
+
+	interrupt_enable(2 * INT_ENC_L + 0);
+	interrupt_enable(2 * INT_ENC_L + 1);
+	interrupt_enable(2 * INT_ENC_R + 0);
+	interrupt_enable(2 * INT_ENC_R + 1);
 }
 
 
@@ -119,23 +117,24 @@ bool lift_basket(int8_t pwr) {
 }
 
 void auton_loop(void) {
-	uint8_t  i = 0;
-	uint16_t t = 0;
-	_puts("[MODE auton]\n");
+	int32_t left  = encoder_get(INT_ENC_L);
+	int32_t right = encoder_get(INT_ENC_R);
+	uint8_t i     = 0;
+	int32_t omega;
 
-	++t;
-	if (t >= 2200) {
-		t = 0;
-		mode_set(kTelop);
-	}
+	puts((char *)"[MODE auton]");
 
 	/* Reset all motor values. */
 	for (i = 0; i < 8; ++i) {
 		motor_set(i, 0);
 	}
+	
 
-	drive_omni(0,127,0);
+	omega = SIGN(left + right) * PROP_SCALE(kMotorMax, 250, ABS(left + right));
 
+	printf((char *)"L %10ld R %10ld W %10ld\n", left, right, omega);
+
+	drive_omni(0, kMotorMin, omega);
 }
 	
 void auton_spin(void) {
@@ -149,17 +148,7 @@ void telop_loop(void) {
 	int8_t arm  = button(analog_oi_get(OI_L_B)) * kMotorMax;
 	uint8_t i;
 
-	/* IR Sensor calibration. */
-#if 0
-	printf((char *)"%u,%u,%u,%u,%u,%u\n",
-		analog_adc_get(0),
-		analog_adc_get(1),
-		analog_adc_get(2),
-		analog_adc_get(3),
-		analog_adc_get(4),
-		analog_adc_get(5)
-	);
-#endif
+	puts((char *)"[MODE telop]");
 
 	/* Reset all motor values. */
 	for (i = 0; i < 8; ++i) {
@@ -170,11 +159,6 @@ void telop_loop(void) {
 	drive_omni(side, fwrd, spin);
 	lift_arm(arm);
 	lift_basket(lift);
-
-	printf((char *)"0: %10ld 1: %10ld 2: %10ld\n", 
-			encoder_get(0),
-			encoder_get(1),
-			encoder_get(2));
 }
 
 void telop_spin(void) {
@@ -184,4 +168,10 @@ void disable_spin(void) {
 }
 
 void disable_loop(void) {
+	int32_t left  = encoder_get(INT_ENC_L);
+	int32_t right = encoder_get(INT_ENC_R);
+	int32_t omega;
+
+	omega = SIGN(left + right) * PROP_SCALE(kMotorMax, 250, ABS(left + right));
+	printf((char *)"L %10ld R %10ld W %10ld\n", left, right, omega);
 }
