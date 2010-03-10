@@ -1,6 +1,7 @@
 #ifndef AUTON_H_
 #define AUTON_H_
 
+#include "stdbool.h"
 #include "stdint.h"
 
 /* Maximum difference in between the two side sensor readings used for
@@ -16,55 +17,21 @@
 #define CRUISE_STOP_CM 200
 #define CRUISE_DIST_CM 100
 
-#include "stdbool.h"
+#define PROP_SCALE(maxOut, maxErr, err) \
+    ((maxOut) * MIN((err), (maxErr)) / (maxErr))
 
 /* Macroscopic states that describe the general behavior of the robot. Each of
  * these states corresponds to a single action or a smaller state machine.
  */
 typedef enum {
-	AUTO_FIELD,
-	AUTO_IDLE,
-	AUTO_RAISE,
-	AUTO_DUMP,
-	AUTO_CRUISE
+	AUTO_IDLE
 } GlobalState;
-
-/* Sub-states of the AUTO_PICKUP state. */
-typedef enum {
-	PICKUP_RAISE,
-	PICKUP_LOWER
-} PickupState;
-
-/* Sub-states of the AUTO_DEPOSIT state. */
-typedef enum {
-	DEPOSIT_REVERSE,
-	DEPOSIT_ARM,
-	DEPOSIT_RAISE,
-	DEPOSIT_WAIT,
-	DEPOSIT_FORWARD,
-	DEPOSIT_LOWER
-} DepositState;
 
 /* Vertically shifted input scaling. */
 uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err);
 
 /* Convert a raw infrared sensor value into a distance, in centimeters. */
 uint16_t ir_to_cm(uint8_t);
-
-/* Drive in a straight line by using the difference between two side-mounted IR
- * sensor readings. Stops far enough from a wall to safely lift the arm.
- */
-bool cruise(void);
-
-/* Reverse until a wall is encountered. When a wall is found, all balls in the
- * robot's basket are dumped and the the basket is restored to rest.
- */
-bool deposit(void);
-
-/* Pickup all of the balls currently on the arm and desposit them into the rear
- * storage basket.
- */
-bool pickup(void);
 
 /* General-purpose autonomous mode function; invoked once per slow loop. */
 void auton_do(void);

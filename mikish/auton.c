@@ -7,10 +7,8 @@
 #include "util.h"
 #include "stdbool.h"
 
-void do_stuff(void) { }
-
 uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) {
-	return (int32_t) minOut + ( maxOut - minOut) * err / maxErr;
+	return (int32_t) minOut + ( maxOut - minOut) * MIN(err, maxErr) / maxErr;
 }
 
 uint16_t ir_to_cm(uint8_t sen) {
@@ -41,6 +39,8 @@ bool turn(void) {
 	}
 }
 
+/* Follow a wall using side-mounted IR sensors. */
+#if 0
 bool cruise(void) {
 	uint16_t sf = ir_to_cm(SEN_IR_SIDE_F);
 	uint16_t sb = ir_to_cm(SEN_IR_SIDE_B);
@@ -75,150 +75,16 @@ bool cruise(void) {
 		return false;
 	}
 }
-
-bool deposit(void) {
-	static DepositState state = DEPOSIT_REVERSE;
-	static uint16_t time = 0u;
-
-	switch (state) {
-	/* Reverse until both limit switches are depressed. */
-	case DEPOSIT_REVERSE: {
-		bool left  = digital_get(SEN_BUMP_L);
-		bool right = digital_get(SEN_BUMP_R);
-
-		if (left || right) {
-			drive_omni(0, 3 * kMotorMax / 4, 0);
-		} else {
-			state = DEPOSIT_ARM;
-			time  = 0;
-		}
-		
-		++time;
-		if (time > 325) {
-			state = DEPOSIT_ARM;
-			time  = 0;
-		}
-
-		return true;
-	}
-
-	/* Lower the arm before raising the basket. */
-	case DEPOSIT_ARM:
-		if (!lift_arm(-127)) {
-			state = DEPOSIT_RAISE;
-			time  = 0;
-		}
-
-		++time;
-		if (time > 200) {
-			time  = 0;
-			return false;
-		}
-		break;
-
-	/* Raise the basket to its maximum height, dumping it in the process. */
-	case DEPOSIT_RAISE:
-		if (!lift_basket(+127)) {
-			state = DEPOSIT_WAIT;
-		}
-
-		++time;
-		if (time > 200) {
-			time = 0;
-			return false;
-		}
-
-		return true;
-	
-	case DEPOSIT_WAIT:
-		++time;
-		if (time > 500) {
-			time = 0;
-			state = DEPOSIT_FORWARD;
-		}
-		return true;
-	
-	case DEPOSIT_FORWARD:
-		drive_omni(0, 3 * kMotorMin / 4, 0);
-
-		++time;
-		if (time > 25) {
-			time = 0;
-			state = DEPOSIT_LOWER;
-		}
-		return true;
-	
-	/* Lower the basket to its resting height. */
-	case DEPOSIT_LOWER:
-		++time;
-		if (time > 500) {
-			time = 0;
-			return false;
-		}
-
-		if (!lift_basket(-127)) {
-			time  = 0;
-			state = DEPOSIT_REVERSE;
-			return false;
-		} else {
-			time = 0;
-			return true;
-		}
-	
-	default:
-		return false;
-	}
-}
-
-bool pickup(void) {
-	static PickupState state = PICKUP_LOWER;
-	int16_t pos = analog_adc_get(SEN_POT_ARM);
-
-	switch (state) {
-	case PICKUP_LOWER:
-		/* Lowering the arm. */
-		if (lift_arm(-127)) {
-			return true;
-		}
-		/* Just reached the bottom; this action is complete. */
-		else {
-			state = PICKUP_RAISE;
-			return false;
-		}
-	
-	/* Safe default... */
-	default:
-		return false;
-	}
-}
+#endif
 
 void auton_do(void) {
-	static GlobalState state = AUTO_FIELD;
+	static GlobalState state = AUTO_IDLE;
 	static GlobalState prev  = AUTO_IDLE;
 
 	/* Debug state change message. */
 	if (state != prev) {
 		printf((char *)"State: %d\n", state);
 		prev = state;
-	}
-
-	switch (state) {
-	/* Get out of the storage position. */
-
-	case AUTO_FIELD:
-		break;
-	
-	/* Dump the pre-loaded balls. */
-	case AUTO_DUMP:
-		if (!deposit()) {
-			state = AUTO_IDLE;
-		}
-		break;
-
-	/* Do nothing... */
-	case AUTO_IDLE:
-	default:
-		break;
 	}
 }
 
