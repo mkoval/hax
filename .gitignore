@@ -1,3 +1,9 @@
+install.sh
+log
+mikish/AutonSession
 *.cod
 *.hex
 *.lst
+*.ERR
+*.LST
+*.DS_Store
