@@ -15,6 +15,7 @@ typedef uint8_t OIIx; /* OI inputs */
 typedef uint8_t PinIx; /* Pins on the RC */
 typedef uint8_t AnalogOutIx; /* Just the PWMs */
 typedef uint8_t InterruptIx;
+typedef uint8_t TimerIx;
 
 /* Configuration options to be applied to each input. */
 typedef enum {
@@ -162,6 +163,17 @@ void interrupt_set(InterruptIx, bool);
 void interrupt_enable(InterruptIx);
 void interrupt_disable(InterruptIx);
 
+/*
+ * TIMERS
+ */
+/* Enable or disable the specified timer. */
+void timer_set(TimerIx, bool);
+
+/* Reads the curent value of the specified timer. */
+uint16_t timer_read(TimerIx);
+
+/* Loads the a new value into the specified timer. */
+void timer_write(TimerIx, uint16_t);
 
 /*
  * STREAM IO

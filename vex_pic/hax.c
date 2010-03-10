@@ -437,6 +437,20 @@ void interrupt_enable(InterruptIx index) {
 }
 
 /*
+ * TIMERS
+ */
+#if 0
+InterruptServiceRoutine isr_callbacks[5] = { 0, 0, 0, 0, 0 };
+
+void timer_set(TimerIx index, bool enabled) {
+	uint8_t flags = TO_16BIT & TO_PS_1_256 & 
+	switch (index) {
+	case 0:
+		OpenTimer0(TO_16BIT & TO_PS_1_256 
+}
+#endif
+
+/*
  * STREAM IO
  */
 void _putc(char data) {
