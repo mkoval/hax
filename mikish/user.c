@@ -67,7 +67,6 @@ static int16_t max4(int16_t a, int16_t b, int16_t c, int16_t d) {
 	}
 }
 
-/* x=side, y=fwd */
 void drive_omni(int8_t x, int8_t y, int8_t omega) {
 	int16_t f = (int16_t)-x - omega;
 	int16_t r = (int16_t)-y - omega;

@@ -4,6 +4,11 @@
 #include "stdbool.h"
 
 /*!
+ * Initialize interrupt service routines for encoder counts.
+ */
+void init(void);
+
+/*!
  * Converts an OI button input into one of three values: -1 (bottom button
  * pressed), 0 (no button pressed), and 1 (top button pressed). Undefined
  * return value if both buttons are pressed.
