@@ -13,4 +13,8 @@ typedef signed   long int32_t;
 typedef unsigned long uint32_t;
 #endif
 
+#ifdef __ARM_EABI__
+#include <stdint.h>
+#endif
+
 #endif
