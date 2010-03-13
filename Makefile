@@ -36,7 +36,7 @@ clean :
 	@$(RM) $(OBJECTS) $(TARGET) $(TRASH)
 
 $(TARGET) : $(OBJECTS)
-	@echo "LDHEX $(@F)"
+	@echo "LD $(@F)"
 	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^
 
 %.c.o : %.c $(HEADERS) 
