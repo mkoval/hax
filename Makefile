@@ -6,8 +6,8 @@ VPATH   = $(srcdir)
 PROGS   = test skel mikish
 ARCHs   = vex_pic cortex
 
-PROG    = mikish
-ARCH    = vex_pic
+PROG    = skel
+ARCH    = cortex
 
 CSOURCE = hax_main.c \
           hax_serial.c
@@ -35,13 +35,13 @@ clean :
 	@echo "CLEAN"
 	@$(RM) $(OBJECTS) $(TARGET) $(TRASH)
 
-%.hex : $(OBJECTS)
+$(TARGET) : $(OBJECTS)
 	@echo "LDHEX $(@F)"
 	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^
 
 %.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
-	@$(CC) $(ALL_CFLAGS) $< $(CCOUT_OPT)$@ -fe=$(@:.o=.err)
+	@$(CC) $(ALL_CFLAGS) $< $(CCOUT_OPT)$@
 
 %.asm.o : %.asm $(HEADERS)
 	@echo "AS $(@F)"
