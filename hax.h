@@ -155,6 +155,9 @@ void servo_set(AnalogOutIx, ServoPosition);
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
 void interrupt_reg_isr(InterruptIx, InterruptServiceRoutine);
 
+/* Reads from an interrupt port as if it is a digital input. */
+bool interrupt_get(InterruptIx);
+
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations. 
  * And so that you can actually enable them in the first place.

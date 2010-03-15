@@ -337,6 +337,11 @@ void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
 }
 
+bool interrupt_read(InterruptIx index) {
+	/* There are 16 digital pins, so the first interrupt is pin 16. */
+	return digital_get(16 + index);
+}
+
 #if   defined(MCC18_30)
 #pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
 #elif defined(MCC18_24)
@@ -402,6 +407,8 @@ void interrupt_vector(void) {
 	_endasm
 }
 #pragma code
+
+/* TODO Implement interrupt_set() and interrupt_disable(). */
 
 void interrupt_enable(InterruptIx index) {
 	switch (index) {
