@@ -3,10 +3,10 @@ RM      = rm -rf
 srcdir  = .
 VPATH   = $(srcdir)
 
-PROGS   = test skel mikish
+PROGS   = skel mikish nitish
 ARCHs   = vex_pic cortex
 
-PROG    = mikish
+PROG    = nitish
 ARCH    = vex_pic
 
 CSOURCE = hax_main.c \
