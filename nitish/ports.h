@@ -3,32 +3,39 @@
 
 /* Motor output mappings. */
 enum {
-    MTR_DRIVE_FR = 0,
-    MTR_DRIVE_BR = 1,
-    MTR_DRIVE_BL = 2,
-    MTR_DRIVE_FL = 3,
-    MTR_STRAFE_F = 4,
-    MTR_ARM_R    = 5,
-    MTR_ARM_L    = 6,
-    MTR_RAMP     = 7,
+    MTR_DRIVE_FR,
+    MTR_DRIVE_BR,
+    MTR_DRIVE_BL,
+    MTR_DRIVE_FL,
+    MTR_STRAFE_F,
+    MTR_ARM_R,
+    MTR_ARM_L,
+    MTR_RAMP,
     MTR_NUM
 };
 
 /* Analog sensor mappings. */
 enum {
-    ANA_POT_ARM = 1,
-    ANA_IR_F    = 2,
+    ANA_POT_ARM,
+    ANA_IR_F,
     ANA_NUM
+};
+
+/* Digital sensor mappings. */
+enum {
+	DIG_LIM_LIFT_L = ANA_NUM,
+	DIG_LIM_LIFT_H,
+	SEN_NUM
 };
 
 /* Hardware interrupt mappings. */
 enum {
-    INT_ENC_L1 = 0,
-    INT_ENC_L2 = 1,
-    INT_ENC_R1 = 2,
-    INT_ENC_R2 = 3,
-    INT_ENC_S1 = 4,
-    INT_ENC_S2 = 5,
+    INT_ENC_L1,
+    INT_ENC_L2,
+    INT_ENC_R1,
+    INT_ENC_R2,
+    INT_ENC_S1,
+    INT_ENC_S2,
     INT_NUM
 };
 
