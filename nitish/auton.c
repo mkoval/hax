@@ -2,6 +2,7 @@
 
 #include "encoder.h"
 #include "ports.h"
+#include "robot.h"
 #include "util.h"
 
 #include "auton.h"
