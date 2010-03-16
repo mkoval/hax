@@ -1,6 +1,11 @@
+#include "../hax.h"
+
 #include "auton.h"
 #include "encoder.h"
 #include "ports.h"
+#include "robot.h"
+
+#include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
 uint8_t kNumAnalogInputs = ANA_NUM;
@@ -21,6 +26,7 @@ void init(void) {
 	 * 6. Reverse into the wall, preparing to dump the preloaded balls.
 	 * 7. Lift the ramp, deposit the balls, and lower the ramp.
 	 */
+	/* TODO Replace this with something simplier and better thought-out. */
 	auton_enqueue(&queue, AUTO_FWDRAM,  FIELD_LENGTH_IN / 2 - ROB_LENGTH_IN);
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
@@ -52,8 +58,16 @@ void auton_spin(void) {
 }
 
 void telop_loop(void) {
+	uint16_t forward = analog_oi_get(OI_L_Y);
+	uint16_t strafe  = analog_oi_get(OI_R_X);
+	uint16_t rotate  = analog_oi_get(OI_L_X);
+	uint16_t arm     = analog_oi_get(OI_L_B);
+	uint16_t ramp    = analog_oi_get(OI_R_B);
+
+	drive_raw(forward, strafe, rotate);
+	arm_raw(arm);
+	ramp_raw(ramp);
 }
 
 void telop_spin(void) {
 }
-

@@ -1,6 +1,18 @@
 #ifndef PORTS_NITISH_H_
 #define PORTS_NITISH_H_
 
+#include "../hax.h"
+
+/* OI inputs are read as if they are any other analog pin. */
+enum {
+	OI_R_X = kAnalogSplit,
+	OI_R_Y,
+	OI_L_Y,
+	OI_L_X,
+	OI_L_B,
+	OI_R_B
+};
+
 /* Motor output mappings. */
 enum {
     MTR_DRIVE_FR,
