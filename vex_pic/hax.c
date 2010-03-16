@@ -99,6 +99,26 @@ void setup_2(void) {
 void spin(void) {
 }
 
+int16_t get_battery(void) {
+	uint8_t tmp;
+	LVDCON = 0b1110;
+	for(;;) {
+		PIE2bits.LVDIE = 0;
+		LVDCONbits.LVDEN = 1;
+		while(!LVDCONbits.IRVST);
+		PIR2bits.LVDIF = 0;
+		
+		if ( !PIR2bits.LVDIF || !(LVDCON & 0xF) ) {
+			LVDCON = 0;
+			return (LVDCON & 0xF) + 1;
+		}
+
+		LVDCONbits.LVDEN = 0;
+		LVDCON --;
+	}
+	LVDCON = 0;
+}
+
 void loop_1(void) {
 	Getdata(&rxdata);
 	#ifdef DEBUG
