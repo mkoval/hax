@@ -54,10 +54,12 @@ int32_t drive_straight(AnalogOut forward) {
 	return (left - right) / 2;
 }
 
-void arm_set(uint16_t tar) {
+bool arm_set(uint16_t tar) {
 	uint16_t cur  = analog_adc_get(ANA_POT_ARM);
 	uint16_t diff = ABS((int16_t)tar - (int16_t)cur);
 	int8_t   out  = PROP(kMotorMax, ARM_SET_ERRMAX, diff);
 
 	arm_raw(SIGN(tar - cur) * out);
+
+	return diff < ARM_SET_ERRMAX;
 }

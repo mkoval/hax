@@ -31,6 +31,6 @@ bool ramp_raw(AnalogOut);
 int32_t drive_straight(AnalogOut);
 
 /* Keep the arm a specific potentiometer value using a feedback loop. */
-void arm_set(uint16_t);
+bool arm_set(uint16_t);
 
 #endif
