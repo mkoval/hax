@@ -63,7 +63,7 @@ enum {
  * constants holds the lower of the two analog bounds, not that it is
  * physically lower than the HIGH value.
  */
-#define ENC_PER_IN       14
+#define ENC_PER_10IN       140
 #define ANA_POT_ARM_LOW  0
 #define ANA_POT_ARM_HIGH 1024
 #define ANA_POT_ARM_RAM  1024
