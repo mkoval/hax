@@ -29,15 +29,8 @@ AutonAction auton_dequeue(AutonQueue *queue) {
 }
 
 void auton_do(AutonQueue *queue) {
-	static AutonState  prev = AUTO_START;
-	static AutonAction cur  = { AUTO_START, 0 };
+	static AutonAction cur = { AUTO_START, 0 };
 	bool advance = false;
-
-	/* Print state change messages for debugging purposes. */
-	if (cur.state != prev) {
-		/* TODO Print a readable, useful message. */
-		prev = cur.state;
-	}
 
 	switch (cur.state) {
 	/* Dummy state used to initialize autonomous mode. */
@@ -45,23 +38,50 @@ void auton_do(AutonQueue *queue) {
 		advance = true;
 		break;
 	
-	/* Ram the middle wall, pushing the green balls through the slot. */
+	/* Ram the middle wall, the distance to which is specified in extra, while
+	 * raising the arm. This pushes the green balls through the slot, knocks
+	 * down the low football, and prepares to hit the high footballs.
+	 */
 	case AUTO_FWDRAM: {
-		int32_t left  = encoder_get(ENC_L);
-		int32_t right = encoder_get(ENC_R);
-		int32_t dist  = MIN(ABS(left), ABS(right));
+		int32_t dist  = drive_straight(kMotorMax);
+		bool    armup = arm_set(ANA_POT_ARM_RAM);
+		bool    close = dist * ENC_PER_10IN >= cur.extra;
 
-		/* Get the arm into position for knocking down the high footballs. */
+		/* Stop driving if we're at the wall and still waiting on the arm. */
+		if (close) {
+			drive_raw(0, 0, 0);
+		}
+
+		/* Keep the arm in position for knocking down the high footballs. */
 		arm_set(ANA_POT_ARM_RAM);
 
-		/* Drive straight until the robot hits the balls under the wall. */
-		if (dist * ENC_PER_IN < cur.extra) {
-			drive_straight(kMotorMax);
+		if (armup && close) {
+			advance = true;
 		}
-		/* Back up a safe distance from the wall, lift the arm in a position
-		 * appropriate for knocking down footballs, and do so.
-		 */
-		else {
+		break;
+	}
+
+	/* Strafe a distance (specified in extra) left or right with the arm in the
+	 * raised position. Used to knock down the high footballs.
+	 */
+	case AUTO_STRAFE: {
+		int32_t dist = encoder_get(ENC_S) * ENC_PER_10IN;
+
+		drive_raw(0, SIGN(cur.extra) * kMotorMax, 0);
+
+		if (ABS(dist) >= ABS(cur.extra)) {
+			advance = true;
+		}
+		break;
+	}
+	
+	/* Drive forward or reverse a distance specified in extra. Positive values
+	 * are forward and negative values are reverse.
+	 */
+	case AUTO_DRIVE: {
+		int32_t dist = drive_straight(SIGN(cur.extra) * kMotorMax);
+
+		if (ABS(dist) >= ABS(cur.extra)) {
 			advance = true;
 		}
 		break;
@@ -71,6 +91,8 @@ void auton_do(AutonQueue *queue) {
 	/* Advance to the next state if the current state set the correct flag. */
 	if (advance) {
 		cur = auton_dequeue(queue);
+
+		/* TODO Print out a readable state-change message for debugging. */
 
 		/* Reset encoder ticks to avoid contaminating the next state. */
 		encoder_reset_all();

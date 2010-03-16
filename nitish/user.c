@@ -30,7 +30,7 @@ void init(void) {
 	auton_enqueue(&queue, AUTO_FWDRAM,  FIELD_LENGTH_IN / 2 - ROB_LENGTH_IN);
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
-	auton_enqueue(&queue, AUTO_REVERSE, ROB_ARM_IN);
+	auton_enqueue(&queue, AUTO_DRIVE,   -ROB_ARM_IN);
 	auton_enqueue(&queue, AUTO_TURN,    180);
 	auton_enqueue(&queue, AUTO_REVRAM,  NONE);
 	auton_enqueue(&queue, AUTO_DEPOSIT, NONE);
