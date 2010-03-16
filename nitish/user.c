@@ -11,8 +11,6 @@ uint8_t kNumAnalogInputs = ANA_NUM;
 static AutonQueue queue;
 
 void init(void) {
-	puts("[HAX Initialization]");
-
 	/* Pre-define all of autonomous mode as a giant state machine.
 	 * 1. Ram the center wall, dislodging the orange football and pushing the
 	 *      four green balls under the wall.
