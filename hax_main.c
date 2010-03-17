@@ -1,7 +1,7 @@
 #include "hax.h"
 #include "compilers.h"
 
-void main() {
+void main(void) {
 	static CtrlMode mode;
 	
 	setup_1();
