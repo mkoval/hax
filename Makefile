@@ -37,7 +37,7 @@ clean :
 
 $(TARGET) : $(OBJECTS)
 	@echo "LD $(@F)"
-	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^ $(LD_OBJECTS)
+	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $^ $(LD_OBJECTS) $(LDOUT_OPT) $@
 
 %.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
