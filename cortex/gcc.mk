@@ -10,5 +10,5 @@ ARCH_AFLAGS  =
 ARCH_LDFLAGS = -Wl,-T -Xlinker 'cortex/vexlib/Scripts/easyCRuntimeInit.elf.ld' \
                -L'cortex/vexlib/Startup' -L'cortex/vexlib/easyCRuntime'        \
                -L'cortex/vexlib/Link' -mpu=cortex-m3 -mthumb -u _start         \
-               -Wl,-static -Wl,--gc-sections -nostartfiles -Wl,-Map
+               -Wl,-static -Wl,--gc-sections -nostartfiles
 TRASH        = $(CSOURCE:.c=.c.d)
