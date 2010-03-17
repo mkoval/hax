@@ -19,7 +19,7 @@ TARGET  = $(PROG)-$(ARCH).$(ARCHEXT)
 include $(ARCH)/Makefile
 include $(PROG)/Makefile
 
-OBJECTS  = $(CSOURCE:=.o) $(ASOURCE:=.o)
+OBJECTS = $(CSOURCE:=.o) $(ASOURCE:=.o)
 
 ALL_CFLAGS = $(ARCH_CFLAGS) $(CFLAGS)
 ALL_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
@@ -37,7 +37,7 @@ clean :
 
 $(TARGET) : $(OBJECTS)
 	@echo "LD $(@F)"
-	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^
+	@$(LD) $(LD_SCRIPT) $(ALL_LDFLAGS) $(LDOUT_OPT) $@ $^ $(LD_OBJECTS)
 
 %.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
