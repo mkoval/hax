@@ -3,8 +3,8 @@ RM = rm -rf
 srcdir = .
 VPATH  = $(srcdir)
 
-PROG = skel
-ARCH = cortex
+PROG = mikish
+ARCH = vex_pic
 
 CSOURCE = hax_main.c hax_serial.c
 HEADERS = stdint.h hax.h
