@@ -1,6 +1,6 @@
 TARGET_ELF = $(TARGET:.hex=.elf)
 
-PREFIX  = 'arm-elf'
+PREFIX  = arm-none-eabi
 
 CC      = $(PREFIX)-gcc
 LD      = $(PREFIX)-gcc
