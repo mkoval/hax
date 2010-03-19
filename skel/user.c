@@ -1,4 +1,4 @@
-#include "hax.h"
+#include "../hax.h"
 
 uint8_t kNumAnalogInputs = 2;
 

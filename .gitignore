@@ -1,6 +1,8 @@
 install.sh
 log
 mikish/AutonSession
+*.o
+*.d
 *.cod
 *.hex
 *.lst

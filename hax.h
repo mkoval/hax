@@ -188,7 +188,7 @@ void _puth(uint8_t);
 void _puth2(uint16_t);
 void _puti(uint16_t);
 void _putf(float);
-void _puts(char __rom const *c);
+void _puts(char const __rom *c);
 
 
 #endif
