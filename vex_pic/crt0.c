@@ -27,7 +27,9 @@ void _entry(void) {
 void _startup(void) {
 	_asm
 	/* Initialize the stack pointer. */
-	lfsr 1, _stack lfsr 2, _stack clrf TBLPTRU, 0
+	lfsr 1, _stack
+	lfsr 2, _stack
+	clrf TBLPTRU, 0
 	/* Initialize rounding flag for floating point libs. */
 	bcf FPFLAGS, RND, 0
 
@@ -51,9 +53,7 @@ void _startup(void) {
 		_endasm
 		*/
   		_do_cinit ();
-		
-
-	main();
+		main();
 	goto loop;
 }
 
