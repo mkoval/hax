@@ -12,7 +12,7 @@
 #define __overlay overlay
 
 /* GCC 4.3.2 does not seem to support ROM or overlay attributes. */
-#elif defined(__ARM_EABI__) && defined(__GNUC__)
+#elif defined(_STM32x_) && defined(__GNUC__)
 #define GCC_ARM 1
 
 #define __noreturn __attribute__((__noreturn__))
