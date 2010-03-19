@@ -1,6 +1,6 @@
 #include "../hax.h"
 
-#include "vexlib/API.h"
+#include "easyclib/API.h"
 
 void IO_Initialization(void) {
     /* Enable VexNET control in the EasyC library. */
