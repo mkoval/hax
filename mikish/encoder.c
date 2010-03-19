@@ -1,5 +1,5 @@
-#include "stdbool.h"
-#include "stdint.h"
+#include <stdbool.h>
+#include <stdint.h>
 #include "hax.h"
 #include "mikish/encoder.h"
 

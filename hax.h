@@ -1,9 +1,9 @@
 #ifndef HAX_H_
 #define HAX_H_
 
-#include "stdint.h"
-#include "stdbool.h"
 #include "compilers.h"
+#include <stdint.h>
+#include <stdbool.h>
 
 /*
  * The Main function

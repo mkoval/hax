@@ -1,6 +1,6 @@
 
 #include "compilers.h"
-#include "stdint.h"
+#include <stdint.h>
 #include "ir.h"
 
 #define IR_LONG_TABLE_SIZE 256

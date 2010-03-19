@@ -1,7 +1,7 @@
 #ifndef USER_H_
 #define USER_H_
 
-#include "stdbool.h"
+#include <stdbool.h>
 
 /*!
  * Initialize interrupt service routines for encoder counts.
@@ -15,7 +15,7 @@ void init(void);
  *
  * \param io raw IO analog value
  */
-int8_t button(int8_t);
+int8_t button(int8_t io);
 
 /*!
  * Changes the outputs of all drive motors to move in the desired direction.
@@ -24,9 +24,9 @@ int8_t button(int8_t);
  *
  * \param x side-to-side translation, where positive values are "right"
  * \param y front-to-back translation, where positive values are "forward"
- * \param omega spin value of arbitrary units; zero indicates no rotation
+ * \param z spin value of arbitrary units; zero indicates no rotation
  */
-void drive_omni(int8_t, int8_t, int8_t);
+void drive_omni(int8_t x, int8_t y, int8_t z);
 
 /*!
  * Move the arm at the desired rate of speed, where positive values indicate
@@ -35,7 +35,7 @@ void drive_omni(int8_t, int8_t, int8_t);
  *
  * \param pwr signed motor velocity
  */
-bool lift_arm(int8_t);
+bool lift_arm(int8_t pwr);
 
 /*!
  * Raise or lower the basket at the desired rate of speed, where positive
@@ -44,7 +44,6 @@ bool lift_arm(int8_t);
  *
  * \param pwr signed motor velocity
  */
-bool lift_basket(int8_t);
+bool lift_basket(int8_t pwr);
 
 #endif
-

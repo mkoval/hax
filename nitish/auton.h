@@ -1,8 +1,8 @@
 #ifndef AUTON_H_
 #define AUTON_H_
 
-#include "stdbool.h"
-#include "stdint.h"
+#include <stdbool.h>
+#include <stdint.h>
 
 /* Maximum difference in between the two side sensor readings used for
  * proportional correction.

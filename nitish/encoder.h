@@ -1,7 +1,7 @@
 #ifndef ENCODER_H_
 #define ENCODER_H_
 
-#include "stdint.h"
+#include <stdint.h>
 
 void encoder_0a(int8_t);
 void encoder_0b(int8_t);
