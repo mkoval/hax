@@ -1,4 +1,3 @@
-TARGET     = $(PROG)-$(ARCH).hex
 TARGET_ELF = $(TARGET:.hex=.elf)
 
 PREFIX  = 'arm-elf'

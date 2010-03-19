@@ -1,4 +1,3 @@
-TARGET  = $(PROG)-$(ARCH).hex
 
 MCCPATH      = /opt/mcc18
 WINPATH      = $(srcdir)/vex_pic/winpath.sh
