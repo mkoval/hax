@@ -1,1 +1,2 @@
-CSOURCE += $(PROG)/user.c
+# hax/skel
+SOURCE += $(PROG)/user.c
