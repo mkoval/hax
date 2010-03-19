@@ -4,8 +4,10 @@ CC           = '$(MCCPATH)/bin/mcc18'
 LD           = '$(MCCPATH)/bin/mplink'
 AS           = '$(MCCPATH)/mpasm/mpasm'
 IPATH        = '$(MCCPATH)/h'
+ICPATH       = '$(ARCH)/include'
 WIPATH      := '$(shell $(WINPATH) $(IPATH))'
-ARCH_CFLAGS  = -I=$(WIPATH) -p=18F8520
+WICPATH     := '$(shell $(WINPATH) $(ICPATH))'
+ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -p=18F8520
 ARCH_AFLAGS  = /p18f8520
 LIBPATH      = '$(MCCPATH)/lib'
 WLIBPATH    := '$(shell $(WINPATH) $(LIBPATH))'
