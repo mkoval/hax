@@ -4,7 +4,7 @@ PREFIX  = arm-none-eabi
 
 CC      = $(PREFIX)-gcc
 LD      = $(PREFIX)-gcc
-AS      = $(PREFIX)-as
+AS      = $(PREFIX)-gcc
 OBJCOPY = $(PREFIX)-objcopy
 
 OBJECTS = $(SOURCE:=.o)
