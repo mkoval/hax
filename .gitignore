@@ -9,3 +9,4 @@ mikish/AutonSession
 *.ERR
 *.LST
 *.DS_Store
+*.elf
