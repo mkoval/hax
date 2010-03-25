@@ -1,40 +1,47 @@
-#ifndef AUTON_H_
-#define AUTON_H_
+#ifndef AUTON_NITISH_H_
+#define AUTON_NITISH_H_
 
-#include "stdbool.h"
-#include "stdint.h"
+#include "../stdint.h"
 
-/* Maximum difference in between the two side sensor readings used for
- * proportional correction.
- */
-#define FU_CRUISE_DIST       300
-#define FU_SEN_IR_OMEGA_ERR  50
-#define FU_SEN_IR_STRAFE_ERR 5
+/* Maximum number of actions that can be present in the autonomous queue. */
+#define AUTON_QUEUE_MAX 20
 
-#define FU_TURN_TICKS 48
-
-/* Parameters for the AUTO_CRUISE state, all specified in centimeters. */
-#define CRUISE_STOP_CM 200
-#define CRUISE_DIST_CM 100
-
-#define PROP_SCALE(maxOut, maxErr, err) \
-    ((maxOut) * MIN((err), (maxErr)) / (maxErr))
-
-/* Macroscopic states that describe the general behavior of the robot. Each of
- * these states corresponds to a single action or a smaller state machine.
- */
 typedef enum {
-	AUTO_IDLE
-} GlobalState;
+	AUTO_START,
+	AUTO_FWDRAM,  /* extra = distance to move forward (in tenth-inches) */
+	AUTO_STRAFE,  /* extra = signed distance to strafe (in tenth-inches) */
+	AUTO_DRIVE,   /* extra = distance (in tenth-inches), negative is reverse */
+	AUTO_RAMP,    /* extra = motor speed */
+	AUTO_TURN,    /* extra = number of degrees to turn */
+	AUTO_REVRAM,  /* extra = none */
+	AUTO_DONE
+} AutonState;
 
-/* Vertically shifted input scaling. */
-uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err);
+/* FIFO data structure used to generalize the FSA autonomous code. */
+typedef struct {
+	AutonState state;
+	int16_t    extra;
+} AutonAction;
 
-/* Convert a raw infrared sensor value into a distance, in centimeters. */
-uint16_t ir_to_cm(uint8_t);
+typedef struct {
+	uint8_t     num;
+	AutonAction actions[AUTON_QUEUE_MAX];
+} AutonQueue;
 
-/* General-purpose autonomous mode function; invoked once per slow loop. */
-void auton_do(void);
+/* Meaningless keyword to make a long series of auton_enqueue() calls look
+ * pretty.
+ */
+#define NONE 0
+
+/* Add a state to the end of the autonomous queue. */
+void auton_enqueue(AutonQueue *, AutonState, int16_t);
+
+/* Remove and return the first element from the autonomous queue. */
+AutonAction auton_dequeue(AutonQueue *);
+
+/* Perform all of the actions in the autonomous queue until the AUTON_DONE
+ * state is reached, the queue is empty, or autonomous mode ends.
+ */
+void auton_do(AutonQueue *);
 
 #endif
-
