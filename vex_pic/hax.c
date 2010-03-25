@@ -357,7 +357,7 @@ void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
 }
 
-bool interrupt_read(InterruptIx index) {
+bool interrupt_get(InterruptIx index) {
 	/* There are 16 digital pins, so the first interrupt is pin 16. */
 	return digital_get(16 + index);
 }
