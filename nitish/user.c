@@ -1,5 +1,7 @@
 #include "../hax.h"
 
+#include <stdio.h>
+
 #include "auton.h"
 #include "encoder.h"
 #include "ports.h"
@@ -13,7 +15,7 @@ uint8_t kNumAnalogInputs = ANA_NUM;
 /* Autonomous queue; used to build a specific autonomous mode from the building
  * blocks provided in the state machine defined in auton.c.
  */
-static AutonQueue queue;
+static AutonQueue queue = { 0 };
 
 void init(void) {
 	/* Pre-define all of autonomous mode as a giant state machine.
@@ -27,13 +29,18 @@ void init(void) {
 	 * 7. Lift the ramp, deposit the balls, and lower the ramp.
 	 */
 	/* TODO Replace this with something simplier and better thought-out. */
-	auton_enqueue(&queue, AUTO_FWDRAM,  FIELD_LENGTH_IN / 2 - ROB_LENGTH_IN);
+	auton_enqueue(&queue, AUTO_FWDRAM,  NONE);
+#if 0
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
 	auton_enqueue(&queue, AUTO_STRAFE,  NONE);
-	auton_enqueue(&queue, AUTO_DRIVE,   -ROB_ARM_IN);
+#endif
+	auton_enqueue(&queue, AUTO_DRIVE,   -120);
+#if 0
 	auton_enqueue(&queue, AUTO_TURN,    180);
+#endif
 	auton_enqueue(&queue, AUTO_REVRAM,  NONE);
-	auton_enqueue(&queue, AUTO_DEPOSIT, NONE);
+	auton_enqueue(&queue, AUTO_RAMP,    kMotorMax);
+	auton_enqueue(&queue, AUTO_RAMP,    kMotorMin);
 	auton_enqueue(&queue, AUTO_DONE,    NONE);
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
@@ -42,6 +49,8 @@ void init(void) {
 	encoder_init(ENC_L, INT_ENC_L1, INT_ENC_L2); /* Left   */
 	encoder_init(ENC_R, INT_ENC_R1, INT_ENC_R2); /* Right  */
 	encoder_init(ENC_S, INT_ENC_S1, INT_ENC_S2); /* Strafe */
+
+	_puts("\r\n\r\n");
 }
 
 void disable_loop(void) {
@@ -51,6 +60,12 @@ void disable_spin(void) {
 }
 
 void auton_loop(void) {
+	uint8_t i;
+
+	for (i = 0; i < MTR_NUM; ++i) {
+		motor_set(i, 0);
+	}
+
 	auton_do(&queue);
 }
 
@@ -63,6 +78,8 @@ void telop_loop(void) {
 	uint16_t rotate  = analog_oi_get(OI_L_X);
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
+
+	printf((char *)"L%5d   R%5d\r\n", (int)encoder_get(ENC_L), (int)encoder_get(ENC_R));
 
 	drive_raw(forward, strafe, rotate);
 	arm_raw(arm);
