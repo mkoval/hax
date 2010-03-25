@@ -1,5 +1,5 @@
-#ifndef ENCODER_H_
-#define ENCODER_H_
+#ifndef ENCODER_MIKISH_H_
+#define ENCODER_MIKISH_H_
 
 #include "hax.h"
 #include "stdint.h"
