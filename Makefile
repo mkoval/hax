@@ -6,7 +6,7 @@ VPATH   = $(srcdir)
 PROGS   = skel mikish nitish
 ARCHs   = vex_pic cortex
 
-PROG    = nitish
+PROG    = mikish
 ARCH    = vex_pic
 
 CSOURCE = hax_main.c \
