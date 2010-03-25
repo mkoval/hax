@@ -3,7 +3,20 @@
 
 #include "../hax.h"
 
-/* OI inputs are read as if they are any other analog pin. */
+/* PWM Motor Outputs */
+enum {
+	MTR_DRIVE_F = 0,
+	MTR_DRIVE_L,
+	MTR_DRIVE_B,
+	MTR_DRIVE_R,
+	MTR_ARM_L,
+	MTR_ARM_R,
+	MTR_SCISSOR_L,
+	MTR_SCISSOR_R,
+    MTR_NUM
+};
+
+/* Operator Interface Analog Inputs */
 enum {
 	OI_R_X = kAnalogSplit,
 	OI_R_Y,
@@ -13,31 +26,20 @@ enum {
 	OI_R_B
 };
 
-/* Motor output mappings. */
+/* Analog Sensors */
 enum {
-    MTR_DRIVE_FR,
-    MTR_DRIVE_BR,
-    MTR_DRIVE_BL,
-    MTR_DRIVE_FL,
-    MTR_STRAFE_F,
-    MTR_ARM_R,
-    MTR_ARM_L,
-    MTR_RAMP,
-    MTR_NUM
-};
-
-/* Analog sensor mappings. */
-enum {
-    ANA_POT_ARM,
-    ANA_IR_F,
+    ANA_POT_ARM = 0,
+    SEN_POT_SCISSOR_L,
+    SEN_POT_SCISSOR_R,
     ANA_NUM
 };
 
-/* Digital sensor mappings. */
+/* Digital Sensors */
 enum {
-	DIG_LIM_LIFT_L = ANA_NUM,
-	DIG_LIM_LIFT_H,
-	SEN_NUM
+	/* Rear bump sensors. */
+	DIG_BUT_BL = ANA_NUM,
+	DIG_BUT_BR,
+	DIG_BUT_F
 };
 
 /* Hardware interrupt mappings. */
@@ -58,25 +60,27 @@ enum {
 	ENC_S,
 	ENC_NUM
 };
+/* Scissor lift potentiometers. */
+#define SEN_POT_SCISSOR_L_LOW  164
+#define SEN_POT_SCISSOR_L_HIGH 420
+#define SEN_POT_SCISSOR_R_LOW  560
+#define SEN_POT_SCISSOR_R_HIGH 800
 
-/* Robot-specific sensor calibration fudge constants. LOW indicates that the
- * constants holds the lower of the two analog bounds, not that it is
- * physically lower than the HIGH value.
- */
-#define ENC_PER_10IN       140
-#define ANA_POT_ARM_LOW  0
-#define ANA_POT_ARM_HIGH 1024
-#define ANA_POT_ARM_RAM  1024
+/* Garbage-truck like arm potentiometers. */
+#define ANA_POT_ARM_LOW        971
+#define ANA_POT_ARM_HIGH       300
+#define ANA_POT_ARM_RAM        300
+
+#define ENC_PER_IN  25
 
 /* Robot dimensions, used to refine drive distances. */
-#define ROB_WIDTH_IN  18
-#define ROB_LENGTH_IN 24
-#define ROB_HEIGHT_IN 18
-#define ROB_ARM_IN    20
+#define ROB_WIDTH_IN           24
+#define ROB_LENGTH_IN          18
+#define ROB_HEIGHT_IN          18
+#define ROB_ARM_IN             20
 
 /* Field dimensions; used to calculate drive distances. */
-#define FIELD_WIDTH_IN  (12 * 12)
-#define FIELD_LENGTH_IN (6  * 12)
-
+#define FIELD_WIDTH_IN         (12 * 12)
+#define FIELD_LENGTH_IN        (6  * 12)
 
 #endif
