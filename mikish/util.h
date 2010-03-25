@@ -1,11 +1,10 @@
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef UTIL_NITISH_H_
+#define UTIL_NITISH_H_
 
-#define ABS(x)    ((x) > 0 ? (x) : -(x))
-#define CONSTRAIN (x, min, max) (((x) < (min)) ? (min) : (((x) > (max)) ? (max) : (x)))
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MIN(x, y) (((x) < (y)) ? (x) : (y))
-#define SIGN(x)   (((x) < 0) ? -1 : +1)
+#define ABS(_x_)      (((_x_) > 0) ? (_x_) : -(_x_))
+#define MIN(_x_, _y_) (((_x_) < (_y_)) ? (_x_) : (_y_))
+#define MAX(_x_, _y_) (((_x_) > (_y_)) ? (_x_) : (_y_))
+#define SIGN(_x_)     (((_x_) < 0) ? -1 : 1)
+#define PROP(_mout_, _merr_, _err_) ((_mout_)*MIN((_merr_), (_merr_))/(_merr_))
 
 #endif
-

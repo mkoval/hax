@@ -1,4 +1,3 @@
-# hax
 RM = rm -rf
 
 srcdir = .
@@ -6,6 +5,9 @@ VPATH  = $(srcdir)
 
 PROG = mikish
 ARCH = vex_pic
+
+PROGS = skel mikish nitish
+ARCHs = vex_pic cortex
 
 SOURCE = hax_main.c hax_serial.c
 HEADERS = hax.h

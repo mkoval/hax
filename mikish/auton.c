@@ -1,90 +1,134 @@
 #include <stdio.h>
-#include "auton.h"
-#include "hax.h"
-#include "ir.h"
+
+#include "../hax.h"
+
+#include "encoder.h"
 #include "ports.h"
-#include "user.h"
+#include "robot.h"
 #include "util.h"
-#include "stdbool.h"
 
-uint16_t prop_scale(int8_t minOut, int8_t maxOut, uint16_t maxErr, int16_t err) {
-	return (int32_t) minOut + ( maxOut - minOut) * MIN(err, maxErr) / maxErr;
+#include "auton.h"
+
+void auton_enqueue(AutonQueue *queue, AutonState state, int16_t extra) {
+	queue->actions[queue->num].state = state;
+	queue->actions[queue->num].extra = extra;
+	++queue->num;
 }
 
-uint16_t ir_to_cm(uint8_t sen) {
-	uint16_t val = analog_adc_get(sen);
-	uint16_t cal = ir_long_to_in10(val);
+AutonAction auton_dequeue(AutonQueue *queue) {
+	AutonAction out;
+	uint8_t i;
 
-	switch (sen) {
-	case SEN_IR_FRONT:
-	case SEN_IR_SIDE_F:
-	case SEN_IR_SIDE_B:
-		return cal;
+	if (!queue->num) {
+		out.state = AUTO_DONE;
+		out.extra = 0;
+		return out;
+	}
+
+	out = queue->actions[0];
+
+	--(queue->num);
+
+	/* Shift all of the remaining elements up by one. */
+	for (i = 0; i < queue->num; ++i) {
+		queue->actions[i] = queue->actions[i + 1];
+	}
+
+	return out;
+}
+
+void auton_do(AutonQueue *queue) {
+	static AutonAction cur = { AUTO_START, 0 };
+	bool advance = false;
+
+	switch (cur.state) {
+	/* Dummy state used to initialize autonomous mode. */
+	case AUTO_START:
+		advance = true;
+		break;
 	
-	default:
-		return 0;
+	/* Ram the middle wall, the distance to which is specified in extra, while
+	 * raising the arm. This pushes the green balls through the slot, knocks
+	 * down the low football, and prepares to hit the high footballs.
+	 */
+	case AUTO_FWDRAM: {
+		int32_t dist  = drive_straight(kMotorMax);
+		bool    close = !digital_get(DIG_BUT_F);
+
+		/* TODO Raise the arm to knock down the high balls. */
+
+		if (close) {
+			advance = true;
+		}
+		break;
 	}
-}
 
-bool turn(void) {
-	static uint16_t t = 0u;
+    /* Reverse until the robot hits a wall. Useful for getting in position to
+     * dump balls over the wall.
+     */
+    case AUTO_REVRAM: {
+        bool close = !digital_get(DIG_BUT_BL) && !digital_get(DIG_BUT_BR);
 
-	if (t < FU_TURN_TICKS) {
-		drive_omni(0, 0, kMotorMax);
-		++t;
-		return true;
-	} else {
-		t = 0;
-		return false;
+        if (!close) {
+            drive_straight(kMotorMin);
+        } else {
+            advance = true;
+        }
+        break;
+    }
+
+	/* Strafe a distance (specified in extra) left or right with the arm in the
+	 * raised position. Used to knock down the high footballs.
+	 */
+	case AUTO_STRAFE: {
+		int32_t dist = encoder_get(ENC_S);
+
+		drive_raw(0, SIGN(cur.extra) * kMotorMax, 0);
+
+
+		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
+			advance = true;
+		}
+		break;
 	}
-}
+	
+	/* Drive forward or reverse a distance specified in extra. Positive values
+	 * are forward and negative values are reverse.
+	 */
+	case AUTO_DRIVE: {
+		int32_t dist = drive_straight(SIGN(cur.extra) * kMotorMax);
 
-/* Follow a wall using side-mounted IR sensors. */
-#if 0
-bool cruise(void) {
-	uint16_t sf = ir_to_cm(SEN_IR_SIDE_F);
-	uint16_t sb = ir_to_cm(SEN_IR_SIDE_B);
-	uint16_t f  = ir_to_cm(SEN_IR_FRONT);
+		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
+			advance = true;
+		}
+		break;
+    }
 
-	f = 1000;
+    case AUTO_TURN: {
+        /* TODO Implement this using encoders... */
+		advance = true;
+		break;
+    }
 
-	/* Not close enough to a wall to start picking up balls yet. */
-	if (f > CRUISE_STOP_CM) {
-		int8_t strafe = 0, omega = 0;
-		int16_t err_omega = sf - sb;
-		/* This is non-optimal and should be replaced with a more accurate
-		 * approximation.
-		 */
-		int16_t err_dist  = (sf + sb) / 2 - FU_CRUISE_DIST;
+    /* Raise (positive values of cur.extra) or lower (negative values of
+     * cur.extra) the ramp at the desired speed.
+     */
+    case AUTO_RAMP:
+        /* Move the ramp until it hits a software stop, measured with a pot. */
+        if (ramp_raw(cur.extra)) {
+            advance = true;
+        }
+        break;
+    }
+		
+	/* Advance to the next state if the current state set the correct flag. */
+	if (advance) {
+		cur = auton_dequeue(queue);
 
-		/* Correct for the robot's facing angle with respect to the wall. */
-		omega  = prop_scale(0, kMotorMax, FU_SEN_IR_OMEGA_ERR, ABS(err_omega));
-		omega *= SIGN(err_omega); /* Restore the sign on the motor value. */
+		printf((char *)"[STATE %d, PARAM %d]\r\n", (int)cur.state, (int)cur.extra);
 
-		/* Correct the robot's distance from the wall. */
-		strafe  = prop_scale(0, kMotorMax, FU_SEN_IR_STRAFE_ERR, ABS(err_dist));
-		strafe *= SIGN(err_dist);
-
-		printf((char *)"F:%4u B:%4u D:%4d O:%4d\n", sf, sb, err_omega, omega);
-
-		drive_omni(strafe, kMotorMin, omega);
-		return true;
-	}
-	/* Close enough to start picking up balls... */
-	else {
-		return false;
-	}
-}
-#endif
-
-void auton_do(void) {
-	static GlobalState state = AUTO_IDLE;
-	static GlobalState prev  = AUTO_IDLE;
-
-	/* Debug state change message. */
-	if (state != prev) {
-		printf((char *)"State: %d\n", state);
-		prev = state;
+		/* Reset encoder ticks to avoid contaminating the next state. */
+		encoder_reset_all();
 	}
 }
 
