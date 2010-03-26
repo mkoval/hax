@@ -18,7 +18,7 @@ OBJECTS = $(SOURCE:=.o)
 TRASH  += $(TARGET:.hex=.cod) $(TARGET:.hex=.lst) $(OBJECTS:.o=.err)
 
 .SUFFIXES:
-.SECONDARY : 
+.SECONDARY:
 
 all : $(TARGET)
 
