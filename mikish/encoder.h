@@ -1,9 +1,8 @@
 #ifndef ENCODER_MIKISH_H_
 #define ENCODER_MIKISH_H_
 
+#include <hax.h>
 #include <stdint.h>
-
-#include "hax.h"
 
 /* Arbitrary indexes assigned to the encoders to simplify this API. */
 typedef uint8_t EncoderIx;

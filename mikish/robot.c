@@ -1,6 +1,6 @@
+#include <hax.h>
 #include <stdio.h>
 
-#include "../hax.h"
 
 #include "encoder.h"
 #include "ports.h"

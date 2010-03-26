@@ -1,7 +1,7 @@
 #ifndef PORTS_MIKISH_H_
 #define PORTS_MIKISH_H_
 
-#include "../hax.h"
+#include <hax.h>
 
 /* PWM Motor Outputs */
 enum {

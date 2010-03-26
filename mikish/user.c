@@ -1,5 +1,4 @@
-#include "../hax.h"
-
+#include <hax.h>
 #include <stdio.h>
 
 #include "auton.h"

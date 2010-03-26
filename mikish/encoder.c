@@ -1,7 +1,6 @@
+#include <hax.h>
 #include <stdbool.h>
 #include <stdint.h>
-
-#include "../hax.h"
 
 #include "encoder.h"
 

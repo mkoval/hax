@@ -1,9 +1,8 @@
 #ifndef ROBOT_MIKISH_H_
 #define ROBOT_MIKISH_H_
 
+#include <hax.h>
 #include <stdbool.h>
-
-#include "../hax.h"
 
 #define ARM_SET_ERRMAX        10
 #define DRIVE_STRAIGHT_ERRMAX 100
