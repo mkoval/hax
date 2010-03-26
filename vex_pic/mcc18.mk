@@ -8,7 +8,7 @@ IPATH        = '$(MCCPATH)/h'
 ICPATH       = '$(ARCH)/include'
 WIPATH      := '$(shell $(WINPATH) $(IPATH))'
 WICPATH     := '$(shell $(WINPATH) $(ICPATH))'
-ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -p=18F8520
+ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -I=$(HAXPATH) -p=18F8520
 ARCH_AFLAGS  = /p18f8520
 LIBPATH      = '$(MCCPATH)/lib'
 WLIBPATH    := '$(shell $(WINPATH) $(LIBPATH))'

@@ -1,7 +1,8 @@
 RM = rm -rf
 
-srcdir = .
-VPATH  = $(srcdir)
+srcdir  = .
+VPATH   = $(srcdir)
+HAXPATH = .
 
 PROG = mikish
 ARCH = vex_pic
