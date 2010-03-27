@@ -52,7 +52,7 @@ void auton_do(AutonQueue *queue) {
 	 */
 	case AUTO_FWDRAM: {
 		int32_t dist  = drive_straight(kMotorMax);
-		bool    close = !digital_get(DIG_BUT_F);
+		bool    close = !digital_get(BUT_F);
 
 		/* TODO Raise the arm to knock down the high balls. */
 
@@ -66,7 +66,7 @@ void auton_do(AutonQueue *queue) {
      * dump balls over the wall.
      */
     case AUTO_REVRAM: {
-        bool close = !digital_get(DIG_BUT_BL) && !digital_get(DIG_BUT_BR);
+        bool close = !digital_get(BUT_BL) && !digital_get(BUT_BR);
 
         if (!close) {
             drive_straight(kMotorMin);
