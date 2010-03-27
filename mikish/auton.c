@@ -97,7 +97,8 @@ void auton_do(AutonQueue *queue) {
 	case AUTO_DRIVE: {
 		int32_t dist = drive_straight(SIGN(cur.extra) * kMotorMax);
 
-		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
+		/* Convert between inches and tenth-inches. */
+		if (ABS(dist) >= ABS(cur.extra) / 10) {
 			advance = true;
 		}
 		break;

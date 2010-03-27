@@ -26,7 +26,7 @@ bool arm_raw(AnalogOut);
 bool ramp_raw(AnalogOut);
 
 /* Drive forward or reverse in a straight line, using encoders to correct for
- * small errors.
+ * small errors. Returns the distance traveled in inches.
  */
 int32_t drive_straight(AnalogOut);
 

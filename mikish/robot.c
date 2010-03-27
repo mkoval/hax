@@ -95,7 +95,7 @@ int32_t drive_straight(AnalogOut forward) {
 
 	drive_raw(forward, 0, SIGN(forward) * SIGN(right - left) * error);
 
-	return (left + right) / 2;
+	return (left + right) / (2 * ENC_PER_IN);
 }
 
 bool arm_set(uint16_t tar) {
