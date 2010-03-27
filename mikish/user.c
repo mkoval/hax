@@ -67,8 +67,6 @@ void telop_loop(void) {
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
 
-	printf((char *)"L%5d   R%5d\r\n", (int)encoder_get(ENC_L), (int)encoder_get(ENC_R));
-
 	drive_raw(forward, strafe, rotate);
 	arm_raw(arm);
 	ramp_raw(ramp);
