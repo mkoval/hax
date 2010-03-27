@@ -16,7 +16,7 @@ ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -I=$(srcdir) -p=18F8520
 ARCH_ASFLAGS = /p18f8520
 ARCH_LDFLAGS = $(ARCH)/18f8520user.lkr /l $(WLIBPATH) /a INHX32
 ARCH_MDFLAGS = -MM -DMCC18_24 -D__18CXX -DUNCHANGEABLE_DEFINITION_AREA \
-               -L$(srcdir)
+               -L$(srcdir) -L$(IPATH) -L$(ICPATH)
 
 OBJECTS     += $(SOURCE:=.o)
 TRASH       += $(TARGET:.hex=.cod) \
