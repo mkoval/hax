@@ -86,9 +86,9 @@ void setup_1(void) {
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
-		_puts("DONE ]\n");
+		_puts("DONE ]\r\n");
 	} else { 
-		_puts("FAIL ]\n");
+		_puts("FAIL ]\r\n");
 	}
 
 }
