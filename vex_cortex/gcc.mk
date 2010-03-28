@@ -4,12 +4,12 @@ LD            = $(PREFIX)-gcc
 AS            = $(PREFIX)-gcc
 OBJCOPY       = $(PREFIX)-objcopy
 
-ARCH_CFLAGS  += -mcpu=cortex-m3 -D_STM32F103VDH6_ -D_STM3x_ -D_STM32x_        \
-                -mthumb -fsigned-char -ffunction-sections -Wall -Wno-main     \
+ARCH_CFLAGS  += -mcpu=cortex-m3 -D_STM32F103VDH6_ -D_STM3x_ -D_STM32x_     \
+                -mthumb -fsigned-char -ffunction-sections -Wall -Wno-main  \
                 -I$(FWLIB_PATH)/inc -D_GPIOG
-ARCH_LDFLAGS += $(ARCH_CFLAGS) -Wl,-L$(LDSCRIPT_PATH) -Wl,-T$(LD_SCRIPT)      \
-                -l:$(FWLIB_PATH)/lib/STM32F10x_thumb.lib                      \
-				-Wl,-static,--gc-sections -nostartfiles
+ARCH_LDFLAGS += $(ARCH_CFLAGS) -Wl,-L$(LDSCRIPT_PATH) -Wl,-T$(LD_SCRIPT)   \
+		-Wl,-static,--gc-sections -nostartfiles                    \
+                -l:$(FWLIB_PATH)/lib/STM32F10x_thumb.lib                   
 
 TARGET_ELF    = $(TARGET:.hex=.elf)
 OBJECTS      += $(SOURCE:=.o)
@@ -26,7 +26,7 @@ clean :
 
 $(TARGET_ELF) : $(OBJECTS)
 	@echo "LD $(@F)"
-	@$(LD) $(ALL_LDFLAGS) $^ -o $@
+	@$(LD) -o $@ $^ $(ALL_LDFLAGS) 
 
 %.hex : %.elf
 	@echo "HEX $(@F)"
@@ -34,10 +34,10 @@ $(TARGET_ELF) : $(OBJECTS)
 
 %.c.o : %.c $(HEADERS) 
 	@echo "CC $(@F)"
-	@$(CC) $(ALL_CFLAGS) -c $< -o $@ 
+	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
 %.s.o : %.s $(HEADERS)
 	@echo "AS $(@F)"
-	@$(AS) $(ALL_AFLAGS) -c $< -o $@
+	@$(AS) $(ALL_AFLAGS) -c -o $@ $<
 
 .PHONY : all clean install rebuild
