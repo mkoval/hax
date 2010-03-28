@@ -15,9 +15,26 @@ SOURCE      = hax_main.c hax_serial.c
 HEADERS     = hax.h
 TARGET      = $(PROG)-$(ARCH).hex
 
-.PHONY: all
+.PHONY: all help vex_pic vex_cortex easyc_cortex clean
+
 
 all: $(TARGET)
+
+help:
+	@echo "Valid targets:"
+	@echo "  vex_pic"
+	@echo "  vex_cortex"
+	@echo "  easyc_cortex"
+
+vex_pic:
+	@$(MAKE) ARCH="vex_pic" $(MAKEFLAGS) all
+
+vex_cortex:
+	@$(MAKE) ARCH="vex_cortex" $(MAKEFLAGS) all
+
+easyc_cortex:
+	@$(MAKE) ARCH="easyc_cortex" $(MAKEFLAGS) all
+
 
 include $(PROG)/Makefile
 include $(ARCH)/Makefile
