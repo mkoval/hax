@@ -63,8 +63,8 @@ void drive_raw(AnalogOut forward, AnalogOut strafe, AnalogOut turn) {
 
 bool arm_raw(AnalogOut vel) {
 	int16_t pos  = analog_adc_get(POT_ARM);
-	bool    up   = vel > 0 && ARM_GT(pos, POT_ARM_HIGH);
-	bool    down = vel < 0 && ARM_LT(pos, POT_ARM_LOW);
+	bool    up   = vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
+	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
 
 	motor_set(MTR_ARM_L, move * -vel);
@@ -75,7 +75,6 @@ bool arm_raw(AnalogOut vel) {
 bool ramp_raw(AnalogOut vel) {
 	int16_t left  = analog_adc_get(POT_LIFT_L);
 	int16_t right = analog_adc_get(POT_LIFT_R);
-
 
 	bool mv_left  = (LIFT_L_LT(left, POT_LIFT_L_HIGH) && vel > 0)
 	             || (LIFT_L_GT(left, POT_LIFT_L_LOW)  && vel < 0);
@@ -97,7 +96,17 @@ int32_t drive_straight(AnalogOut forward) {
 
 	drive_raw(forward, 0, SIGN(forward) * SIGN(right - left) * error);
 
-	return (left + right) / (2 * ENC_PER_IN);
+	return (left + right) / 2;
+}
+
+int32_t drive_turn(AnalogOut turn) {
+	int32_t left  = encoder_get(ENC_L);
+	int32_t right = encoder_get(ENC_R);
+	int32_t avg   = ABS(left - right) / 2;
+
+	drive_raw(0, 0, turn);
+
+	return SIGN(turn) * avg;
 }
 
 bool arm_set(uint16_t tar) {

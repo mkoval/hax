@@ -30,6 +30,11 @@ bool ramp_raw(AnalogOut);
  */
 int32_t drive_straight(AnalogOut);
 
+/* Turn about the robot's center, using encoders to measure the distance
+ * travelled and correct for errors.
+ */
+int32_t drive_turn(AnalogOut);
+
 /* Keep the arm a specific potentiometer value using a feedback loop. */
 bool arm_set(uint16_t);
 
