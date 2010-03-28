@@ -1,8 +1,7 @@
-// vi: set sw=4 ts=4:
-
 #include <spi.h>
-#include "vex_pic/ifi/default.h"
-#include "vex_pic/ifi/aliases.h"
+
+#include "ifi/default.h"
+#include "ifi/aliases.h"
 
 /*******************************************************************************
 			   FUNCTION PROTOTYPES

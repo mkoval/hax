@@ -1,2 +1,11 @@
-# hax/mikish
-SOURCE += $(PROG)/user.c $(PROG)/auton.c $(PROG)/ir.c $(PROG)/encoder.c
+SOURCE += $(PROG)/auton.c   \
+          $(PROG)/encoder.c \
+          $(PROG)/robot.c   \
+          $(PROG)/user.c
+
+HEADERS += $(PROG)/auton.h   \
+           $(PROG)/encoder.h \
+           $(PROG)/ports.h   \
+           $(PROG)/robot.h   \
+           $(PROG)/user.h    \
+           $(PROG)/util.h

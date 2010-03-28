@@ -2,14 +2,15 @@
  * Hardware Specific Code,
  * PIC Arch
  */
-#include <p18cxxx.h>
-#include <usart.h>
 #include <adc.h>
 #include <delays.h>
+#include <hax.h>
+#include <p18cxxx.h>
 #include <stdio.h>
-#include "hax.h"
-#include "vex_pic/master.h"
-#include "vex_pic/ifi_lib.h"
+#include <usart.h>
+
+#include "master.h"
+#include "ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
 uint16_t kSlowSpeed = 18500;
@@ -357,12 +358,17 @@ void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
 }
 
+bool interrupt_get(InterruptIx index) {
+	/* There are 16 digital pins, so the first interrupt is pin 16. */
+	return digital_get(16 + index);
+}
+
 #if   defined(MCC18_30)
 #pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
 #elif defined(MCC18_24)
 #pragma interruptlow interrupt_handler save=PROD,section("MATH_DATA"),section(".tmpdata")
 #else
-#error Bad complier
+#error Interrupts are unsuported with this compiler.
 #endif
 void interrupt_handler(void) {
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
@@ -422,6 +428,8 @@ void interrupt_vector(void) {
 	_endasm
 }
 #pragma code
+
+/* TODO Implement interrupt_set() and interrupt_disable(). */
 
 void interrupt_enable(InterruptIx index) {
 	switch (index) {
