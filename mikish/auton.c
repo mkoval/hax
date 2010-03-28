@@ -84,7 +84,6 @@ void auton_do(AutonQueue *queue) {
 
 		drive_raw(0, SIGN(cur.extra) * kMotorMax, 0);
 
-
 		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
 			advance = true;
 		}
@@ -98,17 +97,31 @@ void auton_do(AutonQueue *queue) {
 		int32_t dist = drive_straight(SIGN(cur.extra) * kMotorMax);
 
 		/* Convert between inches and tenth-inches. */
-		if (ABS(dist) >= ABS(cur.extra) / 10) {
+		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
 			advance = true;
 		}
 		break;
     }
 
     case AUTO_TURN: {
-        /* TODO Implement this using encoders... */
-		advance = true;
+		int32_t ang = drive_turn(SIGN(cur.extra) * kMotorMax);
+
+		/* Convert between encoder ticks and degrees of rotation. */
+		if (ang > cur.extra * ENC_PER_DEG) {
+			advance = true;
+		}
 		break;
     }
+
+	/* Move the arm until it is at an extreme. */
+	case AUTO_ARM: {
+		bool done = arm_raw(cur.extra);
+
+		if (done) {
+			advance = true;
+		}
+		break;
+	}
 
     /* Raise (positive values of cur.extra) or lower (negative values of
      * cur.extra) the ramp at the desired speed.
@@ -131,4 +144,3 @@ void auton_do(AutonQueue *queue) {
 		encoder_reset_all();
 	}
 }
-
