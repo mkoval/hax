@@ -40,6 +40,7 @@ enum {
 	BUT_BL = ANA_NUM,
 	BUT_BR,
 	BUT_F,
+	JUMP_CAL,
 	SEN_NUM
 };
 
@@ -81,7 +82,8 @@ enum {
 #define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
-#define ENC_PER_IN      25
+#define ENC_PER_IN      27
+#define ENC_PER_DEG     4
 
 /* Robot dimensions, used to refine drive distances. */
 #define ROB_WIDTH_IN    24
@@ -92,5 +94,9 @@ enum {
 /* Field dimensions; used to calculate drive distances. */
 #define FIELD_WIDTH_IN  (12 * 12)
 #define FIELD_LENGTH_IN (6  * 12)
+
+/* Calibration routines. */
+#define CAL_ENC_DRIVE 1000 /* 1000 ticks = 36.5 in */
+#define CAL_ENC_TURN  1000
 
 #endif
