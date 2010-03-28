@@ -3,9 +3,6 @@ RM          = rm -rf
 srcdir      = .
 VPATH       = $(srcdir)
 
-PROG        = mikish
-ARCH        = vex_pic
-
 ALL_CFLAGS  = $(ARCH_CFLAGS) $(CFLAGS)
 ALL_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
 ALL_ASFLAGS = $(ARCH_ASFLAGS) $(ASFLAGS)
