@@ -78,6 +78,8 @@ extern void Debug_Send(void);
 void Set_MotorControl_To_Neutral(void);
 void Set_MotorControl_Sw2(u8 data);
 
+/* Replaced with HAX's main() function. */
+#if 0
 int main(void)
 {
   u16 j,i;
@@ -272,6 +274,7 @@ int main(void)
     //Delay(200);
   }// while (1)
 }
+#endif
 
 /* Support function prototypes -----------------------------------------------*/
 
