@@ -81,6 +81,7 @@ extern void Debug_Send(void);
 void Set_MotorControl_To_Neutral(void);
 void Set_MotorControl_Sw2(u8 data);
 
+#ifndef ___NEVER_DEFINE___
 int main(void)
 {
 	u16 j, i;
@@ -739,3 +740,4 @@ void Handle_Data_From_Crystal(u8 receiverPort)
 	//if ((systemStateFlags & 8) == 8) printf("\r\n");
 	//if ((systemStateFlags & 0x10) == 0x10) printf("\r\n");
 }
+
