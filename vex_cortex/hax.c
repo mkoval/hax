@@ -275,25 +275,6 @@ void setup_2(void) {
 }
 
 void loop_1(void) {
-}
-
-void loop_2(void) {
-}
-
-void spin(void) {
-	static uint8_t one_shot = 1;
-	int uart1data = uart1data; /* Hack to get around a GCC error. */
-
-#ifdef USE_USART2
-	/* Check for data transmitted over wifi. */
-	uart1data = GetKey();
-
-	if (uart1data >= 0) {
-		Handle_Debug_Input(uart1data);
-	}
-
-	Process_Debug_Stream();
-#endif
 
 	/* Handle data from RX1 if it is connected. */
 	if (pwmStatusFlags & RX1_INTRDY) {
@@ -351,16 +332,26 @@ void spin(void) {
 			slavePtr->State = 8;      /* Slave has data ready. */
 			masterPtr->packetNum = 1; /* ? */
 		}
-		/* Receied valid data; update autonomous mode. */
-		else if (masterPtr->State == 8) {
-			/* Autonomous is either forced by masterPtr or was set by slavePtr. */
-			if (masterPtr->SystemFlags & 0x40 || slavePtr->SystemFlags == 1) {
-				Handle_Autonomous();
-			} else {
-				Handle_Operator_Control();
-			}
-		}
 	}
+}
+
+void loop_2(void) {
+}
+
+void spin(void) {
+	static uint8_t one_shot = 1;
+	int uart1data = uart1data; /* Hack to get around a GCC error. */
+
+#ifdef USE_USART2
+	/* Check for data transmitted over wifi. */
+	uart1data = GetKey();
+
+	if (uart1data >= 0) {
+		Handle_Debug_Input(uart1data);
+	}
+
+	Process_Debug_Stream();
+#endif
 }
 
 bool new_data_received(void) {
@@ -373,9 +364,16 @@ bool new_data_received(void) {
 }
 
 CtrlMode mode_get(void) {
-	return 0;
+	if (masterPtr->SystemFlags & 0x40 || slavePtr->SystemFlags == 1) {
+		return kModeAuton;
+	} else {
+		return kModeTelop;
+	}
+	/* TODO What about disabled mode? */
 }
 
 void mode_set(CtrlMode mode) {
+	/* TODO Implement this by modifying the slave's SystemFlags. */
 }
+
 
