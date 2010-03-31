@@ -35,3 +35,6 @@ easyc_cortex:
 
 include $(PROG)/Makefile
 include $(ARCH)/Makefile
+# DO NOT DELETE
+
+hax.o: compilers.h /usr/include/stdint.h /usr/include/stdbool.h
