@@ -16,14 +16,9 @@ void setup_1(void) {
 	Setup_timer4();
 
 	WaitTillMasterIsReadyForSpiData();
-
-	s
 }
 
 void setup_2(void) {
-}
-
-void spin(void) {
 }
 
 void loop_1(void) {
@@ -125,7 +120,7 @@ void spin(void) {
 	}
 }
 
-void loop_1(void) {
+void spin(void) {
 	static uint8_t one_shot = 1;
 
 	if (!sendit && SendDataToUart()) {

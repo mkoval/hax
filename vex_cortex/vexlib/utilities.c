@@ -9,7 +9,7 @@
 #include "platform_config.h"
 
 #define ADC1_DR_Address    ((u32) &ADC1->DR)
-#define ADC3_DR_Address    ((u32)0x40013C4C)
+#define ADC3_DR_Address    ((u32)0x40013C4C) // wtf.
 
 unsigned char usartPort = 0;
 
@@ -34,7 +34,7 @@ void Setup_timer4(void) //************  Setup for Smart Motor Control
    AFIO->MAPR |= (1 << 12);    //Maps TIM4 to PORTD pins 12-15
 
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 65535;
+  TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
   TIM_TimeBaseStructure.TIM_Prescaler = 4;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -68,7 +68,7 @@ void Setup_timer1(void)
   --------------------------------------------------------------- */
 
   /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 65535;
+  TIM_TimeBaseStructure.TIM_Period = 0xFFFF;
   TIM_TimeBaseStructure.TIM_Prescaler = 20;
   TIM_TimeBaseStructure.TIM_ClockDivision = 0;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -293,7 +293,7 @@ void GPIO_Configuration(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Init(GPIOD, &GPIO_InitStructure);
-  GPIOD->CRH = (9 << 16) | (9 << 20) | (9 << 24) | ( 9 << 28) | 1;
+  GPIOD->CRH = (9 << 16) | (9 << 20) | (9 << 24) | ( 9 << 28) | 1; // XXX: magic.
   //************  End Setup for Smart Motor Control
 
   /* PD.00, PD.01 as input */
@@ -423,7 +423,7 @@ void NVIC_Configuration(void)
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   //NVIC_Init(&NVIC_InitStructure);
 
-#ifdef USE_USART2  
+#ifdef USE_USART2 // XXX: non-sensical define. 
   // Enable the USART1 Interrupt
   NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQChannel;
   NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
