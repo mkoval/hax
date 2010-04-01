@@ -386,6 +386,24 @@ void mode_set(CtrlMode mode) {
 /*
  * ANALOG AND DIGITAL INPUTS
  */
+/* Mapping between an external pin number and the collection of registers that
+ * it uses for configuration and data storage.
+ */
+static GPIO_TypeDef *const gpio_reg[] = {
+	GPIOE, GPIOE, GPIOC, GPIOC, GPIOE, GPIOE,
+	GPIOE, GPIOE, GPIOE, GPIOE, GPIOD, GPIOD
+};
+
+static uint8_t const gpio_rep[] = {
+	0, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1
+}
+
+static uint8_t const gpio_pin[] = {
+	9, 11, 6, 7, 13, 14, 8, 10, 12, 7, 0, 1
+};
+
+static uint8_t const gpio_num = 12;
+
 void pin_set_io(PinIx index, PinMode mode) {
 }
 
@@ -395,35 +413,14 @@ uint16_t analog_adc_get(PinIx);
 void digital_set(PinIx, bool);
 
 bool digital_get(PinIx index) {
-	/* Physical labeling is one-indexed, but the internal representation is
-	 * zero-indexed.
+	/* TODO Pin may need to be configured to get a successful read. */
+
+	/* The i-th bit of a GPIO IDR register is the value of the i-th digital pin
+	 * stored in that register.
 	 */
-	switch (index) {
-	case 0:
-		return !!(GPIOE->IDR & GPIO_Pin_9);
-	case 1:
-		return !!(GPIOE->IDR & GPIO_Pin_11);
-	case 2:
-		return !!(GPIOC->IDR & GPIO_Pin_6);
-	case 3:
-		return !!(GPIOC->IDR & GPIO_Pin_7);
-	case 4:
-		return !!(GPIOE->IDR & GPIO_Pin_13);
-	case 5
-		return !!(GPIOE->IDR & GPIO_Pin_14);
-	case 6:
-		return !!(GPIOE->IDR & GPIO_Pin_8);
-	case 7:
-		return !!(GPIOE->IDR & GPIO_Pin_10);
-	case 8:
-		return !!(GPIOE->IDR & GPIO_Pin_12);
-	case 9:
-		return !!(GPIOE->IDR & GPIO_Pin_7);
-	case 10:
-		return !!(GPIOD->IDR & GPIO_Pin_0);
-	case 11:
-		return !!(GPIOD->IDR & GPIO_Pin_1);
-	default:
+	if (index < gpio_num) {
+		return !!(gpio_reg[index]->IDR & (1 << gpio_pin[index]));
+	} else {
 		return false;
 	}
 }
