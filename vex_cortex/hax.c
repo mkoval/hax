@@ -449,16 +449,74 @@ InterruptServiceRoutine isr_callbacks[20] = { 0 };
 void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
 
-	NVIC_Init
+	/* Prevent a potential segfault by invoking a NULL callback. */
+	if (!isr) {
+		interrupt_disable();
+	}
 }
 
 bool interrupt_get(InterruptIx index) {
 	return digital_get(index);
 }
 
-void interrupt_set(InterruptIx, bool) {
+void interrupt_enable(InterruptIx index) {
+	GPIO_TypeDef *reg; 
+	uint8_t pic, rep;
+
+	/* Only GPIO pins can be mapped to serve as external interrupts. Even if
+	 * the index is valid, there can only be four external interrupts mapped to
+	 * a single GPIO register.
+	 */
+	if (index > 15 || gpio_rep[ext_index] > 3) {
+		return;
+	}
+	
+	pin = gpio_pin[ext_index];
+	reg = gpio_reg[ext_index];
+	rep = gpio_rep[ext_index];
+
+	/* Configure GPIO to be internally pulled up. First clearing the pin's
+	 * previous configuration settings, then write:
+	 *   CNF      = 10   = Input with internal pull-up / pull-down.
+	 *   MODE     = 00   = Input mode.
+	 *   PxODR    = 1    = Internal pull-up
+	 *   MODE:CNF = 0010 = 0x02
+	 */
+	reg->CRL &= ~(0x0F << (pin * 4));
+	reg->CRL &=  (0x02 << (pin * 4));
+
+	/* Sets the appropriate bit in the ODR register to enable an internal
+	 * pull-up. Since ODR cannot be directly accessed, the lower 16-bits of
+	 * the BSRR register are used to set a bit in ODR and the upper 16-bits
+	 * are used to clear a bit in ODR.
+	 */
+	reg->BSRR |= 1 << pin;
+
+	/* TODO Figure out which EXTI interrupt each pin maps to. */
+
+	/* Map an external GPIO pin to an EXT interrupt. Up to four GPIO pins can
+	 * be mapped to interrupts by using four-bit chunks of this 32-bit
+	 * register. This sets the mapping to an NVIC interrupt handler.
+	 */
+	AFIO->EXTICR[ext_index] = pin << rep;
+
+	/* ISER[n] holds the set-enable flags for interrupts 31n (LSB) to
+	 * 32(n+1) (MSB) in increasing order. Clearing a bit in this array does
+	 * nothing; see interrupt_disable().
+	 */
+	ISER[nvic_index / 32] |= 1 << (nvic_index % 32);
+
+	EXTI_IMR  |= 1 << ext_index;
+	EXTI_RTSR |= 1 << ext_index; /* Enable rising edge triggering. */
+	EXTI_FTSR |= 1 << ext_index; /* Enable falling edge triggering. */
+
+	/* TODO Enable APB2 clock using the RCC_APB2ENR register. */
 }
 
-void interrupt_enable(InterruptIx);
-void interrupt_disable(InterruptIx);
-
+void interrupt_disable(InterruptIx index) {
+	/* ICER[n] holds the clear-enable flags for interrupts 32n (LSb) to
+	 * 32(n+1) (MSB) in increasing order. Clearing a bit in this array does
+	 * nothing; see interrupt_enable().
+	 */
+	ICER[index / 32] |= 1 << (index % 32);
+}
