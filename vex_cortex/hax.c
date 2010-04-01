@@ -220,6 +220,7 @@ void setup_1(void) {
 	AnalogOutIx i;
 	int uart1data = uart1data; /* Hack to get around a GCC error. */
 
+	/* TODO Reimplement these functions. */
 	RCC_Configuration();
 	NVIC_Configuration();
 	GPIO_Configuration();
@@ -228,7 +229,10 @@ void setup_1(void) {
 	SysTick_Configuration();
 	Setup_Capture_Mode();
 	Setup_timer1();
-	Setup_timer4(); /* TODO Implement this timer... */
+	Setup_timer4();
+
+	/* Set the location of the interrupt vector to 0x08000000. */
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 
 	WaitTillMasterIsReadyForSpiData(); 
 
@@ -389,8 +393,40 @@ int8_t analog_oi_get(OIIx);
 uint16_t analog_adc_get(PinIx);
 
 void digital_set(PinIx, bool);
-int8_t digital_get(PinIx);
 
+bool digital_get(PinIx index) {
+	/* Physical labeling is one-indexed, but the internal representation is
+	 * zero-indexed.
+	 */
+	switch (index) {
+	case 0:
+		return !!(GPIOE->IDR & GPIO_Pin_9);
+	case 1:
+		return !!(GPIOE->IDR & GPIO_Pin_11);
+	case 2:
+		return !!(GPIOC->IDR & GPIO_Pin_6);
+	case 3:
+		return !!(GPIOC->IDR & GPIO_Pin_7);
+	case 4:
+		return !!(GPIOE->IDR & GPIO_Pin_13);
+	case 5
+		return !!(GPIOE->IDR & GPIO_Pin_14);
+	case 6:
+		return !!(GPIOE->IDR & GPIO_Pin_8);
+	case 7:
+		return !!(GPIOE->IDR & GPIO_Pin_10);
+	case 8:
+		return !!(GPIOE->IDR & GPIO_Pin_12);
+	case 9:
+		return !!(GPIOE->IDR & GPIO_Pin_7);
+	case 10:
+		return !!(GPIOD->IDR & GPIO_Pin_0);
+	case 11:
+		return !!(GPIOD->IDR & GPIO_Pin_1);
+	default:
+		return false;
+	}
+}
 
 /*
  * MOTOR AND SERVO OUTPUTS
