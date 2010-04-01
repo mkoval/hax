@@ -394,8 +394,8 @@ static GPIO_TypeDef *const gpio_reg[] = {
 	GPIOE, GPIOE, GPIOE, GPIOE, GPIOD, GPIOD
 };
 
-static uint8_t const gpio_rep[] = {
-	0, 1, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 0, 1
+static uint8_t const gpio_port[] = {
+	8, 8, 4, 4, 8, 8, 8, 8, 8, 8, 3, 3
 }
 
 static uint8_t const gpio_pin[] = {
@@ -444,7 +444,7 @@ void servo_set(AnalogOutIx index, ServoPosition pos) {
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
-InterruptServiceRoutine isr_callbacks[20] = { 0 };
+InterruptServiceRoutine isr_callbacks[15] = { 0 };
 
 void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
@@ -459,9 +459,9 @@ bool interrupt_get(InterruptIx index) {
 	return digital_get(index);
 }
 
-void interrupt_enable(InterruptIx index) {
+void interrupt_enable(InterruptIx ext_index) {
 	GPIO_TypeDef *reg; 
-	uint8_t pic, rep;
+	uint8_t pin, port, nvic_index;
 
 	/* Only GPIO pins can be mapped to serve as external interrupts. Even if
 	 * the index is valid, there can only be four external interrupts mapped to
@@ -471,9 +471,9 @@ void interrupt_enable(InterruptIx index) {
 		return;
 	}
 	
-	pin = gpio_pin[ext_index];
-	reg = gpio_reg[ext_index];
-	rep = gpio_rep[ext_index];
+	pin  = gpio_pin[ext_index];
+	port = gpio_port[ext_index];
+	reg  = gpio_reg[ext_index];
 
 	/* Configure GPIO to be internally pulled up. First clearing the pin's
 	 * previous configuration settings, then write:
@@ -481,9 +481,16 @@ void interrupt_enable(InterruptIx index) {
 	 *   MODE     = 00   = Input mode.
 	 *   PxODR    = 1    = Internal pull-up
 	 *   MODE:CNF = 0010 = 0x02
+	 * Pins between 0 to 7 are in the port configuration vector low and pins
+	 * between 8 and 15 are in the port configuration vector high.
 	 */
-	reg->CRL &= ~(0x0F << (pin * 4));
-	reg->CRL &=  (0x02 << (pin * 4));
+	if (pin < 8) {
+		reg->CRL &= ~(0x02 << (pin * 4));
+		reg->CRL |=  (0x02 << (pin * 4));
+	} else if (pin < 16) {
+		reg->CRH &= ~(0x02 << ((pin - 8) * 4));
+		reg->CRH |=  (0x02 << ((pin - 8) * 4));
+	}
 
 	/* Sets the appropriate bit in the ODR register to enable an internal
 	 * pull-up. Since ODR cannot be directly accessed, the lower 16-bits of
@@ -492,25 +499,49 @@ void interrupt_enable(InterruptIx index) {
 	 */
 	reg->BSRR |= 1 << pin;
 
-	/* TODO Figure out which EXTI interrupt each pin maps to. */
+	/* Enable the external interrupt in addition to rising and falling edge
+	 * triggering.
+	 */
+	EXTI_IMR  |= 1 << ext_index;
+	EXTI_RTSR |= 1 << ext_index; /* Rising edge triggering. */
+	EXTI_FTSR |= 1 << ext_index; /* Falling edge triggering. */
 
 	/* Map an external GPIO pin to an EXT interrupt. Up to four GPIO pins can
 	 * be mapped to interrupts by using four-bit chunks of this 32-bit
 	 * register. This sets the mapping to an NVIC interrupt handler.
 	 */
-	AFIO->EXTICR[ext_index] = pin << rep;
+	AFIO->EXTICR[pin / 4] &= ~(port << (pin % 4));
+	AFIO->EXTICR[pin / 4] |=   port << (pin % 4);
 
 	/* ISER[n] holds the set-enable flags for interrupts 31n (LSB) to
 	 * 32(n+1) (MSB) in increasing order. Clearing a bit in this array does
 	 * nothing; see interrupt_disable().
 	 */
+	/* Pin 0 is dedicated the EXT0 NVIC interrupt. */
+	if (pin == 0) {
+		nvic_index = 6;
+	}
+	/* Pin 1 is dedicated the EXT1 NVIC interrupt. */
+	else if (pin == 1) {
+		nvic_index = 7;
+	}
+	/* Pins 2-4 are not exposed. */
+	else if (pin < 5) {
+		return;
+	}
+	/* Pins 5-9 are clumped as one NVIC interrupt (EXTI9_5). */
+	else if (pin < 10) {
+		nvic_index = 23;
+	}
+	/* Pins 10-15 are clumped in one NVIC interrupt (EXT15_10). */
+	else if (pin < 16) {
+		nvic_index = 40;
+	}
+
+	/* Enable the NVIC interrupt associated with this interrupt. */
 	ISER[nvic_index / 32] |= 1 << (nvic_index % 32);
 
-	EXTI_IMR  |= 1 << ext_index;
-	EXTI_RTSR |= 1 << ext_index; /* Enable rising edge triggering. */
-	EXTI_FTSR |= 1 << ext_index; /* Enable falling edge triggering. */
-
-	/* TODO Enable APB2 clock using the RCC_APB2ENR register. */
+	/* APB2 clock (RCC_APB2ENR register) is already enabled. */
 }
 
 void interrupt_disable(InterruptIx index) {
@@ -520,3 +551,5 @@ void interrupt_disable(InterruptIx index) {
 	 */
 	ICER[index / 32] |= 1 << (index % 32);
 }
+
+
