@@ -373,7 +373,59 @@ CtrlMode mode_get(void) {
 }
 
 void mode_set(CtrlMode mode) {
-	/* TODO Implement this by modifying the slave's SystemFlags. */
+	/* TODO Implement this by modifying the slave's SystemFlags, if it is
+	 * possible to safely do so.
+	 */
 }
 
+
+/*
+ * ANALOG AND DIGITAL INPUTS
+ */
+void pin_set_io(PinIx index, PinMode mode) {
+}
+
+int8_t analog_oi_get(OIIx);
+uint16_t analog_adc_get(PinIx);
+
+void digital_set(PinIx, bool);
+int8_t digital_get(PinIx);
+
+
+/*
+ * MOTOR AND SERVO OUTPUTS
+ */
+void analog_set(AnalogOutIx index, AnalogOut sp) {
+	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+	slavePtr->motor[index] = sp + 128;
+}
+
+void motor_set(AnalogOutIx index, MotorSpeed sp) {
+	analog_set(index, sp);
+}
+
+void servo_set(AnalogOutIx index, ServoPosition pos) {
+	analog_set(index, pos);
+}
+
+/*
+ * INTERRUPT SERVICE ROUTINE FUNCTIONS
+ */
+InterruptServiceRoutine isr_callbacks[20] = { 0 };
+
+void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
+	isr_callbacks[index] = isr;
+
+	NVIC_Init
+}
+
+bool interrupt_get(InterruptIx index) {
+	return digital_get(index);
+}
+
+void interrupt_set(InterruptIx, bool) {
+}
+
+void interrupt_enable(InterruptIx);
+void interrupt_disable(InterruptIx);
 
