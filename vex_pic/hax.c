@@ -333,7 +333,7 @@ int8_t analog_oi_get(OIIx ain) {
 void analog_set(AnalogOutIx aout, AnalogOut sp) {
 	if ( aout < kVPMaxMotors ) {
 		uint8_t val;
-		sp = ( sp < 0 && sp != 128) ? sp - 1 : sp;
+		sp = ( sp < 0 && sp != -128) ? sp - 1 : sp;
 		val = sp + 128;
 
 		/* 127 & 128 are treated as the same, apparently. */
@@ -352,7 +352,7 @@ void servo_set(AnalogOutIx aout, ServoPosition sp) {
 /*
  * INTERRUPTS
  */
-InterruptServiceRoutine isr_callbacks[6] = { 0, 0, 0, 0, 0, 0 };
+InterruptServiceRoutine isr_callbacks[6] = { 0 };
 
 void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
