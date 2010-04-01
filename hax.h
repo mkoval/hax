@@ -135,7 +135,7 @@ uint16_t analog_adc_get(PinIx);
  * undefined results if the input is configured as an analog sensor.
  */
 void digital_set(PinIx, bool);
-int8_t digital_get(PinIx);
+bool digital_get(PinIx);
 
 /*
  * MOTOR AND SERVO OUTPUTS
@@ -159,10 +159,8 @@ void interrupt_reg_isr(InterruptIx, InterruptServiceRoutine);
 bool interrupt_get(InterruptIx);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
- * potentially dangerous locations. 
- * And so that you can actually enable them in the first place.
+ * potentially dangerous locations and in initialization.
  */
-void interrupt_set(InterruptIx, bool);
 void interrupt_enable(InterruptIx);
 void interrupt_disable(InterruptIx);
 
