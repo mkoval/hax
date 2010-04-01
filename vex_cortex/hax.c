@@ -519,11 +519,11 @@ void interrupt_enable(InterruptIx ext_index) {
 	 */
 	/* Pin 0 is dedicated the EXT0 NVIC interrupt. */
 	if (pin == 0) {
-		nvic_index = 6;
+		nvic_index = EXTI0_IRQChannel;
 	}
 	/* Pin 1 is dedicated the EXT1 NVIC interrupt. */
 	else if (pin == 1) {
-		nvic_index = 7;
+		nvic_index = EXTI1_IRQChannel;
 	}
 	/* Pins 2-4 are not exposed. */
 	else if (pin < 5) {
@@ -531,11 +531,11 @@ void interrupt_enable(InterruptIx ext_index) {
 	}
 	/* Pins 5-9 are clumped as one NVIC interrupt (EXTI9_5). */
 	else if (pin < 10) {
-		nvic_index = 23;
+		nvic_index = EXTI9_5_IRQChannel;
 	}
 	/* Pins 10-15 are clumped in one NVIC interrupt (EXT15_10). */
 	else if (pin < 16) {
-		nvic_index = 40;
+		nvic_index = EXTI9_15_9Channel;
 	}
 
 	/* Enable the NVIC interrupt associated with this interrupt. */
