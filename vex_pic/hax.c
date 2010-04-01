@@ -254,7 +254,7 @@ void pin_set_io(PinIx i, PinMode mode) {
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
-int8_t digital_get(PinIx i) {
+bool digital_get(PinIx i) {
 
 	switch (i) {
 	
@@ -429,7 +429,7 @@ void interrupt_vector(void) {
 }
 #pragma code
 
-/* TODO Implement interrupt_set() and interrupt_disable(). */
+/* TODO Implement interrupt_disable(). */
 
 void interrupt_enable(InterruptIx index) {
 	switch (index) {
