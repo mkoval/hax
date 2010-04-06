@@ -51,9 +51,8 @@ void init(void) {
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
 	 */
-	encoder_init(ENC_L, INT_ENC_L1, INT_ENC_L2); /* Left   */
-	encoder_init(ENC_R, INT_ENC_R1, INT_ENC_R2); /* Right  */
-	encoder_init(ENC_S, INT_ENC_S1, INT_ENC_S2); /* Strafe */
+	encoder_init(ENC_L, INT_ENC_L1, INT_ENC_L2); /* Left  */
+	encoder_init(ENC_R, INT_ENC_R1, INT_ENC_R2); /* Right */
 }
 
 void disable_loop(void) {
