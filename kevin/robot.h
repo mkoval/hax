@@ -7,11 +7,11 @@
 #define ARM_SET_ERRMAX        10
 #define DRIVE_STRAIGHT_ERRMAX 100
 
-/* Control the speed of the drive motors to get a desired forward movement,
- * strafe, and rotation. Positive values indicate forward movement, right
- * strafing and counter-clockwise rotation.
+/* Control the speed of the drive motors to get a desired forward movement
+ * and rotation. Positive values indicate forward movement and counter-
+ * clockwise rotation.
  */
-void drive_raw(AnalogOut, AnalogOut, AnalogOut);
+void drive_raw(AnalogOut, AnalogOut);
 
 /* Control the speed of the arm motors to raise or lower the arm. Positive
  * values indicate upward movement. Both extremes are checked in software using
@@ -34,8 +34,5 @@ int32_t drive_straight(AnalogOut);
  * travelled and correct for errors.
  */
 int32_t drive_turn(AnalogOut);
-
-/* Keep the arm a specific potentiometer value using a feedback loop. */
-bool arm_set(uint16_t);
 
 #endif
