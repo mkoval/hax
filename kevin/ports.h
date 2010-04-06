@@ -27,6 +27,7 @@ enum {
 /* Analog Sensors */
 enum {
     POT_ARM = 0,
+	POT_LIFT,
     ANA_NUM
 };
 
@@ -36,7 +37,9 @@ enum {
 	BUT_BL = ANA_NUM,
 	BUT_BR,
 	BUT_F,
-	JUMP_CAL,
+	JUMP_CAL_EN,
+	JUMP_CAL_MODE1,
+	JUMP_CAL_MODE2,
 	SEN_NUM
 };
 
@@ -55,6 +58,13 @@ enum {
 	ENC_R,
 	ENC_NUM
 };
+
+/* Lift potentiometer, used to measure the orientation of the lift. */
+#define POT_LIFT_LOW    0
+#define POT_LIFT_HIGH   1024
+
+#define LIFT_LT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define LIFT_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
 #define POT_ARM_LOW     0
