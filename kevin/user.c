@@ -17,15 +17,13 @@ uint8_t kNumAnalogInputs = ANA_NUM;
  */
 static AutonQueue queue = { 0 };
 
-static bool calibration = false;
+static CalibrationMode cal_mode = CAL_MODE_NONE;
 
 void init(void) {
 	/* Disable autonomous in calibration mode. */
-	calibration = !digital_get(JUMP_CAL);
+	bool cal = !digital_get(JUMP_CAL_EN);
 
-	_puts("[CALIBRATION ");
-
-	if (!calibration) {
+	if (!cal) {
 		/* Pre-define all of autonomous mode as a giant state machine.
 		 * 1. Ram the center wall, dislodging the orange football and pushing the
 		 *      four green balls under the wall.
@@ -43,9 +41,14 @@ void init(void) {
 		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
 		auton_enqueue(&queue, AUTO_DONE,   NONE);
 
-		_puts("OFF]\r\n");
+		_puts("[CALIBRATION OFF]\r\n");
 	} else {
-		_puts("ON]\r\n");
+		/* Use the other jumpers to select the correct calibration mode. */
+		cal_mode  = 1;
+		cal_mode += (!digital_get(JUMP_CAL_MODE1)) << 1;
+		cal_mode += (!digital_get(JUMP_CAL_MODE2)) << 2;
+
+		printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
 	}
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
@@ -79,16 +82,35 @@ void telop_loop(void) {
 	uint16_t rotate  = analog_oi_get(OI_L_X);
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
+	bool     done    = false;
 
-	/* Drive straight to calibrate encoder distance constants. */
-	if (calibration) {
-		 /* calibration = drive_straight(kMotorMax) <= CAL_ENC_DRIVE; */
-		 calibration = drive_turn(kMotorMax) <= CAL_ENC_TURN;
-	} else {
+	switch (cal_mode) {
+	/* Calibrate the ENC_PER_IN constant. */
+	case CAL_MODE_DRIVE:
+		done = drive_straight(kMotorMax) <= CAL_ENC_DRIVE;
+		break;
+
+	/* Calibrate the ENC_PER_DEG constant. */
+	case CAL_MODE_TURN:
+		done = drive_turn(kMotorMax) <= CAL_ENC_TURN;
+		break;
+	
+	/* Calibrate the POT_ARM_LOW and POT_ARM_HIGH constants. */
+	case CAL_MODE_PRINT:
+		printf((char *)"ARM %4d   LIFT %4d\n\r",
+		       (int)analog_adc_get(POT_ARM),
+		       (int)analog_adc_get(POT_LIFT));
+		break;
+	
+	/* Normal user-controlled telop mode. */
+	default:
 		drive_raw(forward, rotate);
 		arm_raw(arm);
 		ramp_raw(ramp);
 	}
+
+	/* End calibration mode when the routine is complete. */
+	cal_mode *= !done;
 }
 
 void telop_spin(void) {
