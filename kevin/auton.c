@@ -76,20 +76,6 @@ void auton_do(AutonQueue *queue) {
         break;
     }
 
-	/* Strafe a distance (specified in extra) left or right with the arm in the
-	 * raised position. Used to knock down the high footballs.
-	 */
-	case AUTO_STRAFE: {
-		int32_t dist = encoder_get(ENC_S);
-
-		drive_raw(0, SIGN(cur.extra) * kMotorMax, 0);
-
-		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
-			advance = true;
-		}
-		break;
-	}
-	
 	/* Drive forward or reverse a distance specified in extra. Positive values
 	 * are forward and negative values are reverse.
 	 */

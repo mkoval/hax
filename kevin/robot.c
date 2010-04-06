@@ -1,44 +1,11 @@
 #include <hax.h>
 #include <stdio.h>
 
-
 #include "encoder.h"
 #include "ports.h"
 #include "util.h"
 
 #include "robot.h"
-
-static int16_t max4(int16_t a, int16_t b, int16_t c, int16_t d) {
-	if (a >= b) {
-		if (a >= c) {
-			if (a >= d) {
-				return a;
-			} else {
-				return d;
-			}
-		} else {
-			if (c >= d) {
-				return c;
-			} else {
-				return d;
-			}
-		}
-	} else {
-		if (b >= c) {
-			if (b >= d) {
-				return b;
-			} else {
-				return d;
-			}
-		} else {
-			if (c >= d) {
-				return c;
-			} else {
-				return d;
-			}
-		}
-	}
-}
 
 void drive_raw(AnalogOut forward, AnalogOut turn) {
 	int16_t left  = forward - turn;
@@ -61,20 +28,16 @@ bool arm_raw(AnalogOut vel) {
 	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
 
-	motor_set(MTR_ARM_L, move * -vel);
-	motor_set(MTR_ARM_R, move * +vel);
+	motor_set(MTR_ARM_A, move * -vel);
+	motor_set(MTR_ARM_B, move * +vel);
 	return !move;
 }
 
 bool ramp_raw(AnalogOut vel) {
+#if 0
 	int16_t left     = analog_adc_get(POT_LIFT_L);
 	int16_t right    = analog_adc_get(POT_LIFT_R);
 
-	/* TODO Figure out how we're detecting the ramp's position. */
-	bool    mv_left  = false;
-	bool    mv_right = false;
-
-#if 0
 	bool mv_left  = (LIFT_L_LT(left, POT_LIFT_L_HIGH) && vel > 0)
 	             || (LIFT_L_GT(left, POT_LIFT_L_LOW)  && vel < 0);
 	
@@ -82,6 +45,9 @@ bool ramp_raw(AnalogOut vel) {
 	             || (LIFT_R_GT(right, POT_LIFT_R_LOW)  && vel < 0);
 #endif
 
+	/* TODO Figure out how we're detecting the ramp's position. */
+	bool    mv_left  = false;
+	bool    mv_right = false;
 	motor_set(MTR_LIFT_L, +vel * mv_left);
 	motor_set(MTR_LIFT_R, -vel * mv_right);
 

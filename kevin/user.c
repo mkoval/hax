@@ -76,7 +76,6 @@ void auton_spin(void) {
 
 void telop_loop(void) {
 	uint16_t forward = analog_oi_get(OI_L_Y);
-	uint16_t strafe  = analog_oi_get(OI_R_X);
 	uint16_t rotate  = analog_oi_get(OI_L_X);
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
@@ -86,7 +85,7 @@ void telop_loop(void) {
 		 /* calibration = drive_straight(kMotorMax) <= CAL_ENC_DRIVE; */
 		 calibration = drive_turn(kMotorMax) <= CAL_ENC_TURN;
 	} else {
-		drive_raw(forward, strafe, rotate);
+		drive_raw(forward, rotate);
 		arm_raw(arm);
 		ramp_raw(ramp);
 	}
