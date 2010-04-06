@@ -34,24 +34,15 @@ bool arm_raw(AnalogOut vel) {
 }
 
 bool ramp_raw(AnalogOut vel) {
-#if 0
-	int16_t left     = analog_adc_get(POT_LIFT_L);
-	int16_t right    = analog_adc_get(POT_LIFT_R);
+	int16_t pos  = analog_adc_get(POT_LIFT);
+	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
+	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
+	bool    move = up || down;
 
-	bool mv_left  = (LIFT_L_LT(left, POT_LIFT_L_HIGH) && vel > 0)
-	             || (LIFT_L_GT(left, POT_LIFT_L_LOW)  && vel < 0);
-	
-	bool mv_right = (LIFT_R_LT(right, POT_LIFT_R_HIGH) && vel > 0)
-	             || (LIFT_R_GT(right, POT_LIFT_R_LOW)  && vel < 0);
-#endif
+	motor_set(MTR_LIFT_L, vel * move);
+	motor_set(MTR_LIFT_R, vel * move);
 
-	/* TODO Figure out how we're detecting the ramp's position. */
-	bool    mv_left  = false;
-	bool    mv_right = false;
-	motor_set(MTR_LIFT_L, +vel * mv_left);
-	motor_set(MTR_LIFT_R, -vel * mv_right);
-
-	return !(mv_left || mv_right);
+	return !move;
 }
 
 int32_t drive_straight(AnalogOut forward) {
