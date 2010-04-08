@@ -12,6 +12,7 @@
  * clockwise rotation.
  */
 void drive_raw(AnalogOut, AnalogOut);
+void drive_smart(AnalogOut, AnalogOut);
 
 /* Control the speed of the arm motors to raise or lower the arm. Positive
  * values indicate upward movement. Both extremes are checked in software using
