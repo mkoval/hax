@@ -24,21 +24,13 @@ void init(void) {
 	bool cal = !digital_get(JUMP_CAL_EN);
 
 	if (!cal) {
-		/* Pre-define all of autonomous mode as a giant state machine.
-		 * 1. Ram the center wall, dislodging the orange football and pushing the
-		 *      four green balls under the wall.
-		 * 2. Reverse to a safe distance from the wall to lower the arm.
-		 * 3. Turn around in preparation for dumping.
-		 * 4. Reverse into the wall, preparing to dump the preloaded balls.
-		 * 5. Lift the ramp, deposit the balls, and lower the ramp.
-		 */
-		auton_enqueue(&queue, AUTO_FWDRAM, NONE);
-		auton_enqueue(&queue, AUTO_DRIVE,  -120);
-		auton_enqueue(&queue, AUTO_TURN,   180);
-		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
+		/* Pre-define all of autonomous mode as a giant state machine. */
+		auton_enqueue(&queue, AUTO_DEPLOY, 8);
 		auton_enqueue(&queue, AUTO_REVRAM, NONE);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+		auton_enqueue(&queue, AUTO_ARM,    kMotorMin); /* Deploy the arm. */
+		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax); /* Dump the balls. */
+		auton_enqueue(&queue, AUTO_DRIVE,  120);
+		auton_enqueue(&queue, AUTO_TURN,   90);
 		auton_enqueue(&queue, AUTO_DONE,   NONE);
 
 		_puts("[CALIBRATION OFF]\r\n");
