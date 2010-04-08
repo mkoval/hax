@@ -78,8 +78,8 @@ void auton_spin(void) {
 }
 
 void telop_loop(void) {
-	uint16_t forward = analog_oi_get(OI_L_Y);
-	uint16_t rotate  = analog_oi_get(OI_L_X);
+	uint16_t left    = analog_oi_get(OI_L_Y);
+	uint16_t right   = analog_oi_get(OI_R_Y);
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
 	bool     done    = false;
@@ -97,14 +97,16 @@ void telop_loop(void) {
 	
 	/* Calibrate the POT_ARM_LOW and POT_ARM_HIGH constants. */
 	case CAL_MODE_PRINT:
-		printf((char *)"ARM %4d   LIFT %4d\n\r",
+		printf((char *)"ARM %4d   LIFT %4d   ENCL %5d   ENCR %5d\n\r",
 		       (int)analog_adc_get(POT_ARM),
-		       (int)analog_adc_get(POT_LIFT));
+		       (int)analog_adc_get(POT_LIFT),
+		       (int)encoder_get(ENC_L),
+		       (int)encoder_get(ENC_R));
 		break;
 	
 	/* Normal user-controlled telop mode. */
 	default:
-		drive_raw(forward, rotate);
+		drive_raw(left, right);
 		arm_raw(arm);
 		ramp_raw(ramp);
 	}
