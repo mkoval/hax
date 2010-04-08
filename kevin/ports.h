@@ -7,10 +7,10 @@
 enum {
 	MTR_DRIVE_L = 0,
 	MTR_DRIVE_R,
-	MTR_ARM_A,
-	MTR_ARM_B,
 	MTR_LIFT_L,
 	MTR_LIFT_R,
+	MTR_ARM_A,
+	MTR_ARM_B,
     MTR_NUM
 };
 
@@ -36,7 +36,6 @@ enum {
 	/* Rear bump sensors. */
 	BUT_BL = ANA_NUM,
 	BUT_BR,
-	BUT_F,
 	JUMP_CAL_EN,
 	JUMP_CAL_MODE1,
 	JUMP_CAL_MODE2,
