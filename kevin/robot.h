@@ -17,13 +17,15 @@ void drive_raw(AnalogOut, AnalogOut);
  * values indicate upward movement. Both extremes are checked in software using
  * a potentiometer.
  */
-bool arm_raw(AnalogOut);
+void arm_raw(AnalogOut);
+bool arm_smart(AnalogOut);
 
 /* Control the speed of the ramp motor(s) to raise or lower the ramp. Positive
  * values indicate upward movement. Both extremes are checked in software using
  * limit switches.
  */
-bool ramp_raw(AnalogOut);
+void ramp_raw(AnalogOut);
+bool ramp_smart(AnalogOut);
 
 /* Drive forward or reverse in a straight line, using encoders to correct for
  * small errors. Returns the distance traveled in inches.

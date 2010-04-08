@@ -7,33 +7,33 @@
 
 #include "robot.h"
 
-void drive_raw(AnalogOut forward, AnalogOut turn) {
-	int16_t left  = forward - turn;
-	int16_t right = forward + turn;
-	int16_t max   = MAX(left, right);
-
-	/* Scale the values to not exceed kMotorMax. */
-	if (max > kMotorMax) {
-		left  = left  * kMotorMax / max;
-		right = right * kMotorMax / max;
-	}
-
-	motor_set(MTR_DRIVE_L, left);
-	motor_set(MTR_DRIVE_R, right);
+void drive_raw(AnalogOut left, AnalogOut right) {
+	motor_set(MTR_DRIVE_L, +left);
+	motor_set(MTR_DRIVE_R, -right);
 }
 
-bool arm_raw(AnalogOut vel) {
+void arm_raw(AnalogOut vel) {
+	motor_set(MTR_ARM_A, +vel);
+	motor_set(MTR_ARM_B, -vel);
+}
+
+bool arm_smart(AnalogOut vel) {
 	int16_t pos  = analog_adc_get(POT_ARM);
 	bool    up   = vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
 
-	motor_set(MTR_ARM_A, move * -vel);
-	motor_set(MTR_ARM_B, move * +vel);
+	motor_set(MTR_ARM_A, move * +vel);
+	motor_set(MTR_ARM_B, move * -vel);
 	return !move;
 }
 
-bool ramp_raw(AnalogOut vel) {
+void ramp_raw(AnalogOut vel) {
+	motor_set(MTR_LIFT_L, vel);
+	motor_set(MTR_LIFT_R, vel);
+}
+
+bool ramp_smart(AnalogOut vel) {
 	int16_t pos  = analog_adc_get(POT_LIFT);
 	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
