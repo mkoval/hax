@@ -34,8 +34,8 @@ enum {
 /* Digital Sensors */
 enum {
 	/* Rear bump sensors. */
-	BUT_BL = ANA_NUM,
-	BUT_BR,
+	BUT_B = ANA_NUM,
+	BUT_UNUSED1,
 	JUMP_CAL_EN,
 	JUMP_CAL_MODE1,
 	JUMP_CAL_MODE2,
@@ -59,18 +59,18 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW    0
-#define POT_LIFT_HIGH   1024
+#define POT_LIFT_LOW    850
+#define POT_LIFT_HIGH   26
 
-#define LIFT_LT(_p1_, _p2_) ((_p1_) < (_p2_))
-#define LIFT_GT(_p1_, _p2_) ((_p1_) > (_p2_))
+#define LIFT_LT(_p1_, _p2_) ((_p1_) > (_p2_))
+#define LIFT_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
-#define POT_ARM_LOW     0
-#define POT_ARM_HIGH    1024
+#define POT_ARM_LOW     864
+#define POT_ARM_HIGH    169
 
-#define ARM_LT(_p1_, _p2_) ((_p1_) < (_p2_))
-#define ARM_GT(_p1_, _p2_) ((_p1_) > (_p2_))
+#define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
+#define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
 #define ENC_PER_IN      27
 #define ENC_PER_DEG     4
