@@ -9,8 +9,8 @@
 
 typedef enum {
 	AUTO_START,
-	AUTO_FWDRAM,  /* extra = distance to move forward (in tenth-inches) */
 	AUTO_DRIVE,   /* extra = distance (in tenth-inches), negative is reverse */
+	AUTO_DEPLOY,  /* extra = timer in slow loops */
 	AUTO_ARM,     /* extra = motor speed */
 	AUTO_RAMP,    /* extra = motor speed */
 	AUTO_TURN,    /* extra = number of degrees to turn */
