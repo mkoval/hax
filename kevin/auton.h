@@ -15,6 +15,7 @@ typedef enum {
 	AUTO_RAMP,    /* extra = motor speed */
 	AUTO_TURN,    /* extra = number of degrees to turn */
 	AUTO_REVRAM,  /* extra = none */
+	AUTO_WAIT,    /* extra = slow loop ticks to wait */
 	AUTO_DONE
 } AutonState;
 

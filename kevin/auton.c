@@ -113,6 +113,18 @@ void auton_do(AutonQueue *queue) {
             advance = true;
         }
         break;
+	
+	/* Do nothing for the specified number of slow loops. */
+	case AUTO_WAIT:
+		if (cur.extra) {
+			--cur.extra;
+		} else {
+			advance = true;
+		}
+		break;
+	
+	default:
+		advance = true;
     }
 		
 	/* Advance to the next state if the current state set the correct flag. */
