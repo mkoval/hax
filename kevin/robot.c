@@ -14,7 +14,7 @@ void drive_raw(AnalogOut left, AnalogOut right) {
 
 void drive_smart(AnalogOut forward, AnalogOut turn) {
 	int16_t left  = (int16_t) forward - turn;
-	int16_t right = (int16_t) forward - turn;
+	int16_t right = (int16_t) forward + turn;
 	int16_t max   = MAX(ABS(left), ABS(right));
 
 	/* Scale the values to not exceed kMotorMax. */
