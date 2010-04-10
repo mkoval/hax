@@ -23,8 +23,8 @@ void drive_smart(AnalogOut forward, AnalogOut turn) {
 		right = right * kMotorMax / max;
 	}
 
-	motor_set(MTR_DRIVE_L, +left);
-	motor_set(MTR_DRIVE_R, -right);
+	motor_set(MTR_DRIVE_L, -left);
+	motor_set(MTR_DRIVE_R, +right);
 }
 
 void arm_raw(AnalogOut vel) {
