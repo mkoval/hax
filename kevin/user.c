@@ -33,7 +33,7 @@ void init(void) {
 		auton_enqueue(&queue, AUTO_REVRAM, NONE);
 		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
 		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-		auton_enqueue(&queue, AUTO_WAIT,   200);
+		auton_enqueue(&queue, AUTO_WAIT,   150);
 		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
 
 		/* Drive to the line and collect the first three footballs. */
@@ -48,7 +48,7 @@ void init(void) {
 		auton_enqueue(&queue, AUTO_TURN,   -90);
 		auton_enqueue(&queue, AUTO_REVRAM, NONE);
 		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-		auton_enqueue(&queue, AUTO_WAIT,   200);
+		auton_enqueue(&queue, AUTO_WAIT,   150);
 		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
 
 		auton_enqueue(&queue, AUTO_DONE,   NONE);
