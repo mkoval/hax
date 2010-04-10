@@ -25,7 +25,9 @@ static bool override = false;
 
 void init(void) {
 	/* Disable autonomous in calibration mode. */
-	cal_mode = !digital_get(JUMP_CAL_EN);
+	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
+	         | (!digital_get(JUMP_CAL_MODE2) << 1)
+	         | (!digital_get(JUMP_CAL_MODE3) << 2);
 
 	if (!cal_mode) {
 		/* Deploy the robot and dump preloaded balls. */
@@ -55,10 +57,6 @@ void init(void) {
 
 		_puts("[CALIBRATION OFF]\r\n");
 	} else {
-		/* Use the other jumpers to select the correct calibration mode. */
-		cal_mode += (!digital_get(JUMP_CAL_MODE1)) << 1;
-		cal_mode += (!digital_get(JUMP_CAL_MODE2)) << 2;
-
 		printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
 	}
 
@@ -97,14 +95,22 @@ void telop_loop(void) {
 
 	switch (cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
-	case CAL_MODE_DRIVE:
-		done = drive_straight(kMotorMax) <= CAL_ENC_DRIVE;
+	case CAL_MODE_DRIVE: {
+		int32_t dist = drive_straight(kMotorMax);
+		done = dist > CAL_ENC_DRIVE;
+
+		printf((char *)"%d > %d\n\r", (int)dist, (int)CAL_ENC_DRIVE);
 		break;
+	}
 
 	/* Calibrate the ENC_PER_DEG constant. */
-	case CAL_MODE_TURN:
-		done = drive_turn(kMotorMax) <= CAL_ENC_TURN;
+	case CAL_MODE_TURN: {
+		int32_t dist = drive_turn(kMotorMax);
+		done = drive_turn(kMotorMax) > CAL_ENC_TURN;
+
+		printf((char *)"%d > %d\n\r", (int)dist, (int)CAL_ENC_TURN);
 		break;
+	}
 	
 	/* Calibrate the POT_ARM_LOW and POT_ARM_HIGH constants. */
 	case CAL_MODE_PRINT:
@@ -113,7 +119,7 @@ void telop_loop(void) {
 		       (int)analog_adc_get(POT_LIFT),
 		       (int)encoder_get(ENC_L),
 		       (int)encoder_get(ENC_R));
-		break;
+		/* Fall through to allow normal telop control. */
 	
 	/* Normal user-controlled telop mode. */
 	default:

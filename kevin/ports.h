@@ -35,10 +35,9 @@ enum {
 enum {
 	/* Rear bump sensors. */
 	BUT_B = ANA_NUM,
-	BUT_UNUSED1,
-	JUMP_CAL_EN,
 	JUMP_CAL_MODE1,
 	JUMP_CAL_MODE2,
+	JUMP_CAL_MODE3,
 	SEN_NUM
 };
 
