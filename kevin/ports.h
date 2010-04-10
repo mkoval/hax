@@ -59,8 +59,8 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW    850
-#define POT_LIFT_HIGH   26
+#define POT_LIFT_LOW    780
+#define POT_LIFT_HIGH   18
 
 #define LIFT_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_GT(_p1_, _p2_) ((_p1_) < (_p2_))
