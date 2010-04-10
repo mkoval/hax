@@ -17,26 +17,45 @@ uint8_t kNumAnalogInputs = ANA_NUM;
  */
 static AutonQueue queue = { 0 };
 
+/* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
+
+/* User-override for arm and ramp potentiometers. */
+static bool override = false;
 
 void init(void) {
 	/* Disable autonomous in calibration mode. */
-	bool cal = !digital_get(JUMP_CAL_EN);
+	cal_mode = !digital_get(JUMP_CAL_EN);
 
-	if (!cal) {
-		/* Pre-define all of autonomous mode as a giant state machine. */
+	if (!cal_mode) {
+		/* Deploy the robot and dump preloaded balls. */
 		auton_enqueue(&queue, AUTO_DEPLOY, 8);
 		auton_enqueue(&queue, AUTO_REVRAM, NONE);
-		auton_enqueue(&queue, AUTO_ARM,    kMotorMin); /* Deploy the arm. */
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax); /* Dump the balls. */
-		auton_enqueue(&queue, AUTO_DRIVE,  120);
+		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
+		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
+		auton_enqueue(&queue, AUTO_WAIT,   200);
+		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+
+		/* Drive to the line and collect the first three footballs. */
+		auton_enqueue(&queue, AUTO_DRIVE,  240 - ROB_LENGTH_IN * 10);
 		auton_enqueue(&queue, AUTO_TURN,   90);
+		auton_enqueue(&queue, AUTO_DRIVE,  240);
+		auton_enqueue(&queue, AUTO_ARM,    kMotorMax);
+		auton_enqueue(&queue, AUTO_WAIT,   50);
+		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
+	
+		/* Dump the previously collected footballs. */
+		auton_enqueue(&queue, AUTO_TURN,   -90);
+		auton_enqueue(&queue, AUTO_REVRAM, NONE);
+		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
+		auton_enqueue(&queue, AUTO_WAIT,   200);
+		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+
 		auton_enqueue(&queue, AUTO_DONE,   NONE);
 
 		_puts("[CALIBRATION OFF]\r\n");
 	} else {
 		/* Use the other jumpers to select the correct calibration mode. */
-		cal_mode  = 1;
 		cal_mode += (!digital_get(JUMP_CAL_MODE1)) << 1;
 		cal_mode += (!digital_get(JUMP_CAL_MODE2)) << 2;
 
@@ -98,9 +117,18 @@ void telop_loop(void) {
 	
 	/* Normal user-controlled telop mode. */
 	default:
-		drive_raw(left, right);
-		arm_raw(arm);
-		ramp_raw(ramp);
+		/* Disable ramp and arm potientiometer checks. */
+		if (override) {
+			drive_raw(left, right);
+			arm_raw(arm);
+			ramp_raw(ramp);
+		}
+		/* Prevent dangerous ramp and arm movement in software. */
+		else {
+			drive_raw(left, right);
+			arm_smart(arm);
+			ramp_raw(ramp);
+		}
 	}
 
 	/* End calibration mode when the routine is complete. */
