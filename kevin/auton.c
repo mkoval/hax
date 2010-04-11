@@ -8,126 +8,137 @@
 
 #include "auton.h"
 
-void auton_enqueue(AutonQueue *queue, AutonState state, int16_t extra) {
-	queue->actions[queue->num].state = state;
-	queue->actions[queue->num].extra = extra;
-	++queue->num;
+data_t auto_straight_create(uint16_t timeout, uint16_t dist, int8_t speed) {
+	data_t data;
+	data.move.timeout = timeout;
+	data.move.dist    = dist * ENC_PER_10IN;
+	data.move.speed   = speed;
+	return data;
 }
 
-AutonAction auton_dequeue(AutonQueue *queue) {
-	AutonAction out;
-	uint8_t i;
-
-	if (!queue->num) {
-		out.state = AUTO_DONE;
-		out.extra = 0;
-		return out;
-	}
-
-	out = queue->actions[0];
-
-	--(queue->num);
-
-	/* Shift all of the remaining elements up by one. */
-	for (i = 0; i < queue->num; ++i) {
-		queue->actions[i] = queue->actions[i + 1];
-	}
-
-	return out;
+data_t auto_ram_create(uint16_t timeout, int8_t speed) {
+	data_t data;
+	data.move.timeout = timeout;
+	data.move.dist    = 0;
+	data.move.vel     = speed;
+	return data;
 }
 
-void auton_do(AutonQueue *queue) {
-	static AutonAction cur = { AUTO_START, 0 };
-	bool advance = false;
+data_t auto_turn_create(uint16_t timeout, uint16_t angle, int8_t speed) {
+	data_t data;
+	data.move.timeout = timeout;
+	data.move.dist    = angle * ENC_PER_DEG;
+	data.move.vel     = speed;
+	return data;
+}
 
-	switch (cur.state) {
-	/* Dummy state used to initialize autonomous mode. */
-	case AUTO_START:
-		advance = true;
-		break;
+data_t auto_noop_create(uint16_t us) {
+	data_t data;
+	data.timeout = us / timeout;
+	return data;
+}
+
+/* Drive straight using encoders for velocity control. */
+void auto_straight_init(data_t *data) {
+	/* Store the initial encoder counts for both wheels. */
+	data->move.enc_left  = encoder_get(ENC_L);
+	data->move.enc_right = encoder_get(ENC_R);
+}
+
+void auto_straight_loop(data_t *data) {
+	int32_t left  = encoder_get(ENC_L) - data->move.enc_left;
+	int32_t right = encoder_get(ENC_R) - data->move.enc_right;
+	int32_t diff  = left - right;
+	int8_t  turn  = PROPTO(kMotorMax, STRAIGHT_ERROR, ABS(diff));
+
+	drive_smart(data->move.vel, SIGN(diff) * turn);
+	--data->timeout;
+}
+
+void auto_straight_isdone(data_t *data) {
+	int32_t left  = encoder_get(ENC_L) - data->move.enc_left;
+	int32_t right = encoder_get(ENC_R) - data->move.end_right;
+
+	return ABS(left + right) >= 2 * data->move.ticks;
+}
+
+/* Turn through a specified angle using encoders as velocity control. */
+void auto_turn_init(data_t *data) {
+	/* Store the initial encoder counts for both wheels. */
+	data->move.enc_left  = encoder_get(ENC_L);
+	data->move.enc_right = encoder_get(ENC_R);
+}
+
+void auto_straight_loop(data_t *data) {
+	int32_t left  = encoder_get(ENC_L) - data->move.enc_left;
+	int32_t right = encoder_get(ENC_R) - data->move.enc_right;
+	int32_t diff  = ABS(left - right) / 2 - data->move.ticks;
+	int8_t  turn  = PROPTO(ABS(data->move.vel), TURN_ERROR, ABS(diff));
+
+	drive_smart(0, SIGN(data->move.vel) * turn);
+	--data->timeout;
+}
+
+void auto_turn_isdone(data_t *data) {
+	int32_t left  = encoder_get(ENC_L) - data->move.enc_left;
+	int32_t right = encoder_get(ENC_R) - data->move.enc_right;
+	int32_t diff  = ABS(left - right) / 2 - data->move.ticks;
+
+	return ABS(diff) < TURN_THRESHOLD;
+}
+
+/* Rotate the arm to be in the specified position. */
+void auto_arm_init(data_t *data) {
+}
+
+void auto_arm_loop(data_t *data) {
+	int16_t pos  = analog_adc_get(POT_ARM);
+	bool    up   = vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
+	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
+	bool    move = up || down;
+
+	arm_raw(move * vel);
+	--data->timeout;
+}
+
+bool auto_arm_isdone(data_t *data) {
+	int16_t pos  = analog_adc_get(POT_ARM);
+	bool    up   = vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
+	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
+
+	return !(up || down);
+}
+
+/* Move the ramp into the specific position.  */
+void auto_ramp_init(data_t *data) {
+}
+
+void auto_ramp_loop(data_t *data) {
+	int16_t pos  = analog_adc_get(POT_LIFT);
+	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
+	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
+	bool    move = up || down;
+
+	ramp_raw(move * vel);
+	--data->timeout;
+}
+
+bool auto_ramp_isdone(data_t *data) {
+	int16_t pos  = analog_adc_get(POT_LIFT);
+	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
+	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	
-	/* Jerk the arm to deploy the ramp. */
-	case AUTO_DEPLOY:
-		if (cur.extra) {
-			arm_raw(kMotorMax);
-			--cur.extra;
-		} else {
-			advance = true;
-		}
-		break;
+	return !(up || down);
+}
 
-    /* Reverse until the robot hits a wall. Useful for getting in position to
-     * dump balls over the wall.
-     */
-    case AUTO_REVRAM: {
-        bool close = !digital_get(BUT_B);
+/* Do nothing for a given timeout.  */
+void auto_noop_init(data_t *data) {
+}
 
-        if (!close) {
-            drive_straight(kMotorMin);
-        } else {
-            advance = true;
-        }
-        break;
-    }
+void auto_noop_loop(data_t *data) {
+	--data->timeout;
+}
 
-	/* Drive forward or reverse a distance specified in extra. Positive values
-	 * are forward and negative values are reverse.
-	 */
-	case AUTO_DRIVE: {
-		int32_t dist = drive_straight(SIGN(cur.extra) * kMotorMax);
-
-		/* Convert between inches and tenth-inches. */
-		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
-			advance = true;
-		}
-		break;
-    }
-
-	/* Turn the specified number of degrees. */
-    case AUTO_TURN:
-		advance = drive_turn(cur.extra);
-		break;
-
-	/* Move the arm until it is at an extreme. */
-	case AUTO_ARM: {
-		bool done = arm_smart(cur.extra);
-
-		if (done) {
-			advance = true;
-		}
-		break;
-	}
-
-    /* Raise (positive values of cur.extra) or lower (negative values of
-     * cur.extra) the ramp at the desired speed.
-     */
-    case AUTO_RAMP:
-        /* Move the ramp until it hits a software stop, measured with a pot. */
-        if (ramp_smart(cur.extra)) {
-            advance = true;
-        }
-        break;
-	
-	/* Do nothing for the specified number of slow loops. */
-	case AUTO_WAIT:
-		if (cur.extra) {
-			--cur.extra;
-		} else {
-			advance = true;
-		}
-		break;
-	
-	default:
-		advance = true;
-    }
-		
-	/* Advance to the next state if the current state set the correct flag. */
-	if (advance) {
-		cur = auton_dequeue(queue);
-
-		printf((char *)"[STATE %d, PARAM %d]\r\n", (int)cur.state, (int)cur.extra);
-
-		/* Reset encoder ticks to avoid contaminating the next state. */
-		encoder_reset_all();
-	}
+void auto_noop_isdone(data_t *data) {
+	return !data->timeout;
 }

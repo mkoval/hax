@@ -4,46 +4,95 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Generate a transition function with name AUTO_TRANS_LOOKUP(_name_). */
+#define AUTO_TRANS_CREATE(_name_, _trans_) \
+void _name_##tr_(state_t state) {          \
+	_trans_                                \
+}
+
+/* Lookup the name of a previously-defined transition function. */
+#define AUTO_TRANS_LOOKUP(_name_) _name_##tr_
+
 /* Maximum number of actions that can be present in the autonomous queue. */
 #define AUTON_QUEUE_MAX 20
 
-typedef enum {
-	AUTO_START,
-	AUTO_DRIVE,   /* extra = distance (in tenth-inches), negative is reverse */
-	AUTO_DEPLOY,  /* extra = timer in slow loops */
-	AUTO_ARM,     /* extra = motor speed */
-	AUTO_RAMP,    /* extra = motor speed */
-	AUTO_TURN,    /* extra = number of degrees to turn */
-	AUTO_REVRAM,  /* extra = none */
-	AUTO_WAIT,    /* extra = slow loop ticks to wait */
-	AUTO_DONE
-} AutonState;
+typedef union {
+	/* Simulate polymorphism using clever struct alignment. */
+	uint16_t timeout;
 
-/* FIFO data structure used to generalize the FSA autonomous code. */
+	/* Control the robot's position and orientation using a timeout and encoder
+	 * ticks. Applies to both forward movement and turning, although encoder
+	 * tick calculations are performed slightly differently.
+	 */
+	struct {
+		uint16_t timeout;
+		uint16_t ticks;
+		int32_t  enc_left;
+		int32_t  enc_right;
+		int8_t   vel;
+	} move;
+
+	/* Control the pose of a posable part of the robot (arm or ramp) using a
+	 * potentiometer value and a timeout.
+	 */
+	struct {
+		uint16_t timeout;
+		uint16_t pos;     /* potentiometer value */
+		int8_t   vel;
+	} pose;
+
+	/* Do nothing for a specified duration. */
+	struct {
+		uint16_t timeout;
+	} noop;
+} data_t;
+
+/* Forward declaration is required to avoid a recursive type reference. */
+struct state_t;
+
+/* Generalized callback that does not trigger a state transition. */
+typedef void (*callback_t)(data_t *);
+
+/* Callback specifically for transitioning states. */
+typedef state_t *(*transition_t)(data_t *);
+
+/* All necessary information to execute and transition from a state. */
 typedef struct {
-	AutonState state;
-	int16_t    extra;
-} AutonAction;
+	data_t       data;
+	callback_t   cb_init;
+	callback_t   cb_loop;
+	callback_t   cb_spin;
+	transition_t cb_next;
+} state_t;
 
-typedef struct {
-	uint8_t     num;
-	AutonAction actions[AUTON_QUEUE_MAX];
-} AutonQueue;
+/* Initialize the data field for a state_t. */
+data_t auto_straight_create(uint16_t, uint16_t, int8_t);
+data_t auto_turn_create(uint16_t, uint16_t, int8_t);
+data_t auto_ram_create(uint16_t, int8_t);
 
-/* Meaningless keyword to make a long series of auton_enqueue() calls look
- * pretty.
- */
-#define NONE 0
+/* Drive straight for the specified distance.*/
+void auto_straight_init(data_t *);
+void auto_straight_loop(data_t *);
+bool auto_straight_isdone(data_t *);
 
-/* Add a state to the end of the autonomous queue. */
-void auton_enqueue(AutonQueue *, AutonState, int16_t);
+/* Turn through the specified number of degrees. */
+void auto_turn_init(data_t *);
+void auto_turn_loop(data_t *);
+bool auto_turn_isdone(data_t *);
 
-/* Remove and return the first element from the autonomous queue. */
-AutonAction auton_dequeue(AutonQueue *);
+/* Rotate the arm into the specified position. */
+void auto_arm_init(data_t *);
+void auto_arm_loop(data_t *);
+void auto_arm_isdone(data_t *);
 
-/* Perform all of the actions in the autonomous queue until the AUTON_DONE
- * state is reached, the queue is empty, or autonomous mode ends.
- */
-void auton_do(AutonQueue *);
+/* Raise or lower the ramp into the specified position. */
+void auto_ramp_init(data_t *);
+void auto_ramp_loop(data_t *);
+void auto_ramp_isdone(data_t *);
+
+/* Do nothing until the state times out. */
+void auto_wait_init(data_t *);
+void auto_wait_loop(data_t *);
+void auto_wait_isdone(data_t *);
 
 #endif
