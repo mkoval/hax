@@ -9,8 +9,10 @@ enum {
 	MTR_DRIVE_R,
 	MTR_LIFT_L,
 	MTR_LIFT_R,
-	MTR_ARM_A,
-	MTR_ARM_B,
+	MTR_ARM_A1,
+	MTR_ARM_B1,
+	MTR_ARM_A2,
+	MTR_ARM_B2,
     MTR_NUM
 };
 
@@ -58,31 +60,27 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW    780
-#define POT_LIFT_HIGH   18
+#define POT_LIFT_LOW    850
+#define POT_LIFT_HIGH   150
 
 #define LIFT_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
-#define POT_ARM_LOW     864
-#define POT_ARM_HIGH    169
+#define POT_ARM_LOW     950
+#define POT_ARM_HIGH    460
 
 #define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
-#define ENC_PER_IN      27
-#define ENC_PER_DEG     4
+#define ENC_PER_IN      100
+#define ENC_PER_DEG     15
 
 /* Robot dimensions, used to refine drive distances. */
 #define ROB_WIDTH_IN    18
 #define ROB_LENGTH_IN   18
 #define ROB_HEIGHT_IN   24
 #define ROB_ARM_IN      17
-
-/* Field dimensions; used to calculate drive distances. */
-#define FIELD_WIDTH_IN  (12 * 12)
-#define FIELD_LENGTH_IN (6  * 12)
 
 /* Calibration routines. */
 #define CAL_ENC_DRIVE 1000
