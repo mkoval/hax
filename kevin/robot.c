@@ -28,8 +28,10 @@ void drive_smart(AnalogOut forward, AnalogOut turn) {
 }
 
 void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_A, +vel);
-	motor_set(MTR_ARM_B, -vel);
+	motor_set(MTR_ARM_A1, +vel);
+	motor_set(MTR_ARM_A2, +vel);
+	motor_set(MTR_ARM_B1, -vel);
+	motor_set(MTR_ARM_B2, -vel);
 }
 
 bool arm_smart(AnalogOut vel) {
@@ -38,8 +40,7 @@ bool arm_smart(AnalogOut vel) {
 	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
 
-	motor_set(MTR_ARM_A, move * +vel);
-	motor_set(MTR_ARM_B, move * -vel);
+	arm_raw(move * vel);
 
 	return !move;
 }
