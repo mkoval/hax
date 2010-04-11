@@ -84,15 +84,9 @@ void auton_do(AutonQueue *queue) {
     }
 
 	/* Turn the specified number of degrees. */
-    case AUTO_TURN: {
-		int32_t ang = drive_turn(SIGN(cur.extra) * kMotorMax);
-
-		/* Convert between encoder ticks and degrees of rotation. */
-		if (ang > cur.extra * ENC_PER_DEG) {
-			advance = true;
-		}
+    case AUTO_TURN:
+		advance = drive_turn(cur.extra);
 		break;
-    }
 
 	/* Move the arm until it is at an extreme. */
 	case AUTO_ARM: {
