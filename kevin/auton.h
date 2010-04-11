@@ -1,8 +1,16 @@
 #ifndef AUTON_MIKISH_H_
 #define AUTON_MIKISH_H_
 
+#include <hax.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+#include "ports.h"
+#include "util.h"
+
+#define STRAIGHT_ERROR 100
+#define TURN_ERROR     ((int16_t)30 * ENC_PER_DEG)
+#define TURN_THRESHOLD ((int16_t)5  * ENC_PER_DEG)
 
 /* Generate a transition function with name AUTO_TRANS_LOOKUP(_name_). */
 #define AUTO_TRANS_CREATE(_name_, _trans_) \
@@ -48,7 +56,7 @@ typedef union {
 } data_t;
 
 /* Forward declaration is required to avoid a recursive type reference. */
-struct state_t;
+typedef struct state_s state_t;
 
 /* Generalized callback that does not trigger a state transition. */
 typedef void (*callback_t)(data_t *);
@@ -57,13 +65,13 @@ typedef void (*callback_t)(data_t *);
 typedef state_t *(*transition_t)(data_t *);
 
 /* All necessary information to execute and transition from a state. */
-typedef struct {
+struct state_s {
 	data_t       data;
 	callback_t   cb_init;
 	callback_t   cb_loop;
 	callback_t   cb_spin;
 	transition_t cb_next;
-} state_t;
+};
 
 /* Initialize the data field for a state_t. */
 data_t auto_straight_create(uint16_t, uint16_t, int8_t);
@@ -83,16 +91,16 @@ bool auto_turn_isdone(data_t *);
 /* Rotate the arm into the specified position. */
 void auto_arm_init(data_t *);
 void auto_arm_loop(data_t *);
-void auto_arm_isdone(data_t *);
+bool auto_arm_isdone(data_t *);
 
 /* Raise or lower the ramp into the specified position. */
 void auto_ramp_init(data_t *);
 void auto_ramp_loop(data_t *);
-void auto_ramp_isdone(data_t *);
+bool auto_ramp_isdone(data_t *);
 
 /* Do nothing until the state times out. */
 void auto_wait_init(data_t *);
 void auto_wait_loop(data_t *);
-void auto_wait_isdone(data_t *);
+bool auto_wait_isdone(data_t *);
 
 #endif
