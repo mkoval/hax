@@ -64,10 +64,13 @@ bool ramp_smart(AnalogOut vel) {
 int32_t drive_straight(AnalogOut forward) {
 	int32_t left  = encoder_get(ENC_L);
 	int32_t right = encoder_get(ENC_R);
-	int32_t diff  = ABS(right - left);
-	int32_t error = PROP(ABS(forward), DRIVE_STRAIGHT_ERRMAX, diff);
 
-	drive_smart(forward, SIGN(forward) * SIGN(right - left) * error);
+	int32_t diff  = left - right;
+	int32_t turn  = SIGN(diff) * PROP(ABS(forward), DRIVE_STRAIGHT_ERRMAX, ABS(diff));
+
+	printf((char *)"FORWARD %4d   TURN %4d\n\r", (int)forward, (int)turn), 
+
+	drive_smart(forward, turn);
 
 	return (left + right) / 2;
 }
