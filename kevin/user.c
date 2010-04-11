@@ -29,36 +29,30 @@ void init(void) {
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
 	         | (!digital_get(JUMP_CAL_MODE3) << 2);
 
-	if (!cal_mode) {
-		/* Deploy the robot and dump preloaded balls. */
-		auton_enqueue(&queue, AUTO_DEPLOY, 8);
-		auton_enqueue(&queue, AUTO_REVRAM, NONE);
-		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-		auton_enqueue(&queue, AUTO_WAIT,   150);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+	/* Deploy the robot and dump preloaded balls. */
+	auton_enqueue(&queue, AUTO_DEPLOY, 8);
+	auton_enqueue(&queue, AUTO_REVRAM, NONE);
+	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
+	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
+	auton_enqueue(&queue, AUTO_WAIT,   400);
+	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
 
-		/* Drive to the line and collect the first three footballs. */
-		auton_enqueue(&queue, AUTO_DRIVE,  240 - ROB_LENGTH_IN * 10);
-		auton_enqueue(&queue, AUTO_TURN,   90);
-		auton_enqueue(&queue, AUTO_DRIVE,  240);
-		auton_enqueue(&queue, AUTO_ARM,    kMotorMax);
-		auton_enqueue(&queue, AUTO_WAIT,   50);
-		auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
+	/* Drive to the line and collect the first three footballs. */
+	auton_enqueue(&queue, AUTO_DRIVE,  60);
+	auton_enqueue(&queue, AUTO_TURN,   90);
+	auton_enqueue(&queue, AUTO_DRIVE,  540);
+	auton_enqueue(&queue, AUTO_ARM,    kMotorMax);
+	auton_enqueue(&queue, AUTO_WAIT,   50);
+	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
 	
-		/* Dump the previously collected footballs. */
-		auton_enqueue(&queue, AUTO_TURN,   -90);
-		auton_enqueue(&queue, AUTO_REVRAM, NONE);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-		auton_enqueue(&queue, AUTO_WAIT,   150);
-		auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+	/* Dump the previously collected footballs. */
+	auton_enqueue(&queue, AUTO_TURN,   -90);
+	auton_enqueue(&queue, AUTO_REVRAM, NONE);
+	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
+	auton_enqueue(&queue, AUTO_WAIT,   150);
+	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
 
-		auton_enqueue(&queue, AUTO_DONE,   NONE);
-
-		_puts("[CALIBRATION OFF]\r\n");
-	} else {
-		printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
-	}
+	printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -70,7 +64,7 @@ void init(void) {
 void disable_loop(void) {
 }
 
-void disable_spin(void) {
+void disable_spin(void) { 
 }
 
 void auton_loop(void) {
@@ -98,17 +92,12 @@ void telop_loop(void) {
 	case CAL_MODE_DRIVE: {
 		int32_t dist = drive_straight(kMotorMax);
 		done = dist > CAL_ENC_DRIVE;
-
-		printf((char *)"%d > %d\n\r", (int)dist, (int)CAL_ENC_DRIVE);
 		break;
 	}
 
 	/* Calibrate the ENC_PER_DEG constant. */
 	case CAL_MODE_TURN: {
-		int32_t dist = drive_turn(kMotorMax);
-		done = drive_turn(kMotorMax) > CAL_ENC_TURN;
-
-		printf((char *)"%d > %d\n\r", (int)dist, (int)CAL_ENC_TURN);
+		done = drive_turn(90);
 		break;
 	}
 	
