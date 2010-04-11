@@ -6,6 +6,8 @@
 
 #define ARM_SET_ERRMAX        10
 #define DRIVE_STRAIGHT_ERRMAX 100
+#define DRIVE_TURN_ERRMAX     ((int16_t)30 * ENC_PER_DEG) 
+#define DRIVE_TURN_ERRMIN     ((int16_t)5  * ENC_PER_DEG)
 
 /* Control the speed of the drive motors to get a desired forward movement
  * and rotation. Positive values indicate forward movement and counter-
