@@ -75,12 +75,21 @@ int32_t drive_straight(AnalogOut forward) {
 	return (left + right) / 2;
 }
 
-int32_t drive_turn(AnalogOut turn) {
+bool drive_turn(int16_t angle) {
 	int32_t left  = encoder_get(ENC_L);
 	int32_t right = encoder_get(ENC_R);
-	int32_t avg   = ABS(left - right) / 2;
+	int32_t cur   = ABS(left - right) / 2;
+	int32_t tar   = (int32_t)ABS(angle) * ENC_PER_DEG;
+	int32_t diff  = ABS(cur - tar);
 
-	drive_smart(0, turn);
+	int32_t tmp1  = (int32_t)kMotorMax * diff / DRIVE_TURN_ERRMAX;
 
-	return SIGN(turn) * avg;
+	int32_t turn  = PROP(kMotorMax, DRIVE_TURN_ERRMAX, diff);
+
+	printf((char *)"LEFT %4d   RIGHT %4d   DIFF %4d  TMP %4d   SPEED %4d\n\r",
+		(int)left, (int)right, (int)diff, (int)tmp1, (int)turn);
+
+	drive_smart(0, SIGN(angle) * turn);
+
+	return ABS(cur - tar) <= DRIVE_TURN_ERRMIN;
 }
