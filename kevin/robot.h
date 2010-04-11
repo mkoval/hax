@@ -38,6 +38,6 @@ int32_t drive_straight(AnalogOut);
 /* Turn about the robot's center, using encoders to measure the distance
  * travelled and correct for errors.
  */
-int32_t drive_turn(AnalogOut);
+bool drive_turn(int16_t);
 
 #endif
