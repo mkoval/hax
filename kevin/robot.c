@@ -56,8 +56,7 @@ bool ramp_smart(AnalogOut vel) {
 	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
 
-	motor_set(MTR_LIFT_L, -vel * move);
-	motor_set(MTR_LIFT_R, +vel * move);
+	ramp_raw(move * vel);
 
 	return !move;
 }
