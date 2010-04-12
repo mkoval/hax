@@ -61,4 +61,18 @@ int8_t digital_get(PinIx pin) {
 	return GetDigitalInput(pin);
 }
 
+/*
+ * MOTOR AND SERVO OUTPUTS
+ */
+void analog_set(AnalogOutIx index, AnalogOut out) {
+	/* TODO Implement this, perhaps using SetMotor()? */
+}
+
+void motor_set(AnalogOutIx, MotorSpeed) {
+	SetMotor(index, out);
+}
+
+void servo_set(AnalogOutIx, ServoPosition) {
+	SetServo(index, out);
+}
 
