@@ -29,12 +29,27 @@ static state_t const __rom *auto_current;
 static bool kFalse = false;
 
 /* Define transition functions using a helper macro. */
-AUTO_LEAVE(1, &auto_state[1],  cur,            kFalse)
-AUTO_LEAVE(2, &auto_state[17], &auto_state[2], auto_straight_isdone(cur->data))
-AUTO_LEAVE(3, &auto_state[17], &auto_state[3], auto_arm_isdone(cur->data))
-AUTO_LEAVE(4, &auto_state[17], &auto_state[4], auto_ramp_isdone(cur->data))
-AUTO_LEAVE(5, &auto_state[5],  cur,            kFalse)
-AUTO_LEAVE(6, &auto_state[17], &auto_state[6], auto_ramp_isdone(cur->data))
+#define AUTO_DONE &auto_state[17]
+
+AUTO_LEAVE(0,  &auto_state[1],  &auto_state[1],  kFalse)
+AUTO_LEAVE(1,  AUTO_DONE,       &auto_state[2],  auto_straight_isdone(cur->data))
+AUTO_LEAVE(2,  AUTO_DONE,       &auto_state[3],  auto_arm_isdone(cur->data))
+AUTO_LEAVE(3,  AUTO_DONE,       &auto_state[4],  auto_ramp_isdone(cur->data))
+AUTO_LEAVE(4,  &auto_state[5],  NULL,            kFalse)
+AUTO_LEAVE(5,  AUTO_DONE,       &auto_state[6],  auto_ramp_isdone(cur->data))
+
+AUTO_LEAVE(6,  AUTO_DONE,       &auto_state[7],  auto_straight_isdone(cur->data))
+AUTO_LEAVE(7,  AUTO_DONE,       &auto_state[8],  auto_turn_isdone(cur->data))
+AUTO_LEAVE(8,  AUTO_DONE,       &auto_state[9],  auto_straight_isdone(cur->data))
+AUTO_LEAVE(9,  AUTO_DONE,       &auto_state[10], auto_arm_isdone(cur->data))
+AUTO_LEAVE(10, &auto_state[11], NULL,            kFalse)
+AUTO_LEAVE(11, AUTO_DONE,       &auto_state[12], auto_arm_isdone(cur->data))
+
+AUTO_LEAVE(12, AUTO_DONE,       &auto_state[13], auto_turn_isdone(cur->data))
+AUTO_LEAVE(13, AUTO_DONE,       &auto_state[14], auto_straight_isdone(cur->data))
+AUTO_LEAVE(14, AUTO_DONE,       &auto_state[15], auto_ramp_isdone(cur->data))
+AUTO_LEAVE(15, &auto_state[16], NULL,            kFalse)
+AUTO_LEAVE(16, AUTO_DONE,       AUTO_DONE,       auto_ramp_isdone(cur->data))
 
 static data_t auto_data[] = {
 	/* Dump preloaded balls. */
@@ -66,18 +81,18 @@ static data_t auto_data[] = {
 
 static state_t const __rom auto_state[] = {
 	/* Dump preloaded balls. */
-	{ &auto_data[0],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(1) },
-	{ &auto_data[1],  auto_straight_init, auto_straight_loop, AUTO_LOOKUP(2) },
-	{ &auto_data[2],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(3) },
-	{ &auto_data[3],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(4) },
-	{ &auto_data[4],  auto_wait_init,     auto_wait_loop,     AUTO_LOOKUP(5) },
-	{ &auto_data[5],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(6) },
+	{ &auto_data[0],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(0) },
+	{ &auto_data[1],  auto_straight_init, auto_straight_loop, AUTO_LOOKUP(1) },
+	{ &auto_data[2],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(2) },
+	{ &auto_data[3],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(3) },
+	{ &auto_data[4],  auto_wait_init,     auto_wait_loop,     AUTO_LOOKUP(4) },
+	{ &auto_data[5],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(5) },
 
 	/* Collect the first three footballs. */
 	{ &auto_data[6],  auto_straight_init, auto_straight_loop, NULL },
 	{ &auto_data[7],  auto_turn_init,     auto_turn_loop,     NULL },
 	{ &auto_data[8],  auto_straight_init, auto_straight_loop, NULL },
-	{ &auto_data[9],  auto_arm_init,      auto_straight_loop, NULL },
+	{ &auto_data[9],  auto_arm_init,      auto_arm_loop,      NULL },
 	{ &auto_data[10], auto_wait_init,     auto_wait_loop,     NULL },
 	{ &auto_data[11], auto_arm_init,      auto_arm_loop,      NULL },
 	
