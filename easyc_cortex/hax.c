@@ -76,3 +76,14 @@ void servo_set(AnalogOutIx, ServoPosition) {
 	SetServo(index, out);
 }
 
+/*
+ * TIMERS
+ */
+/* TODO Currently unsupported on both architectures. */
+
+/*
+ * INTERRUPT SERVICE ROUTINE FUNCTIONS
+ */
+/* TODO Not possible using the current EasyC code. */
+
+
