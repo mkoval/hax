@@ -89,8 +89,8 @@ static state_t const __rom auto_state[] = {
 	{ &auto_data[5],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(5) },
 
 	/* Collect the first three footballs. */
-	{ &auto_data[6],  auto_straight_init, auto_straight_loop, NULL },
-	{ &auto_data[7],  auto_turn_init,     auto_turn_loop,     NULL },
+	{ &auto_data[6],  auto_straight_init, auto_straight_loop, AUTO_LOOKUP(6) },
+	{ &auto_data[7],  auto_turn_init,     auto_turn_loop,     AUTO_LOOKUP(7) },
 	{ &auto_data[8],  auto_straight_init, auto_straight_loop, NULL },
 	{ &auto_data[9],  auto_arm_init,      auto_arm_loop,      NULL },
 	{ &auto_data[10], auto_wait_init,     auto_wait_loop,     NULL },
