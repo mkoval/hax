@@ -36,3 +36,29 @@ CtrlMode mode_get(void) {
 bool new_data_received(void) {
 	return false;
 }
+
+/*
+ * ANALOG AND DIGITAL INPUTS
+ */
+void pin_set_io(PinIx pin, PinMode mode) {
+	/* TODO May not be necessary on the cortex. */
+}
+
+uint16_t analog_adc_get(PinIx pin) {
+	return GetAnalogInput(pin);
+}
+
+int8_t analog_oi_get(PinIx pin) {
+	/* TODO Is this the same as analog_adc_get()? */
+	return 0;
+}
+
+void digital_set(PinIx pin, bool value) {
+	SetDigitalOutput(pin, value);
+}
+
+int8_t digital_get(PinIx pin) {
+	return GetDigitalInput(pin);
+}
+
+
