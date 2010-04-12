@@ -8,39 +8,8 @@
 
 #include "auton.h"
 
-data_t auto_straight_create(uint16_t timeout, uint16_t dist, int8_t vel) {
-	data_t data;
-	data.move.timeout = timeout;
-	data.move.ticks   = dist * ENC_PER_IN;
-	data.move.vel     = vel;
-	return data;
-}
-
-data_t auto_ram_create(uint16_t timeout, int8_t vel) {
-	data_t data;
-	data.move.timeout = timeout;
-	data.move.ticks   = 0;
-	data.move.vel     = vel;
-	return data;
-}
-
-data_t auto_turn_create(uint16_t timeout, uint16_t angle, int8_t vel) {
-	data_t data;
-	data.move.timeout = timeout;
-	data.move.ticks   = angle * ENC_PER_DEG;
-	data.move.vel     = vel;
-	return data;
-}
-
-data_t auto_noop_create(uint16_t us) {
-	data_t data;
-	data.timeout = us / kSlowSpeed;
-	return data;
-}
-
 /* Drive straight using encoders for velocity control. */
 void auto_straight_init(data_t *data) {
-	/* Store the initial encoder counts for both wheels. */
 	data->move.enc_left  = encoder_get(ENC_L);
 	data->move.enc_right = encoder_get(ENC_R);
 }
@@ -132,13 +101,13 @@ bool auto_ramp_isdone(data_t *data) {
 }
 
 /* Do nothing for a given timeout.  */
-void auto_noop_init(data_t *data) {
+void auto_wait_init(data_t *data) {
 }
 
-void auto_noop_loop(data_t *data) {
+void auto_wait_loop(data_t *data) {
 	--data->timeout;
 }
 
-bool auto_noop_isdone(data_t *data) {
+bool auto_wait_isdone(data_t *data) {
 	return !data->timeout;
 }

@@ -12,19 +12,40 @@
 #define TURN_ERROR     ((int16_t)30 * ENC_PER_DEG)
 #define TURN_THRESHOLD ((int16_t)5  * ENC_PER_DEG)
 
-/* Generate a transition function with name AUTO_TRANS_LOOKUP(_name_). */
-#define AUTO_TRANS_CREATE(_name_, _trans_) \
-void _name_##tr_(state_t state) {          \
-	_trans_                                \
-}
+/* Constructors used to wrap the initialization of a data_t. */
+#define AUTO_STRAIGHT(_timeout_, _dist_, _vel_) { (_timeout_), (_dist_)* ENC_PER_IN,  (_vel_), 0, 0 }
+#define AUTO_TURN(_timeout_, _ang_, _vel_)      { (_timeout_), (_ang_) * ENC_PER_DEG, (_vel_), 0, 0 }
+#define AUTO_ARM(_timeout_, _pos_, _vel_)       { (_timeout_), (_pos_),               (_vel_), 0, 0 }
+#define AUTO_RAMP(_timeout_, _pos_, _vel_)      { (_timeout_), (_pos_),               (_vel_), 0, 0 }
+#define AUTO_WAIT(_timeout_)                    { (_timeout_), 0,                     0,       0, 0 }
 
-/* Lookup the name of a previously-defined transition function. */
-#define AUTO_TRANS_LOOKUP(_name_) _name_##tr_
+/* Look up the name of a transition function defined with AUTO_LEAVE(). */
+#define AUTO_LOOKUP(_name_) auto_##_name_##_transition
 
-/* Maximum number of actions that can be present in the autonomous queue. */
-#define AUTON_QUEUE_MAX 20
+/* Define a transition function with name _name_ that transitions into the
+ * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
+ * true, otherwise the current state.
+ */
+#define AUTO_LEAVE(_name_, _ntime_, _ncond_, _cond_) \
+state_t * AUTO_LOOKUP(_name_) (state_t *cur) {       \
+	if (!cur->data->timeout)                         \
+		return (_ntime_); /* timed out */            \
+	if ((_cond_))                                    \
+		return (_ncond_); /* condition met */        \
+	else                                             \
+		return cur; /* don't change states */        \
+}                                                    
 
 typedef union {
+	/* Hack to enable shorthand union initalization. */
+	struct {
+		uint16_t unnamed1;
+		uint16_t unnamed2;
+		int8_t   unnamed3;
+		int32_t  unnamed4;
+		int32_t  unnamed5;
+	} unused;
+
 	/* Simulate polymorphism using clever struct alignment. */
 	uint16_t timeout;
 
@@ -35,9 +56,9 @@ typedef union {
 	struct {
 		uint16_t timeout;
 		uint16_t ticks;
+		int8_t   vel;
 		int32_t  enc_left;
 		int32_t  enc_right;
-		int8_t   vel;
 	} move;
 
 	/* Control the pose of a posable part of the robot (arm or ramp) using a
@@ -48,11 +69,6 @@ typedef union {
 		uint16_t pos;     /* potentiometer value */
 		int8_t   vel;
 	} pose;
-
-	/* Do nothing for a specified duration. */
-	struct {
-		uint16_t timeout;
-	} noop;
 } data_t;
 
 /* Forward declaration is required to avoid a recursive type reference. */
@@ -62,14 +78,13 @@ typedef struct state_s state_t;
 typedef void (*callback_t)(data_t *);
 
 /* Callback specifically for transitioning states. */
-typedef state_t *(*transition_t)(data_t *);
+typedef state_t *(*transition_t)(state_t *);
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
-	data_t       data;
+	data_t      *data;
 	callback_t   cb_init;
 	callback_t   cb_loop;
-	callback_t   cb_spin;
 	transition_t cb_next;
 };
 
@@ -77,6 +92,8 @@ struct state_s {
 data_t auto_straight_create(uint16_t, uint16_t, int8_t);
 data_t auto_turn_create(uint16_t, uint16_t, int8_t);
 data_t auto_ram_create(uint16_t, int8_t);
+data_t auto_arm_create(uint16_t, uint16_t, int8_t);
+data_t auto_ramp_create(uint16_t, uint16_t, int8_t);
 
 /* Drive straight for the specified distance.*/
 void auto_straight_init(data_t *);
