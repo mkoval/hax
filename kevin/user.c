@@ -20,7 +20,7 @@ static bool override = false;
 
 /* Forward declare the arrays used by the below macro expansions. */
 static state_t const __rom auto_state[];
-static data_t auto_data[];
+static data_t              auto_data[];
 
 /* Current state of autonomous mode. Meaningless if in telop mode. */
 static state_t const __rom *auto_current;
