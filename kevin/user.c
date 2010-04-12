@@ -12,47 +12,97 @@
 /* Physical and electronic robot configuration is specified in ports.h. */
 uint8_t kNumAnalogInputs = ANA_NUM;
 
-/* Autonomous queue; used to build a specific autonomous mode from the building
- * blocks provided in the state machine defined in auton.c.
- */
-static AutonQueue queue = { 0 };
-
 /* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
 
 /* User-override for arm and ramp potentiometers. */
 static bool override = false;
 
+/* Forward declare the arrays used by the below macro expansions. */
+static state_t const __rom auto_state[];
+static data_t auto_data[];
+
+/* Current state of autonomous mode. Meaningless if in telop mode. */
+static state_t const __rom *auto_current;
+
+/* Hack to trick disable the "expression always false" warning. */
+static bool kFalse = false;
+
+/* Define transition functions using a helper macro. */
+AUTO_LEAVE(1, &auto_state[1],  cur,            kFalse)
+AUTO_LEAVE(2, &auto_state[17], &auto_state[2], auto_straight_isdone(cur->data))
+AUTO_LEAVE(3, &auto_state[17], &auto_state[3], auto_arm_isdone(cur->data))
+AUTO_LEAVE(4, &auto_state[17], &auto_state[4], auto_ramp_isdone(cur->data))
+AUTO_LEAVE(5, &auto_state[5],  cur,            kFalse)
+AUTO_LEAVE(6, &auto_state[17], &auto_state[6], auto_ramp_isdone(cur->data))
+
+static data_t auto_data[] = {
+	/* Dump preloaded balls. */
+	AUTO_ARM(250, 0, kMotorMax),
+	AUTO_STRAIGHT(4000, 0, kMotorMax),
+	AUTO_ARM(1000, 0, kMotorMin),
+	AUTO_RAMP(500, POT_LIFT_HIGH, kMotorMax),
+	AUTO_WAIT(1000),
+	AUTO_RAMP(500, POT_LIFT_LOW, kMotorMin),
+
+	/* Collect the first three footballs. */
+	AUTO_STRAIGHT(500, 60, kMotorMax),
+	AUTO_TURN(500, 90, kMotorMax),
+	AUTO_STRAIGHT(500, 480, kMotorMax),
+	AUTO_ARM(500, POT_ARM_HIGH, kMotorMax),
+	AUTO_WAIT(100),
+	AUTO_ARM(500, POT_ARM_LOW, kMotorMin),
+	
+	/* Dump the freshly-harvested balls. */
+	AUTO_TURN(500, 90, kMotorMin),
+	AUTO_STRAIGHT(500, 0, kMotorMax),
+	AUTO_RAMP(250, POT_LIFT_HIGH, kMotorMax),
+	AUTO_WAIT(1000),
+	AUTO_RAMP(250, POT_LIFT_LOW, kMotorMin),
+
+	/* Do nothing for the remainder of autonomous. */
+	AUTO_WAIT(0)
+};
+
+static state_t const __rom auto_state[] = {
+	/* Dump preloaded balls. */
+	{ &auto_data[0],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(1) },
+	{ &auto_data[1],  auto_straight_init, auto_straight_loop, AUTO_LOOKUP(2) },
+	{ &auto_data[2],  auto_arm_init,      auto_arm_loop,      AUTO_LOOKUP(3) },
+	{ &auto_data[3],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(4) },
+	{ &auto_data[4],  auto_wait_init,     auto_wait_loop,     AUTO_LOOKUP(5) },
+	{ &auto_data[5],  auto_ramp_init,     auto_ramp_loop,     AUTO_LOOKUP(6) },
+
+	/* Collect the first three footballs. */
+	{ &auto_data[6],  auto_straight_init, auto_straight_loop, NULL },
+	{ &auto_data[7],  auto_turn_init,     auto_turn_loop,     NULL },
+	{ &auto_data[8],  auto_straight_init, auto_straight_loop, NULL },
+	{ &auto_data[9],  auto_arm_init,      auto_straight_loop, NULL },
+	{ &auto_data[10], auto_wait_init,     auto_wait_loop,     NULL },
+	{ &auto_data[11], auto_arm_init,      auto_arm_loop,      NULL },
+	
+	/* Dump the freshly-harvested balls. */
+	{ &auto_data[12], auto_turn_init,     auto_turn_loop,     NULL },
+	{ &auto_data[13], auto_straight_init, auto_straight_loop, NULL },
+	{ &auto_data[14], auto_ramp_init,     auto_ramp_loop,     NULL },
+	{ &auto_data[15], auto_wait_init,     auto_wait_loop,     NULL },
+	{ &auto_data[16], auto_ramp_init,     auto_ramp_loop,     NULL },
+
+	/* Do nothing for the remainder of autonomous. */
+	{ &auto_data[17], NULL,               NULL,               NULL }
+
+};
+
 void init(void) {
-	/* Disable autonomous in calibration mode. */
+	/* Enable the calibration mode specified by the jumpers. */
 	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
 	         | (!digital_get(JUMP_CAL_MODE3) << 2);
 
-	/* Deploy the robot and dump preloaded balls. */
-	auton_enqueue(&queue, AUTO_DEPLOY, 8);
-	auton_enqueue(&queue, AUTO_REVRAM, NONE);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   400);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
-
-	/* Drive to the line and collect the first three footballs. */
-	auton_enqueue(&queue, AUTO_DRIVE,  60);
-	auton_enqueue(&queue, AUTO_TURN,   90);
-	auton_enqueue(&queue, AUTO_DRIVE,  540);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   50);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
-	
-	/* Dump the previously collected footballs. */
-	auton_enqueue(&queue, AUTO_TURN,   -90);
-	auton_enqueue(&queue, AUTO_REVRAM, NONE);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   150);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
-
 	printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
+
+	/* Initialize autonomous mode. */
+	auto_current = &auto_state[0];
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -68,13 +118,25 @@ void disable_spin(void) {
 }
 
 void auton_loop(void) {
+	state_t const __rom *next;
 	uint8_t i;
 
+	/* Start each autonomous slow loop with a clean slate. */
 	for (i = 0; i < MTR_NUM; ++i) {
 		motor_set(i, 0);
 	}
 
-	auton_do(&queue);
+	/* Update the current state using the loop() callback. */
+	auto_current->cb_loop(auto_current->data);
+
+	/* We just changed states and need to call the initialization routine for
+	 * the new state. Additionally, printf() an alert.
+	 */
+	next = auto_current->cb_next(auto_current);
+	if (auto_current != next) {
+		next->cb_init(auto_current->data);
+	}
+	auto_current = next;
 }
 
 void auton_spin(void) {
