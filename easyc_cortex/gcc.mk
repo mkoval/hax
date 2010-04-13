@@ -4,11 +4,12 @@ LD            = $(PREFIX)-gcc
 AS            = $(PREFIX)-gcc
 OBJCOPY       = $(PREFIX)-objcopy
 
-ARCH_CFLAGS  += -mcpu=cortex-m3 -D_STM32F103VDH6_ -D_STM3x_ -D_STM32x_        \
+ARCH_CFLAGS  += -mcpu=cortex-m3 -D_STM32F103VDH6_ -D_STM3x_ -D_STM32x_      \
                 -mthumb -fsigned-char -ffunction-sections -Wall -Wno-main
-ARCH_LDFLAGS += $(ARCH_CFLAGS) -Wl,-L$(LDSCRIPT_PATH) -Wl,-T$(LD_SCRIPT)      \
-                $(STARTUP_OBJ) $(STARTUPI_OBJ) -u _start                      \
-                -Wl,-static,--gc-sections -nostartfiles -l:$(EASYC_LIB)
+ARCH_LDFLAGS += $(ARCH_CFLAGS) -Wl,-L$(LDSCRIPT_PATH) -Wl,-T$(LD_SCRIPT)    \
+                $(STARTUP_OBJ) $(STARTUPI_OBJ) -u _start                    \
+                -Wl,-static,--gc-sections -nostartfiles            \
+		-l:$(EASYC_LIB)
 
 TARGET_ELF    = $(TARGET:.hex=.elf)
 OBJECTS      += $(SOURCE:=.o)
