@@ -6,24 +6,29 @@
 
 #define ARM_SET_ERRMAX        10
 #define DRIVE_STRAIGHT_ERRMAX 100
+#define DRIVE_TURN_ERRMAX     ((int16_t)30 * ENC_PER_DEG) 
+#define DRIVE_TURN_ERRMIN     ((int16_t)5  * ENC_PER_DEG)
 
-/* Control the speed of the drive motors to get a desired forward movement,
- * strafe, and rotation. Positive values indicate forward movement, right
- * strafing and counter-clockwise rotation.
+/* Control the speed of the drive motors to get a desired forward movement
+ * and rotation. Positive values indicate forward movement and counter-
+ * clockwise rotation.
  */
-void drive_raw(AnalogOut, AnalogOut, AnalogOut);
+void drive_raw(AnalogOut, AnalogOut);
+void drive_smart(AnalogOut, AnalogOut);
 
 /* Control the speed of the arm motors to raise or lower the arm. Positive
  * values indicate upward movement. Both extremes are checked in software using
  * a potentiometer.
  */
-bool arm_raw(AnalogOut);
+void arm_raw(AnalogOut);
+bool arm_smart(AnalogOut);
 
 /* Control the speed of the ramp motor(s) to raise or lower the ramp. Positive
  * values indicate upward movement. Both extremes are checked in software using
  * limit switches.
  */
-bool ramp_raw(AnalogOut);
+void ramp_raw(AnalogOut);
+bool ramp_smart(AnalogOut);
 
 /* Drive forward or reverse in a straight line, using encoders to correct for
  * small errors. Returns the distance traveled in inches.
@@ -33,9 +38,6 @@ int32_t drive_straight(AnalogOut);
 /* Turn about the robot's center, using encoders to measure the distance
  * travelled and correct for errors.
  */
-int32_t drive_turn(AnalogOut);
-
-/* Keep the arm a specific potentiometer value using a feedback loop. */
-bool arm_set(uint16_t);
+bool drive_turn(int16_t);
 
 #endif

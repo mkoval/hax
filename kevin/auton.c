@@ -46,27 +46,21 @@ void auton_do(AutonQueue *queue) {
 		advance = true;
 		break;
 	
-	/* Ram the middle wall, the distance to which is specified in extra, while
-	 * raising the arm. This pushes the green balls through the slot, knocks
-	 * down the low football, and prepares to hit the high footballs.
-	 */
-	case AUTO_FWDRAM: {
-		int32_t dist  = drive_straight(kMotorMax);
-		bool    close = !digital_get(BUT_F);
-
-		/* TODO Raise the arm to knock down the high balls. */
-
-		if (close) {
+	/* Jerk the arm to deploy the ramp. */
+	case AUTO_DEPLOY:
+		if (cur.extra) {
+			arm_raw(kMotorMax);
+			--cur.extra;
+		} else {
 			advance = true;
 		}
 		break;
-	}
 
     /* Reverse until the robot hits a wall. Useful for getting in position to
      * dump balls over the wall.
      */
     case AUTO_REVRAM: {
-        bool close = !digital_get(BUT_BL) && !digital_get(BUT_BR);
+        bool close = !digital_get(BUT_B);
 
         if (!close) {
             drive_straight(kMotorMin);
@@ -76,20 +70,6 @@ void auton_do(AutonQueue *queue) {
         break;
     }
 
-	/* Strafe a distance (specified in extra) left or right with the arm in the
-	 * raised position. Used to knock down the high footballs.
-	 */
-	case AUTO_STRAFE: {
-		int32_t dist = encoder_get(ENC_S);
-
-		drive_raw(0, SIGN(cur.extra) * kMotorMax, 0);
-
-		if (ABS(dist) >= ABS(cur.extra) * ENC_PER_IN / 10) {
-			advance = true;
-		}
-		break;
-	}
-	
 	/* Drive forward or reverse a distance specified in extra. Positive values
 	 * are forward and negative values are reverse.
 	 */
@@ -103,19 +83,14 @@ void auton_do(AutonQueue *queue) {
 		break;
     }
 
-    case AUTO_TURN: {
-		int32_t ang = drive_turn(SIGN(cur.extra) * kMotorMax);
-
-		/* Convert between encoder ticks and degrees of rotation. */
-		if (ang > cur.extra * ENC_PER_DEG) {
-			advance = true;
-		}
+	/* Turn the specified number of degrees. */
+    case AUTO_TURN:
+		advance = drive_turn(cur.extra);
 		break;
-    }
 
 	/* Move the arm until it is at an extreme. */
 	case AUTO_ARM: {
-		bool done = arm_raw(cur.extra);
+		bool done = arm_smart(cur.extra);
 
 		if (done) {
 			advance = true;
@@ -128,10 +103,22 @@ void auton_do(AutonQueue *queue) {
      */
     case AUTO_RAMP:
         /* Move the ramp until it hits a software stop, measured with a pot. */
-        if (ramp_raw(cur.extra)) {
+        if (ramp_smart(cur.extra)) {
             advance = true;
         }
         break;
+	
+	/* Do nothing for the specified number of slow loops. */
+	case AUTO_WAIT:
+		if (cur.extra) {
+			--cur.extra;
+		} else {
+			advance = true;
+		}
+		break;
+	
+	default:
+		advance = true;
     }
 		
 	/* Advance to the next state if the current state set the correct flag. */

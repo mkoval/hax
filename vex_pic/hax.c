@@ -86,9 +86,9 @@ void setup_1(void) {
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
-		_puts("DONE ]\n");
+		_puts("DONE ]\r\n");
 	} else { 
-		_puts("FAIL ]\n");
+		_puts("FAIL ]\r\n");
 	}
 
 }
@@ -331,13 +331,18 @@ int8_t analog_oi_get(OIIx ain) {
 }
 
 void analog_set(AnalogOutIx aout, AnalogOut sp) {
-	if ( aout < kVPMaxMotors ) {
-		uint8_t val;
-		sp = ( sp < 0 && sp != 128) ? sp - 1 : sp;
-		val = sp + 128;
 
-		/* 127 & 128 are treated as the same, apparently. */
-		txdata.rc_pwm[aout] = val; //(val > 127) ? val+1 : val;
+	if ( aout < kVPMaxMotors ) {
+		int16_t val = (int16_t)sp + 127;
+
+		/* Constrain the value to fit in a uint8. */
+		if (val > 255) {
+			val = 255;
+		} else if (val < 0) {
+			val = 0;
+		}
+
+		txdata.rc_pwm[aout] = (uint8_t)val;
 	}
 }
 
