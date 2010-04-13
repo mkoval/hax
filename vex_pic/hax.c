@@ -371,7 +371,7 @@ bool interrupt_get(InterruptIx index) {
 #if   defined(MCC18_30)
 #pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
 #elif defined(MCC18_24)
-#pragma interruptlow interrupt_handler save=PROD,section("MATH_DATA"),section(".tmpdata")
+#pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
 #else
 #error Interrupts are unsuported with this compiler.
 #endif
