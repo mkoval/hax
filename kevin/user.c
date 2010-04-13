@@ -6,16 +6,12 @@
 #include "encoder.h"
 #include "ports.h"
 #include "robot.h"
+#include "state.h"
 
 #include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
 uint8_t kNumAnalogInputs = ANA_NUM;
-
-/* Autonomous queue; used to build a specific autonomous mode from the building
- * blocks provided in the state machine defined in auton.c.
- */
-static AutonQueue queue = { 0 };
 
 /* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
@@ -23,36 +19,23 @@ static CalibrationMode cal_mode = CAL_MODE_NONE;
 /* User-override for arm and ramp potentiometers. */
 static bool override = false;
 
+/* Current state of autonomous mode. Meaningless if in telop mode. */
+state_t const __rom *auto_current;
+
 void init(void) {
-	/* Disable autonomous in calibration mode. */
+	/* Enable the calibration mode specified by the jumpers. */
 	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
 	         | (!digital_get(JUMP_CAL_MODE3) << 2);
 
-	/* Deploy the robot and dump preloaded balls. */
-	auton_enqueue(&queue, AUTO_DEPLOY, 8);
-	auton_enqueue(&queue, AUTO_REVRAM, NONE);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   400);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
-	/* Drive to the line and collect the first three footballs. */
-	auton_enqueue(&queue, AUTO_DRIVE,  60);
-	auton_enqueue(&queue, AUTO_TURN,   90);
-	auton_enqueue(&queue, AUTO_DRIVE,  540);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   50);
-	auton_enqueue(&queue, AUTO_ARM,    kMotorMin);
-	
-	/* Dump the previously collected footballs. */
-	auton_enqueue(&queue, AUTO_TURN,   -90);
-	auton_enqueue(&queue, AUTO_REVRAM, NONE);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMax);
-	auton_enqueue(&queue, AUTO_WAIT,   150);
-	auton_enqueue(&queue, AUTO_RAMP,   kMotorMin);
+	/* Initialize autonomous mode. */
+	auto_current = &auto_state[0];
 
-	printf((char *)"[CALIBRATION %d]\r\n", cal_mode);
+	_puts("[STATE ");
+	_puts(STATE_NAME(auto_current));
+	_puts("]\n\r");
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -68,13 +51,36 @@ void disable_spin(void) {
 }
 
 void auton_loop(void) {
+	state_t const __rom *next = auto_current;
 	uint8_t i;
 
+	/* Start each autonomous slow loop with a clean slate. */
 	for (i = 0; i < MTR_NUM; ++i) {
 		motor_set(i, 0);
 	}
 
-	auton_do(&queue);
+	/* Update the current state. */
+	auto_current->cb_loop(auto_current->data);
+
+	/* Count down to a potential timeout. This property is shared amongst all
+	 * states.
+	 */
+	--auto_current->data->timeout;
+
+	/* We just changed states and need to call the initialization routine for
+	 * the new state. Additionally, printf() an alert.
+	 */
+	next = auto_current->cb_next(auto_current);
+
+	/* Update the current state using the loop() callback. */
+	if (auto_current != next) {
+		_puts("[STATE ");
+		_puts(STATE_NAME(next));
+		_puts("]\n\r");
+
+		next->cb_init(auto_current->data);
+	}
+	auto_current = next;
 }
 
 void auton_spin(void) {
@@ -86,6 +92,8 @@ void telop_loop(void) {
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
 	bool     done    = false;
+
+	_puts("[TELOP ON]\n\r");
 
 	switch (cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
