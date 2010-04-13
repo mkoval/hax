@@ -14,6 +14,7 @@
 
 /* Constructors used to wrap the initialization of a data_t. */
 #define AUTO_STRAIGHT(_timeout_, _dist_, _vel_) { (_timeout_), (_dist_)* ENC_PER_IN,  (_vel_), 0, 0 }
+#define AUTO_RAM(_timeout_, _vel_)              { (_timeout_), 0,                     (_vel_), 0, 0 }
 #define AUTO_TURN(_timeout_, _ang_, _vel_)      { (_timeout_), (_ang_) * ENC_PER_DEG, (_vel_), 0, 0 }
 #define AUTO_ARM(_timeout_, _pos_, _vel_)       { (_timeout_), (_pos_),               (_vel_), 0, 0 }
 #define AUTO_RAMP(_timeout_, _pos_, _vel_)      { (_timeout_), (_pos_),               (_vel_), 0, 0 }
@@ -27,13 +28,13 @@
  * true, otherwise the current state.
  */
 #define AUTO_LEAVE(_name_, _ntime_, _ncond_, _cond_) \
-state_t * AUTO_LOOKUP(_name_) (state_t *cur) {       \
-	if (!cur->data->timeout)                         \
+state_t * AUTO_LOOKUP(_name_) (state_t const __rom *cur) { \
+	if (!cur->data->timeout) {                       \
 		return (_ntime_); /* timed out */            \
-	if ((_cond_))                                    \
+	} else if ((_cond_)) {                           \
 		return (_ncond_); /* condition met */        \
-	else                                             \
-		return cur; /* don't change states */        \
+	}                                                \
+	return cur; /* don't change states */            \
 }                                                    
 
 typedef union {
@@ -78,7 +79,7 @@ typedef struct state_s state_t;
 typedef void (*callback_t)(data_t *);
 
 /* Callback specifically for transitioning states. */
-typedef state_t *(*transition_t)(state_t *);
+typedef state_t *(*transition_t)(state_t const __rom *);
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
@@ -116,8 +117,10 @@ void auto_ramp_loop(data_t *);
 bool auto_ramp_isdone(data_t *);
 
 /* Do nothing until the state times out. */
-void auto_wait_init(data_t *);
-void auto_wait_loop(data_t *);
-bool auto_wait_isdone(data_t *);
+void auto_none_init(data_t *);
+void auto_none_loop(data_t *);
+bool auto_none_isdone(data_t *);
+
+bool auto_ram_isdone(data_t *);
 
 #endif
