@@ -1,4 +1,5 @@
-#include "../hax.h"
+#include <hax.h>
+#include <stdint.h>
 
 #include "easyclib/API.h"
 
@@ -68,11 +69,11 @@ void analog_set(AnalogOutIx index, AnalogOut out) {
 	/* TODO Implement this, perhaps using SetMotor()? */
 }
 
-void motor_set(AnalogOutIx, MotorSpeed) {
+void motor_set(AnalogOutIx index, MotorSpeed out) {
 	SetMotor(index, out);
 }
 
-void servo_set(AnalogOutIx, ServoPosition) {
+void servo_set(AnalogOutIx index, ServoPosition out) {
 	SetServo(index, out);
 }
 
