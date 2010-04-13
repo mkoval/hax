@@ -21,7 +21,6 @@ void auto_straight_loop(data_t *data) {
 	int8_t  turn  = PROP(ABS(data->move.vel), STRAIGHT_ERROR, ABS(diff));
 
 	drive_smart(data->move.vel, SIGN(diff) * turn);
-	--data->timeout;
 }
 
 bool auto_straight_isdone(data_t *data) {
@@ -45,7 +44,6 @@ void auto_turn_loop(data_t *data) {
 	int8_t  turn  = PROP(ABS(data->move.vel), TURN_ERROR, ABS(diff));
 
 	drive_smart(0, SIGN(data->move.vel) * turn);
-	--data->timeout;
 }
 
 bool auto_turn_isdone(data_t *data) {
@@ -67,7 +65,6 @@ void auto_arm_loop(data_t *data) {
 	bool    move = up || down;
 
 	arm_raw(move * data->pose.vel);
-	--data->timeout;
 }
 
 bool auto_arm_isdone(data_t *data) {
@@ -89,7 +86,6 @@ void auto_ramp_loop(data_t *data) {
 	bool    move = up || down;
 
 	ramp_raw(move * data->pose.vel);
-	--data->timeout;
 }
 
 bool auto_ramp_isdone(data_t *data) {
@@ -100,14 +96,17 @@ bool auto_ramp_isdone(data_t *data) {
 	return !(up || down);
 }
 
+bool auto_ram_isdone(data_t *data) {
+	return !digital_get(BUT_B);
+}
+
 /* Do nothing for a given timeout.  */
-void auto_wait_init(data_t *data) {
+void auto_none_init(data_t *data) {
 }
 
-void auto_wait_loop(data_t *data) {
-	--data->timeout;
+void auto_none_loop(data_t *data) {
 }
 
-bool auto_wait_isdone(data_t *data) {
-	return !data->timeout;
+bool auto_none_isdone(data_t *data) {
+	return true;
 }
