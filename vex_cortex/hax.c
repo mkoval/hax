@@ -220,6 +220,7 @@ void setup_1(void) {
 	AnalogOutIx i;
 	int uart1data = uart1data; /* Hack to get around a GCC error. */
 
+	/* TODO Reimplement these functions. */
 	RCC_Configuration();
 	NVIC_Configuration();
 	GPIO_Configuration();
@@ -228,7 +229,10 @@ void setup_1(void) {
 	SysTick_Configuration();
 	Setup_Capture_Mode();
 	Setup_timer1();
-	Setup_timer4(); /* TODO Implement this timer... */
+	Setup_timer4();
+
+	/* Set the location of the interrupt vector to 0x08000000. */
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 
 	WaitTillMasterIsReadyForSpiData(); 
 
@@ -275,25 +279,6 @@ void setup_2(void) {
 }
 
 void loop_1(void) {
-}
-
-void loop_2(void) {
-}
-
-void spin(void) {
-	static uint8_t one_shot = 1;
-	int uart1data = uart1data; /* Hack to get around a GCC error. */
-
-#ifdef USE_USART2
-	/* Check for data transmitted over wifi. */
-	uart1data = GetKey();
-
-	if (uart1data >= 0) {
-		Handle_Debug_Input(uart1data);
-	}
-
-	Process_Debug_Stream();
-#endif
 
 	/* Handle data from RX1 if it is connected. */
 	if (pwmStatusFlags & RX1_INTRDY) {
@@ -351,16 +336,26 @@ void spin(void) {
 			slavePtr->State = 8;      /* Slave has data ready. */
 			masterPtr->packetNum = 1; /* ? */
 		}
-		/* Receied valid data; update autonomous mode. */
-		else if (masterPtr->State == 8) {
-			/* Autonomous is either forced by masterPtr or was set by slavePtr. */
-			if (masterPtr->SystemFlags & 0x40 || slavePtr->SystemFlags == 1) {
-				Handle_Autonomous();
-			} else {
-				Handle_Operator_Control();
-			}
-		}
 	}
+}
+
+void loop_2(void) {
+}
+
+void spin(void) {
+	static uint8_t one_shot = 1;
+	int uart1data = uart1data; /* Hack to get around a GCC error. */
+
+#ifdef USE_USART2
+	/* Check for data transmitted over wifi. */
+	uart1data = GetKey();
+
+	if (uart1data >= 0) {
+		Handle_Debug_Input(uart1data);
+	}
+
+	Process_Debug_Stream();
+#endif
 }
 
 bool new_data_received(void) {
@@ -373,9 +368,188 @@ bool new_data_received(void) {
 }
 
 CtrlMode mode_get(void) {
-	return 0;
+	if (masterPtr->SystemFlags & 0x40 || slavePtr->SystemFlags == 1) {
+		return kModeAuton;
+	} else {
+		return kModeTelop;
+	}
+	/* TODO What about disabled mode? */
 }
 
 void mode_set(CtrlMode mode) {
+	/* TODO Implement this by modifying the slave's SystemFlags, if it is
+	 * possible to safely do so.
+	 */
 }
+
+
+/*
+ * ANALOG AND DIGITAL INPUTS
+ */
+/* Mapping between an external pin number and the collection of registers that
+ * it uses for configuration and data storage.
+ */
+static GPIO_TypeDef *const gpio_reg[] = {
+	GPIOE, GPIOE, GPIOC, GPIOC, GPIOE, GPIOE,
+	GPIOE, GPIOE, GPIOE, GPIOE, GPIOD, GPIOD
+};
+
+static uint8_t const gpio_port[] = {
+	8, 8, 4, 4, 8, 8, 8, 8, 8, 8, 3, 3
+}
+
+static uint8_t const gpio_pin[] = {
+	9, 11, 6, 7, 13, 14, 8, 10, 12, 7, 0, 1
+};
+
+static uint8_t const gpio_num = 12;
+
+void pin_set_io(PinIx index, PinMode mode) {
+}
+
+int8_t analog_oi_get(OIIx);
+uint16_t analog_adc_get(PinIx);
+
+void digital_set(PinIx, bool);
+
+bool digital_get(PinIx index) {
+	/* TODO Pin may need to be configured to get a successful read. */
+
+	/* The i-th bit of a GPIO IDR register is the value of the i-th digital pin
+	 * stored in that register.
+	 */
+	if (index < gpio_num) {
+		return !!(gpio_reg[index]->IDR & (1 << gpio_pin[index]));
+	} else {
+		return false;
+	}
+}
+
+/*
+ * MOTOR AND SERVO OUTPUTS
+ */
+void analog_set(AnalogOutIx index, AnalogOut sp) {
+	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+	slavePtr->motor[index] = sp + 128;
+}
+
+void motor_set(AnalogOutIx index, MotorSpeed sp) {
+	analog_set(index, sp);
+}
+
+void servo_set(AnalogOutIx index, ServoPosition pos) {
+	analog_set(index, pos);
+}
+
+/*
+ * INTERRUPT SERVICE ROUTINE FUNCTIONS
+ */
+InterruptServiceRoutine isr_callbacks[15] = { 0 };
+
+void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
+	isr_callbacks[index] = isr;
+
+	/* Prevent a potential segfault by invoking a NULL callback. */
+	if (!isr) {
+		interrupt_disable();
+	}
+}
+
+bool interrupt_get(InterruptIx index) {
+	return digital_get(index);
+}
+
+void interrupt_enable(InterruptIx ext_index) {
+	GPIO_TypeDef *reg; 
+	uint8_t pin, port, nvic_index;
+
+	/* Only GPIO pins can be mapped to serve as external interrupts. Even if
+	 * the index is valid, there can only be four external interrupts mapped to
+	 * a single GPIO register.
+	 */
+	if (index > 15 || gpio_rep[ext_index] > 3) {
+		return;
+	}
+	
+	pin  = gpio_pin[ext_index];
+	port = gpio_port[ext_index];
+	reg  = gpio_reg[ext_index];
+
+	/* Configure GPIO to be internally pulled up. First clearing the pin's
+	 * previous configuration settings, then write:
+	 *   CNF      = 10   = Input with internal pull-up / pull-down.
+	 *   MODE     = 00   = Input mode.
+	 *   PxODR    = 1    = Internal pull-up
+	 *   MODE:CNF = 0010 = 0x02
+	 * Pins between 0 to 7 are in the port configuration vector low and pins
+	 * between 8 and 15 are in the port configuration vector high.
+	 */
+	if (pin < 8) {
+		reg->CRL &= ~(0x02 << (pin * 4));
+		reg->CRL |=  (0x02 << (pin * 4));
+	} else if (pin < 16) {
+		reg->CRH &= ~(0x02 << ((pin - 8) * 4));
+		reg->CRH |=  (0x02 << ((pin - 8) * 4));
+	}
+
+	/* Sets the appropriate bit in the ODR register to enable an internal
+	 * pull-up. Since ODR cannot be directly accessed, the lower 16-bits of
+	 * the BSRR register are used to set a bit in ODR and the upper 16-bits
+	 * are used to clear a bit in ODR.
+	 */
+	reg->BSRR |= 1 << pin;
+
+	/* Enable the external interrupt in addition to rising and falling edge
+	 * triggering.
+	 */
+	EXTI_IMR  |= 1 << ext_index;
+	EXTI_RTSR |= 1 << ext_index; /* Rising edge triggering. */
+	EXTI_FTSR |= 1 << ext_index; /* Falling edge triggering. */
+
+	/* Map an external GPIO pin to an EXT interrupt. Up to four GPIO pins can
+	 * be mapped to interrupts by using four-bit chunks of this 32-bit
+	 * register. This sets the mapping to an NVIC interrupt handler.
+	 */
+	AFIO->EXTICR[pin / 4] &= ~(port << (pin % 4));
+	AFIO->EXTICR[pin / 4] |=   port << (pin % 4);
+
+	/* ISER[n] holds the set-enable flags for interrupts 31n (LSB) to
+	 * 32(n+1) (MSB) in increasing order. Clearing a bit in this array does
+	 * nothing; see interrupt_disable().
+	 */
+	/* Pin 0 is dedicated the EXT0 NVIC interrupt. */
+	if (pin == 0) {
+		nvic_index = EXTI0_IRQChannel;
+	}
+	/* Pin 1 is dedicated the EXT1 NVIC interrupt. */
+	else if (pin == 1) {
+		nvic_index = EXTI1_IRQChannel;
+	}
+	/* Pins 2-4 are not exposed. */
+	else if (pin < 5) {
+		return;
+	}
+	/* Pins 5-9 are clumped as one NVIC interrupt (EXTI9_5). */
+	else if (pin < 10) {
+		nvic_index = EXTI9_5_IRQChannel;
+	}
+	/* Pins 10-15 are clumped in one NVIC interrupt (EXT15_10). */
+	else if (pin < 16) {
+		nvic_index = EXTI9_15_9Channel;
+	}
+
+	/* Enable the NVIC interrupt associated with this interrupt. */
+	ISER[nvic_index / 32] |= 1 << (nvic_index % 32);
+
+	/* APB2 clock (RCC_APB2ENR register) is already enabled. */
+}
+
+void interrupt_disable(InterruptIx index) {
+	/* ICER[n] holds the clear-enable flags for interrupts 32n (LSb) to
+	 * 32(n+1) (MSB) in increasing order. Clearing a bit in this array does
+	 * nothing; see interrupt_enable().
+	 */
+	ICER[index / 32] |= 1 << (index % 32);
+}
+
 

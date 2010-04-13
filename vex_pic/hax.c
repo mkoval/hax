@@ -254,7 +254,7 @@ void pin_set_io(PinIx i, PinMode mode) {
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
-int8_t digital_get(PinIx i) {
+bool digital_get(PinIx i) {
 
 	switch (i) {
 	
@@ -333,6 +333,7 @@ int8_t analog_oi_get(OIIx ain) {
 void analog_set(AnalogOutIx aout, AnalogOut sp) {
 
 	if ( aout < kVPMaxMotors ) {
+#if defined(MIKE_WHAT____)
 		int16_t val = (int16_t)sp + 127;
 
 		/* Constrain the value to fit in a uint8. */
@@ -341,7 +342,11 @@ void analog_set(AnalogOutIx aout, AnalogOut sp) {
 		} else if (val < 0) {
 			val = 0;
 		}
-
+#else
+		uint8_t val;
+		sp = ( sp < 0 && sp != -128) ? sp - 1 : sp;
+		val = sp + 128;
+#endif
 		txdata.rc_pwm[aout] = (uint8_t)val;
 	}
 }
@@ -357,7 +362,7 @@ void servo_set(AnalogOutIx aout, ServoPosition sp) {
 /*
  * INTERRUPTS
  */
-InterruptServiceRoutine isr_callbacks[6] = { 0, 0, 0, 0, 0, 0 };
+InterruptServiceRoutine isr_callbacks[6] = { 0 };
 
 void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	isr_callbacks[index] = isr;
@@ -434,7 +439,7 @@ void interrupt_vector(void) {
 }
 #pragma code
 
-/* TODO Implement interrupt_set() and interrupt_disable(). */
+/* TODO Implement interrupt_disable(). */
 
 void interrupt_enable(InterruptIx index) {
 	switch (index) {
