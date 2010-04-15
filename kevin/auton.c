@@ -85,7 +85,7 @@ void auto_ramp_loop(data_t *data) {
 	bool    down = data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
 
-	ramp_raw(move * data->pose.vel);
+	ramp_raw(move * data->pose.vel, move * data->pose.vel);
 }
 
 bool auto_ramp_isdone(data_t *data) {
