@@ -111,11 +111,20 @@ void telop_loop(void) {
 	
 	/* Calibrate the POT_ARM_LOW and POT_ARM_HIGH constants. */
 	case CAL_MODE_PRINT:
-		printf((char *)"ARM %4d   LIFT %4d   ENCL %5d   ENCR %5d\n\r",
+#if defined(ROBOT_KEVIN)
+		printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d\n\r",
 		       (int)analog_adc_get(POT_ARM),
 		       (int)analog_adc_get(POT_LIFT),
 		       (int)encoder_get(ENC_L),
 		       (int)encoder_get(ENC_R));
+#elif defined(ROBOT_NITISH)
+		printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+		       (int)analog_adc_get(POT_ARM),
+		       (int)analog_adc_get(POT_LIFT_L),
+		       (int)analog_adc_get(POT_LIFT_R),
+		       (int)encoder_get(ENC_L),
+		       (int)encoder_get(ENC_R));
+#endif
 		/* Fall through to allow normal telop control. */
 	
 	/* Normal user-controlled telop mode. */
