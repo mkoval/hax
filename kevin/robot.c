@@ -21,9 +21,9 @@ void arm_raw(AnalogOut vel) {
 	motor_set(MTR_ARM_B2, -vel);
 }
 
-void ramp_raw(AnalogOut vel) {
-	motor_set(MTR_LIFT_L, -vel);
-	motor_set(MTR_LIFT_R, +vel);
+void ramp_raw(AnalogOut left, AnalogOut right) {
+	motor_set(MTR_LIFT_L, -left);
+	motor_set(MTR_LIFT_R, +right);
 }
 
 bool ramp_smart(AnalogOut vel) {
@@ -32,7 +32,7 @@ bool ramp_smart(AnalogOut vel) {
 	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
 
-	ramp_raw(move * vel);
+	ramp_raw(move * vel, move * vel);
 
 	return !move;
 }
@@ -51,9 +51,9 @@ void arm_raw(AnalogOut vel) {
 	motor_set(MTR_ARM_R, -vel);
 }
 
-void ramp_raw(AnalogOut vel) {
-	motor_set(MTR_LIFT_L, -vel);
-	motor_set(MTR_LIFT_R, +vel);
+void ramp_raw(AnalogOut left, AnalogOut right) {
+	motor_set(MTR_LIFT_L, left);
+	motor_set(MTR_LIFT_R, right);
 }
 
 bool ramp_smart(AnalogOut vel) {

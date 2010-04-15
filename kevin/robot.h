@@ -27,7 +27,7 @@ bool arm_smart(AnalogOut);
  * values indicate upward movement. Both extremes are checked in software using
  * limit switches.
  */
-void ramp_raw(AnalogOut);
+void ramp_raw(AnalogOut, AnalogOut);
 bool ramp_smart(AnalogOut);
 
 /* Drive forward or reverse in a straight line, using encoders to correct for
