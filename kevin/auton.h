@@ -20,22 +20,31 @@
 #define AUTO_RAMP(_timeout_, _pos_, _vel_)      { (_timeout_), (_pos_),               (_vel_), 0, 0 }
 #define AUTO_WAIT(_timeout_)                    { (_timeout_), 0,                     0,       0, 0 }
 
-/* Look up the name of a transition function defined with AUTO_LEAVE(). */
-#define AUTO_LOOKUP(_name_) auto_##_name_##_transition
-
 /* Define a transition function with name _name_ that transitions into the
  * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
  * true, otherwise the current state.
  */
-#define AUTO_LEAVE(_name_, _ntime_, _ncond_, _cond_) \
-state_t * AUTO_LOOKUP(_name_) (state_t const __rom *cur) { \
-	if (!cur->data->timeout) {                       \
-		return (_ntime_); /* timed out */            \
-	} else if ((_cond_)) {                           \
-		return (_ncond_); /* condition met */        \
-	}                                                \
-	return cur; /* don't change states */            \
-}                                                    
+#define STATE_START() enum { _st_start = __LINE__ };
+#define STATE_DONE()  enum { _st_end   = __LINE__ };                                                \
+
+#define STATE_NUM   (_st_end - _st_start - 1)
+
+#define STATE(_name_, _data_, _cbinit_, _cbloop_, _stsuc_, _stfail_, _cond_)  \
+enum { _st_##_name_##_line = __LINE__ };                                      \
+state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
+	static data_t              _st_##_name_##_data  = _data_;                 \
+	static state_t const __rom _st_##_name_##_state = {                       \
+		_st_##_name_##_data, _cbinit_, _cbloop_, _st_##_name_##_transition    \
+	};                                                                        \
+	if (!state)                                                               \
+		return &_st_##_name_##_state; /* For initialization code. */          \
+	else if (!state->data->timeout)                                           \
+		return _stfail_;              /* Timeout condition. */                \
+	else if (_cond_)                                                          \
+		return _stsuc_;               /* Success condition. */                \
+	else                                                                      \
+		return cstate;                /* No transition. */                    \
+}
 
 typedef union {
 	/* Hack to enable shorthand union initalization. */

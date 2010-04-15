@@ -20,6 +20,7 @@ static CalibrationMode cal_mode = CAL_MODE_NONE;
 static bool override = false;
 
 /* Current state of autonomous mode. Meaningless if in telop mode. */
+state_t const __rom *auto_states[STATE_NUM];
 state_t const __rom *auto_current;
 
 void init(void) {
@@ -31,11 +32,9 @@ void init(void) {
 	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
 	/* Initialize autonomous mode. */
-	auto_current = &auto_state[0];
 
-	_puts("[STATE ");
-	_puts(STATE_NAME(auto_current));
-	_puts("]\n\r");
+	/* Initialize autonomous mode. */
+	auto_current = &auto_state[0];
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -69,9 +68,6 @@ void auton_loop(void) {
 
 	/* Update the current state using the loop() callback. */
 	if (auto_current != next) {
-		_puts("[STATE ");
-		_puts(STATE_NAME(next));
-		_puts("]\n\r");
 
 		next->cb_init(auto_current->data);
 	}
