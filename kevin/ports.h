@@ -93,7 +93,7 @@ enum {
 	MTR_DRIVE_R1,
 	MTR_DRIVE_R2,
 	MTR_ARM_L,
-	MTR_ARM_R
+	MTR_ARM_R,
     MTR_NUM
 };
 
