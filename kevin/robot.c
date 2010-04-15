@@ -26,6 +26,17 @@ void ramp_raw(AnalogOut vel) {
 	motor_set(MTR_LIFT_R, +vel);
 }
 
+bool ramp_smart(AnalogOut vel) {
+	int16_t pos  = analog_adc_get(POT_LIFT);
+	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
+	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
+	bool    move = up || down;
+
+	ramp_raw(move * vel);
+
+	return !move;
+}
+
 #elif defined(ROBOT_NITISH)
 
 void drive_raw(AnalogOut left, AnalogOut right) {
@@ -43,6 +54,20 @@ void arm_raw(AnalogOut vel) {
 void ramp_raw(AnalogOut vel) {
 	motor_set(MTR_LIFT_L, -vel);
 	motor_set(MTR_LIFT_R, +vel);
+}
+
+bool ramp_smart(AnalogOut vel) {
+	int16_t left  = analog_adc_get(POT_LIFT_L);
+	int16_t right = analog_adc_get(POT_LIFT_R);
+
+	bool move_left  = (vel > 0 && LIFT_L_LT(pos, POT_LIFT_L_HIGH))
+	               || (vel < 0 && LIFT_L_GT(pos, POT_LIFT_L_LOW));
+	bool move_right = (vel > 0 && LIFT_R_LT(pos, POT_LIFT_R_HIGH))
+	               || (vel < 0 && LIFT_R_GT(pos, POT_LIFT_R_LOW));
+
+	ramp_raw(move * vel);
+
+	return !move;
 }
 
 #endif
@@ -68,17 +93,6 @@ bool arm_smart(AnalogOut vel) {
 	bool    move = up || down;
 
 	arm_raw(move * vel);
-
-	return !move;
-}
-
-bool ramp_smart(AnalogOut vel) {
-	int16_t pos  = analog_adc_get(POT_LIFT);
-	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
-	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
-	bool    move = up || down;
-
-	ramp_raw(move * vel);
 
 	return !move;
 }
