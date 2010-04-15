@@ -25,16 +25,15 @@
  * true, otherwise the current state.
  */
 #define STATE_START() enum { _st_start = __LINE__ };
-#define STATE_DONE()  enum { _st_end   = __LINE__ };                                                \
-
-#define STATE_NUM   (_st_end - _st_start - 1)
+#define STATE_DONE()  enum { _st_end   = __LINE__ };
+#define STATE_NUM     (_st_end - _st_start - 1)
 
 #define STATE(_name_, _data_, _cbinit_, _cbloop_, _stsuc_, _stfail_, _cond_)  \
 enum { _st_##_name_##_line = __LINE__ };                                      \
 state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
 	static data_t              _st_##_name_##_data  = _data_;                 \
 	static state_t const __rom _st_##_name_##_state = {                       \
-		_st_##_name_##_data, _cbinit_, _cbloop_, _st_##_name_##_transition    \
+		&_st_##_name_##_data, _cbinit_, _cbloop_, _st_##_name_##_transition   \
 	};                                                                        \
 	if (!state)                                                               \
 		return &_st_##_name_##_state; /* For initialization code. */          \
