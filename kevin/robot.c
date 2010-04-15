@@ -60,14 +60,14 @@ bool ramp_smart(AnalogOut vel) {
 	int16_t left  = analog_adc_get(POT_LIFT_L);
 	int16_t right = analog_adc_get(POT_LIFT_R);
 
-	bool move_left  = (vel > 0 && LIFT_L_LT(pos, POT_LIFT_L_HIGH))
-	               || (vel < 0 && LIFT_L_GT(pos, POT_LIFT_L_LOW));
-	bool move_right = (vel > 0 && LIFT_R_LT(pos, POT_LIFT_R_HIGH))
-	               || (vel < 0 && LIFT_R_GT(pos, POT_LIFT_R_LOW));
+	bool move_left  = (vel > 0 && LIFT_L_LT(left, POT_LIFT_L_HIGH))
+	               || (vel < 0 && LIFT_L_GT(left, POT_LIFT_L_LOW));
+	bool move_right = (vel > 0 && LIFT_R_LT(right, POT_LIFT_R_HIGH))
+	               || (vel < 0 && LIFT_R_GT(right, POT_LIFT_R_LOW));
 
-	ramp_raw(move * vel);
+	ramp_raw(move_left * vel, move_right * vel);
 
-	return !move;
+	return !(move_left || move_right);
 }
 
 #endif
