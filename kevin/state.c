@@ -49,29 +49,31 @@ char const __rom *const __rom auto_name[] = {
 	"done"
 };
 
+#define UNUSED 0
+
 data_t auto_data[] = {
 	/* Dump preloaded balls. */
 	AUTO_ARM(250, 0, kMotorMax),
 	AUTO_RAM(4000, kMotorMax),
 	AUTO_ARM(1000, 0, kMotorMin),
-	AUTO_RAMP(500, POT_LIFT_HIGH, kMotorMax),
+	AUTO_RAMP(500, UNUSED, kMotorMax),
 	AUTO_WAIT(1000),
-	AUTO_RAMP(500, POT_LIFT_LOW, kMotorMin),
+	AUTO_RAMP(500, UNUSED, kMotorMin),
 
 	/* Collect the first three footballs. */
 	AUTO_STRAIGHT(500, 60, kMotorMax),
 	AUTO_TURN(500, 90, kMotorMax),
 	AUTO_STRAIGHT(500, 480, kMotorMax),
-	AUTO_ARM(500, POT_ARM_HIGH, kMotorMax),
+	AUTO_ARM(500, UNUSED, kMotorMax),
 	AUTO_WAIT(100),
-	AUTO_ARM(500, POT_ARM_LOW, kMotorMin),
+	AUTO_ARM(500, UNUSED, kMotorMin),
 	
 	/* Dump the freshly-harvested balls. */
 	AUTO_TURN(500, 90, kMotorMin),
 	AUTO_RAM(500, kMotorMax),
-	AUTO_RAMP(250, POT_LIFT_HIGH, kMotorMax),
+	AUTO_RAMP(250, UNUSED, kMotorMax),
 	AUTO_WAIT(1000),
-	AUTO_RAMP(250, POT_LIFT_LOW, kMotorMin),
+	AUTO_RAMP(250, UNUSED, kMotorMin),
 
 	/* Do nothing for the remainder of autonomous. */
 	AUTO_WAIT(0)
