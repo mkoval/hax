@@ -62,11 +62,6 @@ void auton_loop(void) {
 	/* Update the current state. */
 	auto_current->cb_loop(auto_current->data);
 
-	/* Count down to a potential timeout. This property is shared amongst all
-	 * states.
-	 */
-	--auto_current->data->timeout;
-
 	/* We just changed states and need to call the initialization routine for
 	 * the new state. Additionally, printf() an alert.
 	 */
@@ -81,6 +76,11 @@ void auton_loop(void) {
 		next->cb_init(auto_current->data);
 	}
 	auto_current = next;
+
+	/* Count down to a potential timeout. This property is shared amongst all
+	 * states.
+	 */
+	--auto_current->data->timeout;
 }
 
 void auton_spin(void) {
@@ -124,13 +124,13 @@ void telop_loop(void) {
 		if (override) {
 			drive_raw(left, right);
 			arm_raw(arm);
-			ramp_raw(ramp);
+			ramp_raw(ramp, ramp);
 		}
 		/* Prevent dangerous ramp and arm movement in software. */
 		else {
 			drive_raw(left, right);
 			arm_smart(arm);
-			ramp_raw(ramp);
+			ramp_smart(ramp);
 		}
 	}
 
