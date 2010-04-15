@@ -7,10 +7,45 @@
 
 #include "robot.h"
 
+#if defined(ROBOT_KEVIN)
+
 void drive_raw(AnalogOut left, AnalogOut right) {
 	motor_set(MTR_DRIVE_L, +left);
 	motor_set(MTR_DRIVE_R, -right);
 }
+
+void arm_raw(AnalogOut vel) {
+	motor_set(MTR_ARM_A1, +vel);
+	motor_set(MTR_ARM_A2, +vel);
+	motor_set(MTR_ARM_B1, -vel);
+	motor_set(MTR_ARM_B2, -vel);
+}
+
+void ramp_raw(AnalogOut vel) {
+	motor_set(MTR_LIFT_L, -vel);
+	motor_set(MTR_LIFT_R, +vel);
+}
+
+#elif defined(ROBOT_NITISH)
+
+void drive_raw(AnalogOut left, AnalogOut right) {
+	motor_set(MTR_DRIVE_L1, +left);
+	motor_set(MTR_DRIVE_L2, +left);
+	motor_set(MTR_DRIVE_R1, -right);
+	motor_set(MTR_DRIVE_R2, -right);
+}
+
+void arm_raw(AnalogOut vel) {
+	motor_set(MTR_ARM_L, +vel);
+	motor_set(MTR_ARM_R, -vel);
+}
+
+void ramp_raw(AnalogOut vel) {
+	motor_set(MTR_LIFT_L, -vel);
+	motor_set(MTR_LIFT_R, +vel);
+}
+
+#endif
 
 void drive_smart(AnalogOut forward, AnalogOut turn) {
 	int16_t left  = (int16_t) forward - turn;
@@ -23,15 +58,7 @@ void drive_smart(AnalogOut forward, AnalogOut turn) {
 		right = right * kMotorMax / max;
 	}
 
-	motor_set(MTR_DRIVE_L, -left);
-	motor_set(MTR_DRIVE_R, +right);
-}
-
-void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_A1, +vel);
-	motor_set(MTR_ARM_A2, +vel);
-	motor_set(MTR_ARM_B1, -vel);
-	motor_set(MTR_ARM_B2, -vel);
+	drive_raw(-left, right);
 }
 
 bool arm_smart(AnalogOut vel) {
@@ -43,11 +70,6 @@ bool arm_smart(AnalogOut vel) {
 	arm_raw(move * vel);
 
 	return !move;
-}
-
-void ramp_raw(AnalogOut vel) {
-	motor_set(MTR_LIFT_L, -vel);
-	motor_set(MTR_LIFT_R, +vel);
 }
 
 bool ramp_smart(AnalogOut vel) {
@@ -64,11 +86,8 @@ bool ramp_smart(AnalogOut vel) {
 int32_t drive_straight(AnalogOut forward) {
 	int32_t left  = encoder_get(ENC_L);
 	int32_t right = encoder_get(ENC_R);
-
 	int32_t diff  = left - right;
 	int32_t turn  = SIGN(diff) * PROP(ABS(forward), DRIVE_STRAIGHT_ERRMAX, ABS(diff));
-
-	printf((char *)"FORWARD %4d   TURN %4d\n\r", (int)forward, (int)turn), 
 
 	drive_smart(forward, turn);
 
@@ -83,11 +102,7 @@ bool drive_turn(int16_t angle) {
 	int32_t diff  = ABS(cur - tar);
 
 	int32_t tmp1  = (int32_t)kMotorMax * diff / DRIVE_TURN_ERRMAX;
-
 	int32_t turn  = PROP(kMotorMax, DRIVE_TURN_ERRMAX, diff);
-
-	printf((char *)"LEFT %4d   RIGHT %4d   DIFF %4d  TMP %4d   SPEED %4d\n\r",
-		(int)left, (int)right, (int)diff, (int)tmp1, (int)turn);
 
 	drive_smart(0, SIGN(angle) * turn);
 
