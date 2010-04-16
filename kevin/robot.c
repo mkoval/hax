@@ -47,13 +47,13 @@ void drive_raw(AnalogOut left, AnalogOut right) {
 }
 
 void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_L, +vel);
-	motor_set(MTR_ARM_R, -vel);
+	motor_set(MTR_ARM_L, -vel);
+	motor_set(MTR_ARM_R, +vel);
 }
 
 void ramp_raw(AnalogOut left, AnalogOut right) {
-	motor_set(MTR_LIFT_L, left);
-	motor_set(MTR_LIFT_R, right);
+	motor_set(MTR_LIFT_L, -left);
+	motor_set(MTR_LIFT_R, +right);
 }
 
 bool ramp_smart(AnalogOut vel) {

@@ -131,22 +131,22 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_L_LOW    0
-#define POT_LIFT_L_HIGH   1024
-#define POT_LIFT_R_LOW    0
-#define POT_LIFT_R_HIGH   1024
+#define POT_LIFT_L_LOW    460
+#define POT_LIFT_L_HIGH   285
+#define POT_LIFT_R_LOW    180
+#define POT_LIFT_R_HIGH   325
 
 #define LIFT_L_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_L_GT(_p1_, _p2_) ((_p1_) < (_p2_))
-#define LIFT_R_LT(_p1_, _p2_) ((_p1_) > (_p2_))
-#define LIFT_R_GT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define LIFT_R_LT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define LIFT_R_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
-#define POT_ARM_LOW     0
-#define POT_ARM_HIGH    1024
+#define POT_ARM_LOW     120
+#define POT_ARM_HIGH    860
 
-#define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
-#define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define ARM_LT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define ARM_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 #define ENC_PER_IN      100
 #define ENC_PER_DEG     15
