@@ -44,7 +44,8 @@ uint16_t const __rom  _st_##_name_##_id = __LINE__ - _st_start - 1;           \
 state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
 	static data_t              _st_##_name_##_data  = _data_;                 \
 	static state_t const __rom _st_##_name_##_state = {                       \
-		&_st_##_name_##_data, _cbinit_, _cbloop_, _st_##_name_##_transition   \
+		#_name_, &_st_##_name_##_data,                                        \
+		_cbinit_, _cbloop_, _st_##_name_##_transition                         \
 	};                                                                        \
 	if (!state) {                                                             \
 		return &_st_##_name_##_state; /* For initialization code. */          \
@@ -103,10 +104,11 @@ typedef state_t const __rom *(*transition_t)(state_t const __rom *);
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
-	data_t      *data;
-	callback_t   cb_init;
-	callback_t   cb_loop;
-	transition_t cb_next;
+	char const __rom *name;
+	data_t      *     data;
+	callback_t        cb_init;
+	callback_t        cb_loop;
+	transition_t      cb_next;
 };
 
 /* Initialize the data field for a state_t. */
