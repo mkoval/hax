@@ -34,7 +34,7 @@ void init(void) {
 	/* Initialize autonomous mode. */
 
 	/* Initialize autonomous mode. */
-	auto_current = &auto_state[0];
+	auto_current = auto_states[0];
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.

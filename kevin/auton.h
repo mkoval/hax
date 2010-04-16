@@ -24,12 +24,19 @@
  * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
  * true, otherwise the current state.
  */
-#define STATE_START() enum { _st_start = __LINE__ };
-#define STATE_DONE()  enum { _st_end   = __LINE__ };
-#define STATE_NUM     (_st_end - _st_start - 1)
+#define STATE_START()                      \
+enum { _st_start = __LINE__ };             \
+extern state_t const __rom *auto_states[];
+
+#define STATE_DONE()                                       \
+enum { _st_end = __LINE__ };                               \
+state_t const __rom *auto_states[_st_end - _st_start - 1];
+
+#define STATE_GET(_name_) auto_states[_st_##_name_##_line - _st_start - 1]
+#define STATE_NUM         (_st_end - _st_start - 1)
 
 #define STATE(_name_, _data_, _cbinit_, _cbloop_, _stsuc_, _stfail_, _cond_)  \
-enum { _st_##_name_##_line = __LINE__ };                                      \
+enum { _st_##_name_##_line = __LINE__ - _st_start - 1};                       \
 state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
 	static data_t              _st_##_name_##_data  = _data_;                 \
 	static state_t const __rom _st_##_name_##_state = {                       \
@@ -38,11 +45,11 @@ state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
 	if (!state)                                                               \
 		return &_st_##_name_##_state; /* For initialization code. */          \
 	else if (!state->data->timeout)                                           \
-		return _stfail_;              /* Timeout condition. */                \
+		return STATE_GET(_stfail_);   /* Timeout condition. */                \
 	else if (_cond_)                                                          \
-		return _stsuc_;               /* Success condition. */                \
+		return STATE_GET(_stsuc_);    /* Success condition. */                \
 	else                                                                      \
-		return cstate;                /* No transition. */                    \
+		return state;                 /* No transition. */                    \
 }
 
 typedef union {
@@ -87,7 +94,7 @@ typedef struct state_s state_t;
 typedef void (*callback_t)(data_t *);
 
 /* Callback specifically for transitioning states. */
-typedef state_t *(*transition_t)(state_t const __rom *);
+typedef state_t const __rom *(*transition_t)(state_t const __rom *);
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
