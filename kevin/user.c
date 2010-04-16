@@ -17,13 +17,15 @@ uint8_t kNumAnalogInputs = ANA_NUM;
 static CalibrationMode cal_mode = CAL_MODE_NONE;
 
 /* User-override for arm and ramp potentiometers. */
-static bool override = false;
+static bool override = true;
 
 /* Current state of autonomous mode. Meaningless if in telop mode. */
 state_t const __rom *auto_states[STATE_NUM];
 state_t const __rom *auto_current;
 
 void init(void) {
+	uint8_t i;
+
 	/* Enable the calibration mode specified by the jumpers. */
 	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
@@ -32,8 +34,9 @@ void init(void) {
 	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
 	/* Initialize autonomous mode. */
-
-	/* Initialize autonomous mode. */
+	for (i = 0; i < STATE_NUM; ++i) {
+		auto_states[i] = auto_cbs[i](NULL);
+	}
 	auto_current = auto_states[0];
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
@@ -68,7 +71,7 @@ void auton_loop(void) {
 
 	/* Update the current state using the loop() callback. */
 	if (auto_current != next) {
-
+		printf((char *)"TRANSITION\n\r");
 		next->cb_init(auto_current->data);
 	}
 	auto_current = next;
@@ -88,8 +91,6 @@ void telop_loop(void) {
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
 	bool     done    = false;
-
-	_puts("[TELOP ON]\n\r");
 
 	switch (cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
@@ -138,6 +139,22 @@ void telop_loop(void) {
 			ramp_smart(ramp);
 		}
 	}
+
+#if defined(ROBOT_KEVIN)
+	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d\n\r",
+	       (int)analog_adc_get(POT_ARM),
+	       (int)analog_adc_get(POT_LIFT),
+	       (int)encoder_get(ENC_L),
+	       (int)encoder_get(ENC_R));
+#elif defined(ROBOT_NITISH)
+	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+	       (int)analog_adc_get(POT_ARM),
+	       (int)analog_adc_get(POT_LIFT_L),
+	       (int)analog_adc_get(POT_LIFT_R),
+	       (int)encoder_get(ENC_L),
+	       (int)encoder_get(ENC_R));
+#endif
+
 
 	/* End calibration mode when the routine is complete. */
 	cal_mode *= !done;

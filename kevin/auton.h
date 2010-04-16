@@ -28,28 +28,33 @@
 enum { _st_start = __LINE__ };             \
 extern state_t const __rom *auto_states[];
 
-#define STATE_DONE()                                       \
-enum { _st_end = __LINE__ };                               \
-state_t const __rom *auto_states[_st_end - _st_start - 1];
+#define STATE_DONE() \
+enum { _st_end = __LINE__ }; \
+state_t const __rom *auto_states[STATE_NUM];
 
-#define STATE_GET(_name_) auto_states[_st_##_name_##_line - _st_start - 1]
-#define STATE_NUM         (_st_end - _st_start - 1)
+
+#define STATE_LOOKUP(_name_) _st_##_name_##_transition
+#define STATE_GET(_name_)    auto_states[_st_##_name_##_id]
+#define STATE_NUM            (_st_end - _st_start - 1)
 
 #define STATE(_name_, _data_, _cbinit_, _cbloop_, _stsuc_, _stfail_, _cond_)  \
-enum { _st_##_name_##_line = __LINE__ - _st_start - 1};                       \
+extern uint16_t const __rom _st_##_stsuc_##_id;                               \
+extern uint16_t const __rom _st_##_stfail_##_id;                              \
+uint16_t const __rom  _st_##_name_##_id = __LINE__ - _st_start - 1;           \
 state_t const __rom * _st_##_name_##_transition(state_t const __rom *state) { \
 	static data_t              _st_##_name_##_data  = _data_;                 \
 	static state_t const __rom _st_##_name_##_state = {                       \
 		&_st_##_name_##_data, _cbinit_, _cbloop_, _st_##_name_##_transition   \
 	};                                                                        \
-	if (!state)                                                               \
+	if (!state) {                                                             \
 		return &_st_##_name_##_state; /* For initialization code. */          \
-	else if (!state->data->timeout)                                           \
+	} else if (!state->data->timeout) {                                       \
 		return STATE_GET(_stfail_);   /* Timeout condition. */                \
-	else if (_cond_)                                                          \
+	} else if (_cond_) {                                                      \
 		return STATE_GET(_stsuc_);    /* Success condition. */                \
-	else                                                                      \
+	} else {                                                                  \
 		return state;                 /* No transition. */                    \
+	}                                                                         \
 }
 
 typedef union {
