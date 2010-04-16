@@ -69,9 +69,12 @@ void auton_loop(void) {
 	 */
 	next = auto_current->cb_next(auto_current);
 
-	/* Update the current state using the loop() callback. */
+	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
-		printf((char *)"TRANSITION\n\r");
+		_puts("[STATE ");
+		_puts(auto_current->name);
+		_puts("\n\r");
+
 		next->cb_init(auto_current->data);
 	}
 	auto_current = next;
