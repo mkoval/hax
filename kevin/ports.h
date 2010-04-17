@@ -131,10 +131,10 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_L_LOW    460
-#define POT_LIFT_L_HIGH   285
-#define POT_LIFT_R_LOW    180
-#define POT_LIFT_R_HIGH   325
+#define POT_LIFT_L_LOW    450
+#define POT_LIFT_L_HIGH   295
+#define POT_LIFT_R_LOW    190
+#define POT_LIFT_R_HIGH   330
 
 #define LIFT_L_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_L_GT(_p1_, _p2_) ((_p1_) < (_p2_))
@@ -142,7 +142,7 @@ enum {
 #define LIFT_R_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
-#define POT_ARM_LOW     120
+#define POT_ARM_LOW     130
 #define POT_ARM_HIGH    860
 
 #define ARM_LT(_p1_, _p2_) ((_p1_) < (_p2_))
