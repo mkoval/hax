@@ -11,13 +11,13 @@
 #include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
-uint8_t kNumAnalogInputs = ANA_NUM;
+uint8_t const kNumAnalogInputs = ANA_NUM;
 
 /* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
 
 /* User-override for arm and ramp potentiometers. */
-static bool override = true;
+static bool override = false;
 
 /* Current state of autonomous mode. Meaningless if in telop mode. */
 state_t const __rom *auto_states[STATE_NUM];
@@ -38,6 +38,11 @@ void init(void) {
 		auto_states[i] = auto_cbs[i](NULL);
 	}
 	auto_current = auto_states[0];
+
+	_puts("[STATE ");
+	_puts(auto_current->name);
+	_puts("]\n\r");
+
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -72,8 +77,8 @@ void auton_loop(void) {
 	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
 		_puts("[STATE ");
-		_puts(auto_current->name);
-		_puts("\n\r");
+		_puts(next->name);
+		_puts("]\n\r");
 
 		next->cb_init(auto_current->data);
 	}
