@@ -13,7 +13,7 @@
 #include "ifi_lib.h"
 
 /* Slow loop of 18.5 milliseconds (converted to microseconds). */
-uint16_t kSlowSpeed = 18500;
+uint16_t const kSlowSpeed = 18500;
 
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
