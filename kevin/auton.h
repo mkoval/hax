@@ -12,13 +12,17 @@
 #define TURN_ERROR     ((int16_t)30 * ENC_PER_DEG)
 #define TURN_THRESHOLD ((int16_t)5  * ENC_PER_DEG)
 
+#define SLOW_US 18500
+
+#define MS_TO_LOOPS(_x_) ((_x_) * (uint32_t)1000 / SLOW_US)
+
 /* Constructors used to wrap the initialization of a data_t. */
-#define AUTO_STRAIGHT(_timeout_, _dist_, _vel_) { (_timeout_), (_dist_)* ENC_PER_IN,  (_vel_), 0, 0 }
-#define AUTO_RAM(_timeout_, _vel_)              { (_timeout_), 0,                     (_vel_), 0, 0 }
-#define AUTO_TURN(_timeout_, _ang_, _vel_)      { (_timeout_), (_ang_) * ENC_PER_DEG, (_vel_), 0, 0 }
-#define AUTO_ARM(_timeout_, _pos_, _vel_)       { (_timeout_), (_pos_),               (_vel_), 0, 0 }
-#define AUTO_RAMP(_timeout_, _pos_, _vel_)      { (_timeout_), (_pos_),               (_vel_), 0, 0 }
-#define AUTO_WAIT(_timeout_)                    { (_timeout_), 0,                     0,       0, 0 }
+#define AUTO_STRAIGHT(_timeout_, _dist_, _vel_) { MS_TO_LOOPS(_timeout_), (_dist_)* ENC_PER_IN,  (_vel_), 0, 0 }
+#define AUTO_RAM(_timeout_, _vel_)              { MS_TO_LOOPS(_timeout_), 0,                     (_vel_), 0, 0 }
+#define AUTO_TURN(_timeout_, _ang_, _vel_)      { MS_TO_LOOPS(_timeout_), (_ang_) * ENC_PER_DEG, (_vel_), 0, 0 }
+#define AUTO_ARM(_timeout_, _pos_, _vel_)       { MS_TO_LOOPS(_timeout_), (_pos_),               (_vel_), 0, 0 }
+#define AUTO_RAMP(_timeout_, _pos_, _vel_)      { MS_TO_LOOPS(_timeout_), (_pos_),               (_vel_), 0, 0 }
+#define AUTO_WAIT(_timeout_)                    { MS_TO_LOOPS(_timeout_), 0,                     0,       0, 0 }
 
 /* Define a transition function with name _name_ that transitions into the
  * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
