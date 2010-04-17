@@ -46,7 +46,7 @@ transition_t auto_cbs[_st_end - _st_start - 1] = {
 #elif defined(ROBOT_NITISH)
 
 STATE_START()
-STATE(init_ram,    AUTO_RAM(2000, 127),           auto_straight_init, auto_straight_loop, init_arm,    done, auto_ram_isdone(state->data))
+STATE(init_ram,    AUTO_RAM(10000, 127),          auto_straight_init, auto_straight_loop, init_arm,    done, auto_ram_isdone(state->data))
 STATE(init_arm,    AUTO_ARM(5000, 0, -127),       auto_arm_init,      auto_arm_loop,      init_dump1,  done, auto_arm_isdone(state->data))
 STATE(init_dump1,  AUTO_RAMP(5000, 100, 127),     auto_ramp_init,     auto_ramp_loop,     init_dump2,  done, auto_ramp_isdone(state->data)) 
 STATE(init_dump2,  AUTO_WAIT(2000),               auto_none_init,     auto_none_loop,     init_dump3,  done, auto_none_isdone(state->data))
