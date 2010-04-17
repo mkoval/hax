@@ -10,3 +10,4 @@ HEADERS += $(PROG)/auton.h   \
            $(PROG)/user.h    \
            $(PROG)/util.h    \
            $(PROG)/state.h
+CFLAGS  += -dROBOT_$(ROBOT)
