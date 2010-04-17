@@ -1,5 +1,5 @@
-#ifndef ROBOT_MIKISH_H_
-#define ROBOT_MIKISH_H_
+#ifndef ROBOT_COMP2010_H_
+#define ROBOT_COMP2010_H_
 
 #include <hax.h>
 #include <stdbool.h>
@@ -27,7 +27,7 @@ bool arm_smart(AnalogOut);
  * values indicate upward movement. Both extremes are checked in software using
  * limit switches.
  */
-void ramp_raw(AnalogOut);
+void ramp_raw(AnalogOut, AnalogOut);
 bool ramp_smart(AnalogOut);
 
 /* Drive forward or reverse in a straight line, using encoders to correct for

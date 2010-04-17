@@ -11,7 +11,7 @@
 #include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
-uint8_t kNumAnalogInputs = ANA_NUM;
+uint8_t const kNumAnalogInputs = ANA_NUM;
 
 /* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
@@ -20,9 +20,12 @@ static CalibrationMode cal_mode = CAL_MODE_NONE;
 static bool override = false;
 
 /* Current state of autonomous mode. Meaningless if in telop mode. */
+state_t const __rom *auto_states[STATE_NUM];
 state_t const __rom *auto_current;
 
 void init(void) {
+	uint8_t i;
+
 	/* Enable the calibration mode specified by the jumpers. */
 	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
@@ -31,11 +34,15 @@ void init(void) {
 	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
 	/* Initialize autonomous mode. */
-	auto_current = &auto_state[0];
+	for (i = 0; i < STATE_NUM; ++i) {
+		auto_states[i] = auto_cbs[i](NULL);
+	}
+	auto_current = auto_states[0];
 
 	_puts("[STATE ");
-	_puts(STATE_NAME(auto_current));
+	_puts(auto_current->name);
 	_puts("]\n\r");
+
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -62,25 +69,25 @@ void auton_loop(void) {
 	/* Update the current state. */
 	auto_current->cb_loop(auto_current->data);
 
-	/* Count down to a potential timeout. This property is shared amongst all
-	 * states.
-	 */
-	--auto_current->data->timeout;
-
 	/* We just changed states and need to call the initialization routine for
 	 * the new state. Additionally, printf() an alert.
 	 */
 	next = auto_current->cb_next(auto_current);
 
-	/* Update the current state using the loop() callback. */
+	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
 		_puts("[STATE ");
-		_puts(STATE_NAME(next));
+		_puts(next->name);
 		_puts("]\n\r");
 
 		next->cb_init(auto_current->data);
 	}
 	auto_current = next;
+
+	/* Count down to a potential timeout. This property is shared amongst all
+	 * states.
+	 */
+	--auto_current->data->timeout;
 }
 
 void auton_spin(void) {
@@ -92,8 +99,6 @@ void telop_loop(void) {
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
 	bool     done    = false;
-
-	_puts("[TELOP ON]\n\r");
 
 	switch (cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
@@ -111,11 +116,20 @@ void telop_loop(void) {
 	
 	/* Calibrate the POT_ARM_LOW and POT_ARM_HIGH constants. */
 	case CAL_MODE_PRINT:
-		printf((char *)"ARM %4d   LIFT %4d   ENCL %5d   ENCR %5d\n\r",
+#if defined(ROBOT_KEVIN)
+		printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d\n\r",
 		       (int)analog_adc_get(POT_ARM),
 		       (int)analog_adc_get(POT_LIFT),
 		       (int)encoder_get(ENC_L),
 		       (int)encoder_get(ENC_R));
+#elif defined(ROBOT_NITISH)
+		printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+		       (int)analog_adc_get(POT_ARM),
+		       (int)analog_adc_get(POT_LIFT_L),
+		       (int)analog_adc_get(POT_LIFT_R),
+		       (int)encoder_get(ENC_L),
+		       (int)encoder_get(ENC_R));
+#endif
 		/* Fall through to allow normal telop control. */
 	
 	/* Normal user-controlled telop mode. */
@@ -124,15 +138,31 @@ void telop_loop(void) {
 		if (override) {
 			drive_raw(left, right);
 			arm_raw(arm);
-			ramp_raw(ramp);
+			ramp_raw(ramp, ramp);
 		}
 		/* Prevent dangerous ramp and arm movement in software. */
 		else {
 			drive_raw(left, right);
 			arm_smart(arm);
-			ramp_raw(ramp);
+			ramp_smart(ramp);
 		}
 	}
+
+#if defined(ROBOT_KEVIN)
+	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d\n\r",
+	       (int)analog_adc_get(POT_ARM),
+	       (int)analog_adc_get(POT_LIFT),
+	       (int)encoder_get(ENC_L),
+	       (int)encoder_get(ENC_R));
+#elif defined(ROBOT_NITISH)
+	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+	       (int)analog_adc_get(POT_ARM),
+	       (int)analog_adc_get(POT_LIFT_L),
+	       (int)analog_adc_get(POT_LIFT_R),
+	       (int)encoder_get(ENC_L),
+	       (int)encoder_get(ENC_R));
+#endif
+
 
 	/* End calibration mode when the routine is complete. */
 	cal_mode *= !done;

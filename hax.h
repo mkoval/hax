@@ -55,13 +55,13 @@ typedef enum {
  * receiving updated data (i.e. the speed of the "slow loop").
  * NOTE: Supplied by the hardware-specific implementation of HAX.
  */
-extern uint16_t kSlowSpeed;
+extern uint16_t const kSlowSpeed;
 
 /* Number of analog inputs, numbered 0 to kNumAnalogInputs - 1. This 
  * numbering scheme is required for portability on PIC hardware.
  * NOTE: Supplied by user code.
  */
-extern uint8_t kNumAnalogInputs;
+extern uint8_t const kNumAnalogInputs;
 
 /* The number below which Analog inputs are ADC, and above which are OI */
 #define kAnalogSplit 127

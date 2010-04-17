@@ -1,5 +1,5 @@
-#ifndef IR_MIKISH_H_
-#define IR_MIKISH_H_
+#ifndef IR_COMP2010_H_
+#define IR_COMP2010_H_
 
 #include <stdint.h>
 

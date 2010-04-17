@@ -75,6 +75,8 @@ bool auto_arm_isdone(data_t *data) {
 	return !(up || down);
 }
 
+#if defined(ROBOT_KEVIN)
+
 /* Move the ramp into the specific position.  */
 void auto_ramp_init(data_t *data) {
 }
@@ -85,7 +87,7 @@ void auto_ramp_loop(data_t *data) {
 	bool    down = data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
 
-	ramp_raw(move * data->pose.vel);
+	ramp_raw(move * data->pose.vel, move * data->pose.vel);
 }
 
 bool auto_ramp_isdone(data_t *data) {
@@ -95,6 +97,39 @@ bool auto_ramp_isdone(data_t *data) {
 	
 	return !(up || down);
 }
+
+#elif defined(ROBOT_NITISH)
+
+void auto_ramp_init(data_t *data) {
+}
+
+void auto_ramp_loop(data_t *data) {
+	int8_t  vel   = data->pose.vel;
+	int16_t left  = analog_adc_get(POT_LIFT_L);
+	int16_t right = analog_adc_get(POT_LIFT_R);
+
+	bool move_left  = (vel > 0 && LIFT_L_LT(left, POT_LIFT_L_HIGH))
+	               || (vel < 0 && LIFT_L_GT(left, POT_LIFT_L_LOW));
+	bool move_right = (vel > 0 && LIFT_R_LT(right, POT_LIFT_R_HIGH))
+	               || (vel < 0 && LIFT_R_GT(right, POT_LIFT_R_LOW));
+
+	ramp_raw(move_left * vel, move_right * vel);
+}
+
+bool auto_ramp_isdone(data_t *data) {
+	int8_t  vel   = data->pose.vel;
+	int16_t left  = analog_adc_get(POT_LIFT_L);
+	int16_t right = analog_adc_get(POT_LIFT_R);
+
+	bool move_left  = (vel > 0 && LIFT_L_LT(left, POT_LIFT_L_HIGH))
+	               || (vel < 0 && LIFT_L_GT(left, POT_LIFT_L_LOW));
+	bool move_right = (vel > 0 && LIFT_R_LT(right, POT_LIFT_R_HIGH))
+	               || (vel < 0 && LIFT_R_GT(right, POT_LIFT_R_LOW));
+
+	return !(move_left || move_right);
+}
+
+#endif
 
 bool auto_ram_isdone(data_t *data) {
 	return !digital_get(BUT_B);
