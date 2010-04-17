@@ -143,5 +143,5 @@ void auto_none_loop(data_t *data) {
 }
 
 bool auto_none_isdone(data_t *data) {
-	return true;
+	return false;
 }
