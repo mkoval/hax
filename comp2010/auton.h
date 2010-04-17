@@ -1,5 +1,5 @@
-#ifndef AUTON_MIKISH_H_
-#define AUTON_MIKISH_H_
+#ifndef AUTON_COMP2010_H_
+#define AUTON_COMP2010_H_
 
 #include <hax.h>
 #include <stdbool.h>

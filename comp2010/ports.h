@@ -1,5 +1,5 @@
-#ifndef PORTS_MIKISH_H_
-#define PORTS_MIKISH_H_
+#ifndef PORTS_COMP2010_H_
+#define PORTS_COMP2010_H_
 
 #include <hax.h>
 

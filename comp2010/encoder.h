@@ -1,5 +1,5 @@
-#ifndef ENCODER_MIKISH_H_
-#define ENCODER_MIKISH_H_
+#ifndef ENCODER_COMP2010_H_
+#define ENCODER_COMP2010_H_
 
 #include <hax.h>
 #include <stdint.h>

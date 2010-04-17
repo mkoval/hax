@@ -1,5 +1,5 @@
-#ifndef ROBOT_MIKISH_H_
-#define ROBOT_MIKISH_H_
+#ifndef ROBOT_COMP2010_H_
+#define ROBOT_COMP2010_H_
 
 #include <hax.h>
 #include <stdbool.h>

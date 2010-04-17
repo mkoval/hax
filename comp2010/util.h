@@ -1,5 +1,5 @@
-#ifndef UTIL_NITISH_H_
-#define UTIL_NITISH_H_
+#ifndef UTIL_COMP2010_H_
+#define UTIL_COMP2010_H_
 
 #define ABS(_x_)      (((_x_) > 0) ? (_x_) : -(_x_))
 #define MIN(_x_, _y_) (((_x_) < (_y_)) ? (_x_) : (_y_))

@@ -1,5 +1,5 @@
-#ifndef USER_MIKISH_H_
-#define USER_MIKISH_H_
+#ifndef USER_COMP2010_H_
+#define USER_COMP2010_H_
 
 typedef enum {
 	CAL_MODE_NONE = 0,

@@ -1,5 +1,5 @@
-#ifndef STATE_KEVIN_H_
-#define STATE_KEVIN_H_
+#ifndef STATE_COMP2010_H_
+#define STATE_COMP2010_H_
 
 #include <compilers.h>
 
