@@ -60,14 +60,6 @@ state_t const __rom *_st_##_name_##_transition(state_t const __rom *state) {  \ 
 }
 
 typedef union {
-	/* Hack to enable shorthand union initalization. */
-	struct {
-		uint16_t unnamed2;
-		int8_t   unnamed3;
-		int32_t  unnamed4;
-		int32_t  unnamed5;
-	} unused;
-
 	/* Control the robot's position and orientation using a timeout and encoder
 	 * ticks. Applies to both forward movement and turning, although encoder
 	 * tick calculations are performed slightly differently.
@@ -75,8 +67,6 @@ typedef union {
 	struct {
 		uint16_t ticks;
 		int8_t   vel;
-		int32_t  enc_left;
-		int32_t  enc_right;
 	} move;
 
 	/* Control the pose of a posable part of the robot (arm or ramp) using a
@@ -88,18 +78,25 @@ typedef union {
 	} pose;
 } data_t;
 
+/* Mutable data used to keep track of the internal state of a state_t. */
+typedef struct {
+	uint32_t timer;
+	uint32_t enc_left;
+	uint32_t enc_right;
+} mutable_t;
+
 /* Forward declaration is required to avoid a recursive type reference. */
 typedef struct state_s state_t;
 
 /* Generalized callback that does not trigger a state transition. */
-typedef void (*callback_t)(state_t const __rom *);
+typedef void (*callback_t)(state_t const __rom *, mutable_t *);
 
 /* Callback specifically for transitioning states. */
-typedef state_t const __rom *(*transition_t)(state_t const __rom *);
+typedef state_t const __rom *(*transition_t)(state_t const __rom *, mutable_t *);
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
-	int32_t           timeout;
+	uint32_t          timeout;
 	char const __rom *name;
 	data_t      *     data;
 	callback_t        cb_init;
@@ -107,34 +104,34 @@ struct state_s {
 	transition_t      cb_next;
 };
 
-void auto_deploy_init(state_t const __rom *);
-void auto_deploy_loop(state_t const __rom *);
+void auto_deploy_init(state_t const __rom *, mutable_t *);
+void auto_deploy_loop(state_t const __rom *, mutable_t *);
 
 /* Drive straight for the specified distance.*/
-void auto_straight_init(state_t const __rom *);
-void auto_straight_loop(state_t const __rom *);
-bool auto_straight_isdone(state_t const __rom *);
+void auto_straight_init(state_t const __rom *, mutable_t *);
+void auto_straight_loop(state_t const __rom *, mutable_t *);
+bool auto_straight_isdone(state_t const __rom *, mutable_t *);
 
 /* Turn through the specified number of degrees. */
-void auto_turn_init(state_t const __rom *);
-void auto_turn_loop(state_t const __rom *);
-bool auto_turn_isdone(state_t const __rom *);
+void auto_turn_init(state_t const __rom *, mutable_t *);
+void auto_turn_loop(state_t const __rom *, mutable_t *);
+bool auto_turn_isdone(state_t const __rom *, mutable_t *);
 
 /* Rotate the arm into the specified position. */
-void auto_arm_init(state_t const __rom *);
-void auto_arm_loop(state_t const __rom *);
-bool auto_arm_isdone(state_t const __rom *);
+void auto_arm_init(state_t const __rom *, mutable_t *);
+void auto_arm_loop(state_t const __rom *, mutable_t *);
+bool auto_arm_isdone(state_t const __rom *, mutable_t *);
 
 /* Raise or lower the ramp into the specified position. */
-void auto_ramp_init(state_t const __rom *);
-void auto_ramp_loop(state_t const __rom *);
-bool auto_ramp_isdone(state_t const __rom *);
+void auto_ramp_init(state_t const __rom *, mutable_t *);
+void auto_ramp_loop(state_t const __rom *, mutable_t *);
+bool auto_ramp_isdone(state_t const __rom *, mutable_t *);
 
 /* Do nothing until the state times out. */
-void auto_none_init(state_t const __rom *);
-void auto_none_loop(state_t const __rom *);
-bool auto_none_isdone(state_t const __rom *);
+void auto_none_init(state_t const __rom *, mutable_t *);
+void auto_none_loop(state_t const __rom *, mutable_t *);
+bool auto_none_isdone(state_t const __rom *, mutable_t *);
 
-bool auto_ram_isdone(state_t const __rom *);
+bool auto_ram_isdone(state_t const __rom *, mutable_t *);
 
 #endif
