@@ -25,7 +25,6 @@ STATE(dep_dump1,   2000, AUTO_RAMP(100, 127),     auto_ramp_init,     auto_ramp_
 STATE(dep_dump2,   5000, AUTO_WAIT(),             auto_none_init,     auto_none_loop,     dep_dump3,   done,   auto_none_isdone)
 STATE(dep_dump3,   2000, AUTO_RAMP(0, 127),       auto_ramp_init,     auto_ramp_loop,     done,        done,   auto_ramp_isdone)
 STATE(done,        1,    AUTO_WAIT(),             auto_none_init,     auto_none_loop,     done,        done,   auto_none_isdone)
-STATE_DONE()
 
 #elif defined(ROBOT_NITISH)
 
@@ -41,6 +40,5 @@ STATE(init_jig2,  2000, AUTO_TURN(60,  127),     auto_turn_init,     auto_turn_l
 STATE(init_jig3,  1000, AUTO_TURN(30, -127),     auto_turn_init,     auto_turn_loop,     init_dump3, done, auto_turn_isdone)
 STATE(init_dump3, 5000, AUTO_RAMP(0, -127),      auto_ramp_init,     auto_ramp_loop,     done,       done, auto_ramp_isdone)
 STATE(done,       1,    AUTO_WAIT(),             auto_none_init,     auto_none_loop,     done,       done, auto_none_isdone)
-STATE_DONE()
 
 #endif

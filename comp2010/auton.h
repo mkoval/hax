@@ -32,16 +32,8 @@
  * true, otherwise the current state.
  */
 #define STATE_START(_name_)    \
-enum { _st_start = __LINE__ }; \
 extern state_t const __rom _st_##_name_##_state; \
 state_t const __rom *auto_current = &_st_##_name_##_state;
-
-#define STATE_DONE() \
-enum { _st_num = __LINE__ - _st_start - 1 }; \
-uint16_t const __rom auto_num = _st_num;
-
-#define STATE_LOOKUP(_name_) _st_##_name_##_transition
-#define STATE_GET(_name_)    auto_states[_st_##_name_##_id]
 
 #define STATE(_name_, _timeout_, _data_, _cbinit_, _cbloop_, _stsuc_,         \
               _stfail_, _cond_)                                               \
