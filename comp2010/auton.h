@@ -43,7 +43,7 @@ extern state_t const __rom _st_##_stfail_##_state;                            \
 state_t const __rom *_st_##_name_##_transition(state_t const __rom *);        \
                                                                               \
 /* State structure and data used by this state. */                            \
-data_t              _st_##_name_##_data  = _data_;                            \
+data_t  const __rom _st_##_name_##_data  = _data_;                            \
 state_t const __rom _st_##_name_##_state = {                                  \
 	MS_TO_LOOPS(_timeout_), #_name_, &_st_##_name_##_data,                    \
 	_cbinit_, _cbloop_, _st_##_name_##_transition                             \
@@ -96,12 +96,12 @@ typedef state_t const __rom *(*transition_t)(state_t const __rom *, mutable_t *)
 
 /* All necessary information to execute and transition from a state. */
 struct state_s {
-	uint32_t          timeout;
-	char const __rom *name;
-	data_t      *     data;
-	callback_t        cb_init;
-	callback_t        cb_loop;
-	transition_t      cb_next;
+	uint32_t            timeout;
+	char const __rom   *name;
+	data_t const __rom *data;
+	callback_t          cb_init;
+	callback_t          cb_loop;
+	transition_t        cb_next;
 };
 
 void auto_deploy_init(state_t const __rom *, mutable_t *);
