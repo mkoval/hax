@@ -53,10 +53,10 @@ state_t const __rom _st_##_name_##_state = {                                  \
                                                                               \
 state_t const __rom *_st_##_name_##_transition(state_t const __rom *state,    \
                                                mutable_t *mut) {              \
-	if (state->timeout < 0) {                                                 \
-		return &_st_##_stfail_##_state; /* Timeout condition. */              \
-	} else if (_cond_(state, mut)) {                                          \
+	if (_cond_(state, mut)) {                                                 \
 		return &_st_##_stsuc_##_state;  /* Success condition. */              \
+	} else if (mut->timer >= state->timeout) {                                \
+		return &_st_##_stfail_##_state; /* Timeout condition. */              \
 	} else {                                                                  \
 		return state;                   /* No transition. */                  \
 	}                                                                         \
