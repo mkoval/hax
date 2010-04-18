@@ -68,8 +68,6 @@ void auton_loop(void) {
 	 */
 	next = auto_current->cb_next(auto_current, &auto_mutable);
 
-	printf((char *)"timeout = %d\n\r", (int)auto_current->timeout);
-
 	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
 		auto_current = next;
@@ -79,13 +77,13 @@ void auton_loop(void) {
 		_puts("]\n\r");
 
 		/* Perform auto_mutable initialization for the new state. */
-		memset(&auto_mutable, sizeof(mutable_t), 0);
+		memset(&auto_mutable, 0, sizeof(mutable_t));
 		next->cb_init(auto_current, &auto_mutable);
 	} else {
 		/* Count down to a potential timeout. This property is shared amongst all
 		 * states.
 		 */
-		--auto_current->timeout;
+		++auto_mutable.timer;
 	}
 }
 
