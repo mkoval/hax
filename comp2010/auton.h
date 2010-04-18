@@ -19,13 +19,13 @@
 #define DEG_TO_TICKS(_x_)  ((uint32_t)(_x_) * ENC_PER_DEG)
 
 /* Constructors used to wrap the initialization of a data_t. */
-#define AUTO_STRAIGHT(_dist_, _vel_) { IN10_TO_TICKS(_dist_), (_vel_),         0, 0 }
-#define AUTO_DEPLOY()                { 0,                     LIFT_DEPLOY_VEL, 0, 0 }
-#define AUTO_RAM(_vel_)              { 0,                     (_vel_),         0, 0 }
-#define AUTO_TURN(_ang_, _vel_)      { DEG_TO_TICKS(_ang_),   (_vel_),         0, 0 }
-#define AUTO_ARM(_pos_, _vel_)       { (_pos_),               (_vel_),         0, 0 }
-#define AUTO_RAMP( _pos_, _vel_)     { (_pos_),               (_vel_),         0, 0 }
-#define AUTO_WAIT()                  { 0,                     0,               0, 0 }
+#define AUTO_STRAIGHT(_dist_, _vel_) { IN10_TO_TICKS(_dist_), (_vel_),        }
+#define AUTO_DEPLOY()                { 0,                     LIFT_DEPLOY_VEL }
+#define AUTO_RAM(_vel_)              { 0,                     (_vel_),        }
+#define AUTO_TURN(_ang_, _vel_)      { DEG_TO_TICKS(_ang_),   (_vel_),        }
+#define AUTO_ARM(_pos_, _vel_)       { (_pos_),               (_vel_),        }
+#define AUTO_RAMP( _pos_, _vel_)     { (_pos_),               (_vel_),        }
+#define AUTO_WAIT()                  { 0,                     0,              }
 
 /* Define a transition function with name _name_ that transitions into the
  * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
@@ -33,14 +33,16 @@
  */
 #define STATE_START(_name_)    \
 extern state_t const __rom _st_##_name_##_state; \
-state_t const __rom *auto_current = &_st_##_name_##_state;
+state_t const __rom *auto_current = &_st_##_name_##_state; \
+mutable_t            auto_mutable = { 0 };
 
 #define STATE(_name_, _timeout_, _data_, _cbinit_, _cbloop_, _stsuc_,         \
               _stfail_, _cond_)                                               \
 /* Forward declare the states that are transitioned into. */                  \
 extern state_t const __rom _st_##_stsuc_##_state;                             \
 extern state_t const __rom _st_##_stfail_##_state;                            \
-state_t const __rom *_st_##_name_##_transition(state_t const __rom *);        \
+state_t const __rom *_st_##_name_##_transition(state_t const __rom *,         \
+                                               mutable_t *);                  \
                                                                               \
 /* State structure and data used by this state. */                            \
 data_t  const __rom _st_##_name_##_data  = _data_;                            \
@@ -49,10 +51,11 @@ state_t const __rom _st_##_name_##_state = {                                  \
 	_cbinit_, _cbloop_, _st_##_name_##_transition                             \
 };                                                                            \
                                                                               \
-state_t const __rom *_st_##_name_##_transition(state_t const __rom *state) {  \                                                                     \
+state_t const __rom *_st_##_name_##_transition(state_t const __rom *state,    \
+                                               mutable_t *mut) {              \
 	if (state->timeout < 0) {                                                 \
 		return &_st_##_stfail_##_state; /* Timeout condition. */              \
-	} else if (_cond_(state)) {                                               \
+	} else if (_cond_(state, mut)) {                                          \
 		return &_st_##_stsuc_##_state;  /* Success condition. */              \
 	} else {                                                                  \
 		return state;                   /* No transition. */                  \

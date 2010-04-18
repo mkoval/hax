@@ -31,7 +31,7 @@ void init(void) {
 	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
 	/* Initialize autonomous mode. */
-	auto_current->cb_init(auto_current);
+	auto_current->cb_init(auto_current, &auto_mutable);
 	_puts("[STATE ");
 	_puts(auto_current->name);
 	_puts("]\n\r");
@@ -61,12 +61,12 @@ void auton_loop(void) {
 	}
 
 	/* Update the current state. */
-	auto_current->cb_loop(auto_current);
+	auto_current->cb_loop(auto_current, &auto_mutable);
 
 	/* We just changed states and need to call the initialization routine for
 	 * the new state. Additionally, printf() an alert.
 	 */
-	next = auto_current->cb_next(auto_current);
+	next = auto_current->cb_next(auto_current, &auto_mutable);
 
 	printf((char *)"timeout = %d\n\r", (int)auto_current->timeout);
 
@@ -78,7 +78,9 @@ void auton_loop(void) {
 		_puts(auto_current->name);
 		_puts("]\n\r");
 
-		next->cb_init(auto_current);
+		/* Perform auto_mutable initialization for the new state. */
+		memset(&auto_mutable, sizeof(mutable_t), 0);
+		next->cb_init(auto_current, &auto_mutable);
 	} else {
 		/* Count down to a potential timeout. This property is shared amongst all
 		 * states.
