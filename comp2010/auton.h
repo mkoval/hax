@@ -14,7 +14,7 @@
 
 #define SLOW_US 18500
 
-#define MS_TO_LOOPS(_x_)   ((uint16_t)((_x_) * (uint32_t)1000 / SLOW_US))
+#define MS_TO_LOOPS(_x_)   (((_x_) * (uint32_t)1000 / SLOW_US))
 #define IN10_TO_TICKS(_x_) ((uint32_t)(_x_) * ENC_PER_IN / 10)
 #define DEG_TO_TICKS(_x_)  ((uint32_t)(_x_) * ENC_PER_DEG)
 
