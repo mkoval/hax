@@ -68,6 +68,8 @@ void auton_loop(void) {
 	 */
 	next = auto_current->cb_next(auto_current, &auto_mutable);
 
+	printf((char *)"timeout: %5d <= %5d\n\r", (int)auto_mutable.timer, (int)auto_current->timeout);
+
 	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
 		auto_current = next;
