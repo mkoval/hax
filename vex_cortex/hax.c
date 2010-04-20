@@ -24,6 +24,9 @@
 #include "usart.h"
 #include "spi.h"
 
+spi_packet_vex m2u;
+spi_packet_vex u2m;
+
 /*
  * INITIALIZATION AND MISC
  */
