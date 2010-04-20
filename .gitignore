@@ -10,3 +10,4 @@ mikish/AutonSession
 *.LST
 *.DS_Store
 *.elf
+*.map
