@@ -19,9 +19,9 @@
 
 #include "init.h"
 
-u16 adc_buffer[ADC_NUM];
+volatile uint16_t adc_buffer[ADC_NUM];
 
-static void gpio_init(void)
+void gpio_init(void)
 {
 	// enable gpio clock (+ AFIO for good measure)
 	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN
