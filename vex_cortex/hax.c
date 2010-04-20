@@ -175,6 +175,7 @@ void digital_set(PinIx index, bool value) {
 
 bool digital_get(PinIx index) {
 	/* TODO */
+	return false;
 }
 
 /*
@@ -200,7 +201,7 @@ void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 }
 
 bool interrupt_get(InterruptIx index) {
-	/* TODO */
+	return false;
 }
 
 void interrupt_enable(InterruptIx index) {
