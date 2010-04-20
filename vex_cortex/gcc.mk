@@ -1,11 +1,10 @@
-PREFIX        = arm-none-eabi
-CC            = $(PREFIX)-gcc
-LD            = $(PREFIX)-gcc
-AS            = $(PREFIX)-gcc
-MD            = $(PREFIX)-gcc
-OBJCOPY       = $(PREFIX)-objcopy
+PREFIX        = arm-none-eabi-
+CC            = $(PREFIX)gcc
+LD            = $(PREFIX)gcc
+AS            = $(PREFIX)gcc
+MD            = $(PREFIX)gcc
+OBJCOPY       = $(PREFIX)objcopy
 OBJDUMP       = $(PREFIX)objdump
-OBJCOPY       = $(REFIX)objcopy
 STRIP         = $(PREFIX)strip
 
 # External libraries.
@@ -13,8 +12,8 @@ FWLIB_DIR   = $(srcdir)/lib/fwlib
 SRC_STM_LIB = $(srcdir)/lib/startup/startup_stm32f10x_hd.s \
               $(wildcard $(FWLIB_DIR)/src/*.c)
 SRC_PRINTF  = $(wildcard $(srcdir)/lib/small_printf/*.c)
-CC_INC      = -I$(srcdir) -I$(srcdir)/lib/fwlib/inc -I$(srcdir)/lib
-LD_INC      = -L$(srcdir)/lib -L$(srcdir)/ld -L$(srcdir)/ld/other
+CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib
+LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
 
 LD_SCRIPT = STM32F103_384K_64K_FLASH.ld
 STMPROC   = STM32F10X_HD
@@ -35,7 +34,7 @@ ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
             $(LD_INC) -T $(LD_SCRIPT)
 
 OBJECTS      += $(SOURCE:=.o)
-TRASH        += $(OBJECTS) $(OBJECTS:.o.=.d)          \
+TRASH        += $(TARGET) $(OBJECTS) $(OBJECTS:.o.=.d) \
                 $(shell $(FIND) -E . -regex '.*\.([od]|elf|hex|bin|map|lss|sym|strip)' -delete)
 
 .SECONDARY : 
@@ -46,7 +45,7 @@ TRASH        += $(OBJECTS) $(OBJECTS:.o.=.d)          \
 %.c.o: %.c $(HEADER)
 	$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
-%.elf: $(OBJ)
+%.elf: $(OBJECTS)
 	$(LD) $(ALL_LDFLAGS) -o $@ $^
 
 %.hex: %.elf
@@ -58,6 +57,7 @@ TRASH        += $(OBJECTS) $(OBJECTS:.o.=.d)          \
 # Create extended listing file from ELF output file.
 %.elf.lss: %.elf
 	$(OBJDUMP) -h -S $< > $@
+
 # Create a symbol table from ELF output file.
 %.elf.sym: %.elf
 	$(NM) -n $< > $@
