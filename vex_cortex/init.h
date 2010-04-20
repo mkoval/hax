@@ -5,7 +5,7 @@
 
 #define ADC_NUM 8
 
-extern uint16_t adc_buffer[ADC_NUM];
+extern volatile uint16_t adc_buffer[ADC_NUM];
 
 void gpio_init(void);
 void adc_init(void);
