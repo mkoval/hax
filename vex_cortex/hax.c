@@ -118,47 +118,47 @@ int8_t analog_oi_get(OIIx index) {
 	switch (button) {
 	/* Left Stick */
 	case OI_STICK_L_X:
-		return joystick.axis_4;
+		return joystick->axis_4;
 	case OI_STICK_L_Y;
-		return joystick.axis_3;
+		return joystick->axis_3;
 	
 	/* Right Stick */
 	case OI_STICK_R_X:
-		return joystick.axis_2;
+		return joystick->axis_2;
 	case OI_STICK_R_Y:
-		return joystick.axis_1;
+		return joystick->axis_1;
 	
 	/* Left Buttons */
 	case OI_BUT_L_U:
-		return joystick.g8_u;
+		return joystick->g8_u;
 	case OI_BUT_L_D:
-		return joystick.g8_d;
+		return joystick->g8_d;
 	case OI_BUT_L_L:
-		return joystick.g8_l;
+		return joystick->g8_l;
 	case OI_BUT_L_R:
-		return joystick.g8_r;
+		return joystick->g8_r;
 	
 	/* Right Buttons */
 	case OI_BUT_R_U:
-		return joystick.g7_u;
+		return joystick->g7_u;
 	case OI_BUT_R_D:
-		return joystick.g7_d;
+		return joystick->g7_d;
 	case OI_BUT_R_L:
-		return joystick.g7_l
+		return joystick->g7_l
 	case OI_BUT_R_R:
-		return joystick.g7_r;
+		return joystick->g7_r;
 	
 	/* Left Triggers */
 	case OI_BUT_TRIG_L_U:
-		return joystick.g5_u;
+		return joystick->g5_u;
 	case OI_BUT_TRIG_L_D:
-		return joystick.g5_d;
+		return joystick->g5_d;
 	
 	/* Right Triggers */
 	case OI_BUT_TRIG_R_U:
-		return joystick.g6_u;
+		return joystick->g6_u;
 	case OI_BUT_TRIG_R_D:
-		return joystick.g6_d;
+		return joystick->g6_d;
 	
 	default:
 		return 0;
