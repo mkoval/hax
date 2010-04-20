@@ -112,14 +112,14 @@ enum {
 };
 
 int8_t analog_oi_get(OIIx index) {
-	struct oi_data *joystick = &m2u.m2u.joysticks[index / 20];
+	struct oi_data *joystick = &m2u.m2u.joysticks[index / 20].b;
 	int button = index % 20;
 
 	switch (button) {
 	/* Left Stick */
 	case OI_STICK_L_X:
 		return joystick->axis_4;
-	case OI_STICK_L_Y;
+	case OI_STICK_L_Y:
 		return joystick->axis_3;
 	
 	/* Right Stick */
@@ -144,20 +144,20 @@ int8_t analog_oi_get(OIIx index) {
 	case OI_BUT_R_D:
 		return joystick->g7_d;
 	case OI_BUT_R_L:
-		return joystick->g7_l
+		return joystick->g7_l;
 	case OI_BUT_R_R:
 		return joystick->g7_r;
 	
 	/* Left Triggers */
-	case OI_BUT_TRIG_L_U:
+	case OI_TRIG_L_U:
 		return joystick->g5_u;
-	case OI_BUT_TRIG_L_D:
+	case OI_TRIG_L_D:
 		return joystick->g5_d;
 	
 	/* Right Triggers */
-	case OI_BUT_TRIG_R_U:
+	case OI_TRIG_R_U:
 		return joystick->g6_u;
-	case OI_BUT_TRIG_R_D:
+	case OI_TRIG_R_D:
 		return joystick->g6_d;
 	
 	default:
