@@ -162,6 +162,7 @@ int8_t analog_oi_get(OIIx index) {
 	
 	default:
 		return 0;
+	}
 }
 
 uint16_t analog_adc_get(PinIx index) {
@@ -194,19 +195,19 @@ void servo_set(AnalogOutIx index, ServoPosition value) {
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
-void interrupt_reg_isr(InterruptIx, InterruptServiceRoutine) {
+void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
 	/* TODO */
 }
 
-bool interrupt_get(InterruptIx) {
+bool interrupt_get(InterruptIx index) {
 	/* TODO */
 }
 
-void interrupt_enable(InterruptIx) {
+void interrupt_enable(InterruptIx index) {
 	/* TODO */
 }
 
-void interrupt_disable(InterruptIx) {
+void interrupt_disable(InterruptIx index) {
 	/* TODO */
 }
 
