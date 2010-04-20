@@ -19,7 +19,7 @@
 
 #include "init.h"
 
-u16 adc_buffer[ADC_NUM];
+volatile u16 adc_buffer[ADC_NUM];
 
 static void gpio_init(void)
 {
