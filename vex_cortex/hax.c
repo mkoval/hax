@@ -78,7 +78,7 @@ bool new_data_received(void) {
 CtrlMode mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return kAuton;
-	} else if (m2u.m2u.sysflags.b.disable) {
+	} else if (m2u.m2u.sys_flags.b.disable) {
 		return kDisable;
 	} else {
 		return kTelop;
