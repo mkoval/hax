@@ -11,9 +11,9 @@
 /* Not used. (replace PC7(3))
  * PE7(9)
  */
-uint8_t exti_to_pin [] =
+static uint8_t exti_to_pin [16] =
 	{ 10, 11, 0xFF, 0xFF, 0xFF, 0xFF,
-	  2, 3, 6, 0, 7, 1, 8, 4, 5};
+	  2, 3, 6, 0, 7, 1, 8, 4, 5, 0xFF};
 
 static InterruptServiceRoutine isr_callback[12];
 
@@ -59,13 +59,15 @@ __isr void EXTI15_10_IRQHandler(void) {
 	/* PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
 static const GPIO_TypeDef *gpio_ports[12] = 
 	{GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
-static const int8_t   gpio_index[12] =
+	
+// Maps ifi labels to interrupt/pin indexes
+static const int8_t   gpio_ifipin_to_pin[12] =
 	{    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 bool digital_get(PinIx index) {
 	uint8_t ret = GPIO_ReadInputDataBit(
 		(GPIO_TypeDef*)gpio_ports[index],
-		1 << gpio_index[index]);
+		1 << gpio_ifipin_to_pin[index]);
 		
 	return ret != 0;
 }
@@ -79,7 +81,7 @@ void pin_set_io(PinIx pin_index, PinMode pin_mode) {
 	}
 	
 	GPIO_param.GPIO_Pin =
-		(uint16_t)(1 << gpio_index[pin_index]);
+		(uint16_t)(1 << gpio_ifipin_to_pin[pin_index]);
 	
 	if (pin_mode == kInput) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
@@ -94,7 +96,7 @@ void pin_set_io(PinIx pin_index, PinMode pin_mode) {
 
 void interrupt_reg_isr(InterruptIx index,
 	InterruptServiceRoutine isr) {
-	isr_callback[gpio_index[index]] = isr;
+	isr_callback[gpio_ifipin_to_pin[index]] = isr;
 }
 
 bool interrupt_get(InterruptIx index) {
@@ -102,19 +104,21 @@ bool interrupt_get(InterruptIx index) {
 }
 
 void interrupt_enable(InterruptIx index) {
+	uint8_t ri = gpio_ifipin_to_pin[index];
+
 	// unmask the interrupt.
-	EXTI->IMR |= (1 << index);
+	EXTI->IMR |= (1 << ri);
 
 	// mask the event reqest.
-	EXTI->EMR &= ~(1 << index);
+	EXTI->EMR &= ~(1 << ri);
 	
 	// enable rising trigger and falling trigger.
-	EXTI->RTSR |= (1<<index);
-	EXTI->FTSR |= (1<<index);
+	EXTI->RTSR |= (1 << ri);
+	EXTI->FTSR |= (1 << ri);
 }
 
 void interrupt_disable(InterruptIx index) {
-	EXTI->IMR &= ~(1<<index);
+	EXTI->IMR &= ~(1 << gpio_ifipin_to_pin[index]);
 }
 
 
