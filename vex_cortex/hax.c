@@ -23,6 +23,7 @@
 #include "rcc.h"
 #include "usart.h"
 #include "spi.h"
+#include "exti.h"
 
 spi_packet_vex m2u;
 spi_packet_vex u2m;
