@@ -1,6 +1,6 @@
 #include "../hax.h"
 
-uint8_t kNumAnalogInputs = 2;
+uint8_t const kNumAnalogInputs = 2;
 
 void init(void) {
 }
