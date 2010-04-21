@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "hax.h"
+
 #include "stm32f10x.h"
 #include "vex_hw.h"
 
@@ -43,6 +45,7 @@ void gpio_init(void)
 	           = GPIOE->CRH = GPIOF->CRH
 	           = GPIOG->CRH = 0;
 }
+
 
 void adc_init(void) {
 	// ADCCLK(max 14Mhz)

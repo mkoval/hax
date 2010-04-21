@@ -88,32 +88,7 @@ CtrlMode mode_get(void) {
 /*
  * ANALOG AND DIGITAL INPUTS
  */
-	/* PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
-static const GPIO_TypeDef *gpio_ports[12] = 
-	{GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
-static const int8_t   gpio_index[12] =
-	{    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
-void pin_set_io(PinIx pin_index, PinMode pin_mode) {	
-	GPIO_InitTypeDef GPIO_param;
-
-	if (pin_index >= 12) {
-		return;
-	}
-	
-	GPIO_param.GPIO_Pin =
-		(uint16_t)(1 << gpio_index[pin_index]);
-	
-	if (pin_mode == kInput) {
-		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
-	} else if (pin_mode == kOutput) {
-		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
-	}
-	
-	GPIO_Init((GPIO_TypeDef *)gpio_ports[pin_index],
-		&GPIO_param);	
-}
 
 enum {
 	OI_STICK_L_X,
@@ -196,13 +171,7 @@ void digital_set(PinIx index, bool value) {
 	/* TODO */
 }
 
-bool digital_get(PinIx index) {
-	uint8_t ret = GPIO_ReadInputDataBit(
-		(GPIO_TypeDef*)gpio_ports[index],
-		1<<gpio_index[index]);
-		
-	return ret != 0;
-}
+
 
 /*
  * MOTOR AND SERVO OUTPUTS
@@ -222,25 +191,10 @@ void servo_set(AnalogOutIx index, ServoPosition value) {
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
-void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
-	/* TODO */
-}
-
-bool interrupt_get(InterruptIx index) {
-	return false;
-}
-
-void interrupt_enable(InterruptIx index) {
-	/* TODO */
-}
-
-void interrupt_disable(InterruptIx index) {
-	/* TODO */
-}
 
 /*
  * SERIAL IO
  */
 void _putc(char c) {
-	printf("%c", c);
+	putchar(c);
 }
