@@ -96,6 +96,7 @@ void auton_loop(void) {
 }
 
 void auton_spin(void) {
+	encoder_update();
 }
 
 void telop_loop(void) {

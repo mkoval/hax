@@ -4,6 +4,8 @@
 
 #include "encoder.h"
 
+static bool intenc[6] = { false };
+
 /* Mapping between logical "encoder index" and interrupt pins indexes. */
 static volatile InterruptIx encmap[6];
 
@@ -32,7 +34,12 @@ void encoder_init(uint8_t id, InterruptIx int1, InterruptIx int2) {
 	encmap[2 * id + 0] = int1;
 	encmap[2 * id + 1] = int2;
 
+	/* Note that interrupts are enabled. */
+	intenc[2 * id + 0] = true;
+	intenc[2 * id + 1] = true;
+
 	/* Enable interrupts for both encoder connections. */
+#if defined(ARCH_PIC)
 	interrupt_enable(int1);
 	interrupt_enable(int2);
 
@@ -52,6 +59,38 @@ void encoder_init(uint8_t id, InterruptIx int1, InterruptIx int2) {
 		interrupt_reg_isr(5, encoder_2b);
 		break;
 	}
+#endif
+}
+
+void encoder_update(void) {
+#if defined(ARCH_CORTEX)
+	bool    prev[6], val[6];
+	uint8_t i;
+
+	/* Get all of the current encoder states. */
+	for (i = 0; i < 6; ++i) {
+		val[i] = interrupt_get(i);
+	}
+
+	/* Trigger on both rising and falling edges. */
+	if (intenc[0] && val[0] != prev[0])
+		ENCODER(val[0],  encmap[1], 0);
+
+	if (intenc[0] && val[1] != prev[1])
+		ENCODER(!val[1], encmap[0], 0);
+
+	if (intenc[1] && val[2] != prev[2])
+		ENCODER(val[3],  encmap[3], 1);
+	
+	if (intenc[1] && val[3] != prev[3])
+		ENCODER(!val[2], encmap[2], 1);
+
+	if (intenc[2] && val[4] != prev[4])
+		ENCODER(val[5],  encmap[5], 2);
+	
+	if (intenc[2] && val[5] != prev[5])
+		ENCODER(!val[4], encmap[4], 2);
+#endif
 }
 
 int32_t encoder_get(uint8_t id) {

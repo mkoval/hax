@@ -17,6 +17,9 @@ void encoder_init(EncoderIx, InterruptIx, InterruptIx);
  */
 int32_t encoder_get(EncoderIx);
 
+/* Simulate interrupts with digital ports if necessary. */
+void encoder_update(void);
+
 /* Reset the number of encoder ticks recorded by an encoder to zero. */
 void encoder_reset(EncoderIx);
 
