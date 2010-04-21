@@ -85,9 +85,6 @@ void auton_loop(void) {
 		}
 		next->cb_init(auto_current, &auto_mutable);
 	} else {
-		/* Count down to a potential timeout. This property is shared amongst all
-		 * states.
-		 */
 		++auto_mutable.timer;
 	}
 }

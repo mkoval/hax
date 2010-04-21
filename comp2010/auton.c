@@ -160,8 +160,6 @@ void auto_none_loop(state_t const __rom *state, mutable_t *mut) {
 }
 
 bool auto_none_isdone(state_t const __rom *state, mutable_t *mut) {
-	/* TODO Replace this hack with a more accurate hack. */
-
 #if DEBUG
 	printf((char *)"timeout = %d\n\r", (int)state->data->timeout);
 #endif

@@ -9,7 +9,7 @@
 #include "util.h"
 
 #define STRAIGHT_ERROR 100
-#define TURN_ERROR     ((int16_t)30 * ENC_PER_DEG)
+#define TURN_ERROR     ((int16_t)10 * ENC_PER_DEG)
 #define TURN_THRESHOLD ((int16_t)5  * ENC_PER_DEG)
 
 #define SLOW_US ((uint32_t)18500)
