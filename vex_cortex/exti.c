@@ -22,7 +22,7 @@ static InterruptServiceRoutine isr_callback[12];
 
 #define CALL_ISR(_i_)                            \
 	if (EXTI->PR & (1<<_i_)) {                   \
-		EXTI->PR &= ~(1<<_i_);                   \
+		EXTI->PR = (1<<_i_);                   \
 		if (isr_callback[exti_to_pin[_i_]]) {    \
 			isr_callback[exti_to_pin[_i_]](      \
 				interrupt_get(                   \
