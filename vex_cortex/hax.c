@@ -212,3 +212,9 @@ void interrupt_disable(InterruptIx index) {
 	/* TODO */
 }
 
+/*
+ * SERIAL IO
+ */
+void _putc(char c) {
+	printf("%c", c);
+}
