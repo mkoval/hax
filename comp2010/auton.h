@@ -19,13 +19,13 @@
 #define DEG_TO_TICKS(_x_)  ((uint32_t)(_x_) * ENC_PER_DEG)
 
 /* Constructors used to wrap the initialization of a data_t. */
-#define AUTO_STRAIGHT(_dist_, _vel_) { IN10_TO_TICKS(_dist_), (_vel_),        }
-#define AUTO_DEPLOY()                { 0,                     LIFT_DEPLOY_VEL }
-#define AUTO_RAM(_vel_)              { 0,                     (_vel_),        }
-#define AUTO_TURN(_ang_, _vel_)      { DEG_TO_TICKS(_ang_),   (_vel_),        }
-#define AUTO_ARM(_pos_, _vel_)       { (_pos_),               (_vel_),        }
-#define AUTO_RAMP( _pos_, _vel_)     { (_pos_),               (_vel_),        }
-#define AUTO_WAIT()                  { 0,                     0,              }
+#define AUTO_STRAIGHT(_dist_, _vel_) {{ IN10_TO_TICKS(_dist_), (_vel_)         }}
+#define AUTO_DEPLOY()                {{ 0,                     LIFT_DEPLOY_VEL }}
+#define AUTO_RAM(_vel_)              {{ 0,                     (_vel_)         }}
+#define AUTO_TURN(_ang_, _vel_)      {{ DEG_TO_TICKS(_ang_),   (_vel_)         }}
+#define AUTO_ARM(_pos_, _vel_)       {{ (_pos_),               (_vel_)         }}
+#define AUTO_RAMP( _pos_, _vel_)     {{ (_pos_),               (_vel_)         }}
+#define AUTO_WAIT()                  {{ 0,                     0               }}
 
 /* Define a transition function with name _name_ that transitions into the
  * _ntime_ state if auto_istimeout() is true, _ncond_ if _cond_ evaluates to
