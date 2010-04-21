@@ -38,6 +38,7 @@ void setup_1(void) {
 	nvic_init();
 	tim1_init();
 	adc_init();
+	exti_init();
 	
 	spi_packet_vex m2u, u2m;
 
