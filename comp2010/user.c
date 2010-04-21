@@ -8,6 +8,8 @@
 #include "robot.h"
 #include "state.h"
 
+#include "ru_ir.h"
+
 #include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
@@ -39,6 +41,10 @@ void init(void) {
 	 */
 	encoder_init(ENC_L, INT_ENC_L1, INT_ENC_L2); /* Left  */
 	encoder_init(ENC_R, INT_ENC_R1, INT_ENC_R2); /* Right */
+
+#if defined(ROBOT_KEVIN)
+	IR_Filter_Routine();
+#endif
 }
 
 void disable_loop(void) {
@@ -149,6 +155,22 @@ void telop_loop(void) {
 			ramp_smart(ramp);
 		}
 	}
+
+#if defined(ROBOT_KEVIN)
+	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n\r",
+		   (int)analog_adc_get(POT_ARM),
+		   (int)analog_adc_get(POT_LIFT),
+		   (int)encoder_get(ENC_L),
+		   (int)encoder_get(ENC_R),
+		   (int)Get_Rear_IR());
+#elif defined(ROBOT_NITISH)
+	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+		   (int)analog_adc_get(POT_ARM),
+		   (int)analog_adc_get(POT_LIFT_L),
+		   (int)analog_adc_get(POT_LIFT_R),
+		   (int)encoder_get(ENC_L),
+		   (int)encoder_get(ENC_R));
+#endif
 }
 
 void telop_spin(void) {

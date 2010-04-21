@@ -5,6 +5,7 @@
 #include "ports.h"
 #include "robot.h"
 #include "util.h"
+#include "ru_ir.h"
 
 #include "auton.h"
 
@@ -44,6 +45,18 @@ bool auto_straight_isdone(state_t const __rom *state, mutable_t *mut) {
 #endif
 
 	return ABS(left + right) >= 2 * state->data->move.ticks;
+}
+
+void auto_pickup_init(state_t const __rom *state, mutable_t *mut) {
+}
+
+void auto_pickup_loop(state_t const __rom *state, mutable_t *mut) {
+	drive_smart(state->data->move.vel, 0);
+	arm_smart(127);
+}
+
+bool auto_pickup_isdone(state_t const __rom *state, mutable_t *mut) {
+	return auto_arm_isdone(state, mut);
 }
 
 /* Turn through a specified angle using encoders as velocity control. */
@@ -115,6 +128,10 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	return !(up || down);
 }
 
+bool auto_ram_isdone(state_t const __rom *state, mutable_t *mut) {
+	return Get_Rear_IR() < DUMP_DISTANCE_10IN;
+}
+
 #elif defined(ROBOT_NITISH)
 
 void auto_ramp_init(state_t const __rom *state, mutable_t *mut) {
@@ -146,11 +163,10 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	return !(move_left || move_right);
 }
 
-#endif
-
 bool auto_ram_isdone(state_t const __rom *state, mutable_t *mut) {
-	return !digital_get(BUT_B);
+	return !digital_get(BUT_B_L) || !digital_get(BUT_B_R);
 }
+#endif
 
 /* Do nothing for a given timeout.  */
 void auto_none_init(state_t const __rom *state, mutable_t *mut) {

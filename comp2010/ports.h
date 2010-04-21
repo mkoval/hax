@@ -32,6 +32,11 @@ enum {
 enum {
     POT_ARM = 0,
 	POT_LIFT,
+	IR_FRONT_H = 7, /* High */
+	IR_SIDE_F,
+	IR_SIDE_B,
+	IR_REAR,
+	IR_FRONT_L,     /* Low */
     ANA_NUM
 };
 
@@ -60,16 +65,19 @@ enum {
 	ENC_NUM
 };
 
-/* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW    850
-#define POT_LIFT_HIGH   150
+/* Where to stop to successfully score. */
+#define DUMP_DISTANCE_10IN 55
 
-#define LIFT_LT(_p1_, _p2_) ((_p1_) > (_p2_))
-#define LIFT_GT(_p1_, _p2_) ((_p1_) < (_p2_))
+/* Lift potentiometer, used to measure the orientation of the lift. */
+#define POT_LIFT_LOW    275
+#define POT_LIFT_HIGH   1000
+
+#define LIFT_LT(_p1_, _p2_) ((_p1_) < (_p2_))
+#define LIFT_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
-#define POT_ARM_LOW     950
-#define POT_ARM_HIGH    460
+#define POT_ARM_LOW     850
+#define POT_ARM_HIGH    220
 
 #define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
@@ -109,7 +117,8 @@ enum {
 
 /* Digital Sensors */
 enum {
-	BUT_B = ANA_NUM,
+	BUT_B_R = ANA_NUM,
+	BUT_B_L,
 	JUMP_CAL_MODE1,
 	JUMP_CAL_MODE2,
 	JUMP_CAL_MODE3,
@@ -134,9 +143,9 @@ enum {
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
 #define POT_LIFT_L_LOW    450
-#define POT_LIFT_L_HIGH   295
+#define POT_LIFT_L_HIGH   250
 #define POT_LIFT_R_LOW    190
-#define POT_LIFT_R_HIGH   330
+#define POT_LIFT_R_HIGH   320
 
 #define LIFT_L_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_L_GT(_p1_, _p2_) ((_p1_) < (_p2_))

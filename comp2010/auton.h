@@ -24,6 +24,7 @@
 #define AUTO_RAM(_vel_)              {{ 0,                     (_vel_)         }}
 #define AUTO_TURN(_ang_, _vel_)      {{ DEG_TO_TICKS(_ang_),   (_vel_)         }}
 #define AUTO_ARM(_pos_, _vel_)       {{ (_pos_),               (_vel_)         }}
+#define AUTO_PICKUP(_vel_)           {{ 0,                     (_vel_)         }}
 #define AUTO_RAMP( _pos_, _vel_)     {{ (_pos_),               (_vel_)         }}
 #define AUTO_WAIT()                  {{ 0,                     0               }}
 
@@ -114,6 +115,11 @@ void auto_deploy_loop(state_t const __rom *, mutable_t *);
 void auto_straight_init(state_t const __rom *, mutable_t *);
 void auto_straight_loop(state_t const __rom *, mutable_t *);
 bool auto_straight_isdone(state_t const __rom *, mutable_t *);
+
+/* Drive straight while lifting the arm to collect balls. */
+void auto_pickup_init(state_t const __rom *, mutable_t *);
+void auto_pickup_loop(state_t const __rom *, mutable_t *);
+bool auto_pickup_isdone(state_t const __rom *, mutable_t *);
 
 /* Turn through the specified number of degrees. */
 void auto_turn_init(state_t const __rom *, mutable_t *);
