@@ -39,8 +39,6 @@ void setup_1(void) {
 	tim1_init();
 	adc_init();
 	
-	spi_packet_vex m2u, u2m;
-
 	memset(&u2m,0,sizeof(u2m));
 	memset(&m2u,0,sizeof(m2u));
 
@@ -48,12 +46,6 @@ void setup_1(void) {
 	spi_packet_init_m2u(&m2u);
 	
 	printf("[ INIT DONE ]\n");
-	for(;;) {
-		if (spi_transfer_flag) {
-			vex_spi_xfer(&m2u,&u2m);
-			spi_transfer_flag = false;
-		}
-	}
 }
 
 void setup_2(void) {	

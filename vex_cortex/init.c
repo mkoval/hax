@@ -4,6 +4,7 @@
 
 #include "stm32f10x.h"
 #include "vex_hw.h"
+#include "spi.h"
 
 #if defined(USE_STDPERIPH_DRIVER)
 #include "stm32f10x_adc.h"
@@ -145,3 +146,24 @@ void tim1_init(void) {
 	TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
 	TIM1->SMCR &= 0xFFF8;
 }
+
+__attribute__((interrupt)) void TIM1_CC_IRQHandler(void)
+{
+	if(TIM_GetITStatus(TIM1, TIM_IT_CC1)) {
+		spi_transfer_flag = true;
+		TIM_ClearITPendingBit(TIM1, TIM_IT_CC1);
+	}
+}
+
+#ifdef  USE_FULL_ASSERT
+void assert_failed(u8* file, u32 line)
+{ 
+	/* User can add his own implementation to report the file name and line number,
+	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+	printf("error %s:%d - assert failed\n", file, line);
+
+	/* Infinite loop */
+	for(;;){
+	}
+}
+#endif
