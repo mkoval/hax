@@ -97,7 +97,7 @@ void pin_set_io(PinIx pin_index, PinMode pin_mode) {
 
 void interrupt_reg_isr(InterruptIx index,
 	InterruptServiceRoutine isr) {
-	isr_callback[gpio_ifipin_to_pin[index]] = isr;
+	isr_callback[index] = isr;
 }
 
 bool interrupt_get(InterruptIx index) {
