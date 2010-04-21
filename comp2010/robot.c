@@ -73,8 +73,8 @@ bool ramp_smart(AnalogOut vel) {
 #endif
 
 void drive_smart(AnalogOut forward, AnalogOut turn) {
-	int16_t left  = (int16_t) forward - turn;
-	int16_t right = (int16_t) forward + turn;
+	int16_t left  = (int16_t) forward + turn;
+	int16_t right = (int16_t) forward - turn;
 	int16_t max   = MAX(ABS(left), ABS(right));
 
 	/* Scale the values to not exceed kMotorMax. */
@@ -83,7 +83,7 @@ void drive_smart(AnalogOut forward, AnalogOut turn) {
 		right = right * kMotorMax / max;
 	}
 
-	drive_raw(-left, right);
+	drive_raw(left, right);
 }
 
 bool arm_smart(AnalogOut vel) {

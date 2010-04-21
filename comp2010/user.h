@@ -8,4 +8,7 @@ typedef enum {
 	CAL_MODE_PRINT
 } CalibrationMode;
 
+/* Avoid including string.h since it causes the linker to fail. */
+void memset(void *, int, size_t);
+
 #endif

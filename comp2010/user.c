@@ -15,13 +15,10 @@ uint8_t const kNumAnalogInputs = ANA_NUM;
 
 /* Jumper-enabled calibration modes. */
 static CalibrationMode cal_mode = CAL_MODE_NONE;
+static bool            cal_done = false;
 
 /* User-override for arm and ramp potentiometers. */
 static bool override = false;
-
-/* Current state of autonomous mode. Meaningless if in telop mode. */
-state_t const __rom *auto_states[STATE_NUM];
-state_t const __rom *auto_current;
 
 void init(void) {
 	uint8_t i;
@@ -34,15 +31,10 @@ void init(void) {
 	printf((char *)"[CALIB %d]\r\n", cal_mode);
 
 	/* Initialize autonomous mode. */
-	for (i = 0; i < STATE_NUM; ++i) {
-		auto_states[i] = auto_cbs[i](NULL);
-	}
-	auto_current = auto_states[0];
-
+	auto_current->cb_init(auto_current, &auto_mutable);
 	_puts("[STATE ");
 	_puts(auto_current->name);
 	_puts("]\n\r");
-
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
@@ -61,33 +53,40 @@ void auton_loop(void) {
 	state_t const __rom *next = auto_current;
 	uint8_t i;
 
+	if (cal_mode) return;
+
 	/* Start each autonomous slow loop with a clean slate. */
 	for (i = 0; i < MTR_NUM; ++i) {
 		motor_set(i, 0);
 	}
 
 	/* Update the current state. */
-	auto_current->cb_loop(auto_current->data);
+	auto_current->cb_loop(auto_current, &auto_mutable);
 
 	/* We just changed states and need to call the initialization routine for
 	 * the new state. Additionally, printf() an alert.
 	 */
-	next = auto_current->cb_next(auto_current);
+	next = auto_current->cb_next(auto_current, &auto_mutable);
+
+	printf((char *)"timeout: %5d <= %5d\n\r", (int)auto_mutable.timer, (int)auto_current->timeout);
 
 	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
+		auto_current = next;
+
 		_puts("[STATE ");
-		_puts(next->name);
+		_puts(auto_current->name);
 		_puts("]\n\r");
 
-		next->cb_init(auto_current->data);
+		/* Perform auto_mutable initialization for the new state. */
+		memset(&auto_mutable, 0, sizeof(mutable_t));
+		next->cb_init(auto_current, &auto_mutable);
+	} else {
+		/* Count down to a potential timeout. This property is shared amongst all
+		 * states.
+		 */
+		++auto_mutable.timer;
 	}
-	auto_current = next;
-
-	/* Count down to a potential timeout. This property is shared amongst all
-	 * states.
-	 */
-	--auto_current->data->timeout;
 }
 
 void auton_spin(void) {
@@ -98,19 +97,22 @@ void telop_loop(void) {
 	uint16_t right   = analog_oi_get(OI_R_Y);
 	uint16_t arm     = analog_oi_get(OI_L_B);
 	uint16_t ramp    = analog_oi_get(OI_R_B);
-	bool     done    = false;
 
-	switch (cal_mode) {
+	switch ((cal_done) ? CAL_MODE_NONE : cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
 	case CAL_MODE_DRIVE: {
 		int32_t dist = drive_straight(kMotorMax);
-		done = dist > CAL_ENC_DRIVE;
+		cal_done = ABS(dist) > CAL_ENC_DRIVE;
+
+		printf((char *)"travelled = %d\n\r", (int)dist);
 		break;
 	}
 
 	/* Calibrate the ENC_PER_DEG constant. */
 	case CAL_MODE_TURN: {
-		done = drive_turn(90);
+		cal_done = drive_turn(90);
+
+		printf((char *)"not done\n\r");
 		break;
 	}
 	
@@ -147,25 +149,6 @@ void telop_loop(void) {
 			ramp_smart(ramp);
 		}
 	}
-
-#if defined(ROBOT_KEVIN)
-	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d\n\r",
-	       (int)analog_adc_get(POT_ARM),
-	       (int)analog_adc_get(POT_LIFT),
-	       (int)encoder_get(ENC_L),
-	       (int)encoder_get(ENC_R));
-#elif defined(ROBOT_NITISH)
-	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
-	       (int)analog_adc_get(POT_ARM),
-	       (int)analog_adc_get(POT_LIFT_L),
-	       (int)analog_adc_get(POT_LIFT_R),
-	       (int)encoder_get(ENC_L),
-	       (int)encoder_get(ENC_R));
-#endif
-
-
-	/* End calibration mode when the routine is complete. */
-	cal_mode *= !done;
 }
 
 void telop_spin(void) {
