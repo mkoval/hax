@@ -21,8 +21,6 @@ static bool            cal_done = false;
 static bool override = false;
 
 void init(void) {
-	uint8_t i;
-
 	/* Enable the calibration mode specified by the jumpers. */
 	cal_mode = (!digital_get(JUMP_CAL_MODE1)     )
 	         | (!digital_get(JUMP_CAL_MODE2) << 1)
