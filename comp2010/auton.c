@@ -19,8 +19,6 @@ void auto_deploy_loop(state_t const __rom *state, mutable_t *mut) {
 void auto_straight_init(state_t const __rom *state, mutable_t *mut) {
 	mut->enc_left  = encoder_get(ENC_L);
 	mut->enc_right = encoder_get(ENC_R);
-
-	printf((char *)"target = %5d\n\r", (int)(state->data->move.ticks));
 }
 
 void auto_straight_loop(state_t const __rom *state, mutable_t *mut) {

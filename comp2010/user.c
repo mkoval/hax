@@ -66,18 +66,23 @@ void auton_loop(void) {
 	 */
 	next = auto_current->cb_next(auto_current, &auto_mutable);
 
-	printf((char *)"timeout: %5d <= %5d\n\r", (int)auto_mutable.timer, (int)auto_current->timeout);
-
 	/* Use the state-specific trasition function to get the next state. */
 	if (auto_current != next) {
+		uint8_t *bytes = (uint8_t *)&auto_mutable;
+		uint8_t i;
+
 		auto_current = next;
 
 		_puts("[STATE ");
 		_puts(auto_current->name);
 		_puts("]\n\r");
 
-		/* Perform auto_mutable initialization for the new state. */
-		memset(&auto_mutable, 0, sizeof(mutable_t));
+		/* Perform auto_mutable initialization for the new state; replacing the
+		 * non-functioning memset() implementation on the PIC.
+		 */
+		for (i = 0; i < sizeof(mutable_t); ++i) {
+			bytes[i] = 0;
+		}
 		next->cb_init(auto_current, &auto_mutable);
 	} else {
 		/* Count down to a potential timeout. This property is shared amongst all
