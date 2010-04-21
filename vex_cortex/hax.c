@@ -111,7 +111,8 @@ void pin_set_io(PinIx pin_index, PinMode pin_mode) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
 	
-	GPIO_Init((GPIO_TypeDef *)gpio_ports[pin_index], &GPIO_param);	
+	GPIO_Init((GPIO_TypeDef *)gpio_ports[pin_index],
+		&GPIO_param);	
 }
 
 enum {
@@ -196,8 +197,11 @@ void digital_set(PinIx index, bool value) {
 }
 
 bool digital_get(PinIx index) {
-	/* TODO */
-	return false;
+	uint8_t ret = GPIO_ReadInputDataBit(
+		(GPIO_TypeDef*)gpio_ports[index],
+		1<<gpio_index[index]);
+		
+	return ret != 0;
 }
 
 /*
