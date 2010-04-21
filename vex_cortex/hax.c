@@ -23,6 +23,7 @@
 #include "rcc.h"
 #include "usart.h"
 #include "spi.h"
+#include "exti.h"
 
 spi_packet_vex m2u;
 spi_packet_vex u2m;
@@ -38,6 +39,7 @@ void setup_1(void) {
 	nvic_init();
 	tim1_init();
 	adc_init();
+	exti_init();
 	
 	memset(&u2m,0,sizeof(u2m));
 	memset(&m2u,0,sizeof(m2u));
@@ -80,9 +82,7 @@ CtrlMode mode_get(void) {
 /*
  * ANALOG AND DIGITAL INPUTS
  */
-void pin_set_io(PinIx index, PinMode mode) {
-	/* TODO */
-}
+
 
 enum {
 	OI_STICK_L_X,
@@ -165,10 +165,7 @@ void digital_set(PinIx index, bool value) {
 	/* TODO */
 }
 
-bool digital_get(PinIx index) {
-	/* TODO */
-	return false;
-}
+
 
 /*
  * MOTOR AND SERVO OUTPUTS
@@ -188,25 +185,10 @@ void servo_set(AnalogOutIx index, ServoPosition value) {
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
-void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
-	/* TODO */
-}
-
-bool interrupt_get(InterruptIx index) {
-	return false;
-}
-
-void interrupt_enable(InterruptIx index) {
-	/* TODO */
-}
-
-void interrupt_disable(InterruptIx index) {
-	/* TODO */
-}
 
 /*
  * SERIAL IO
  */
 void _putc(char c) {
-	printf("%c", c);
+	putchar(c);
 }

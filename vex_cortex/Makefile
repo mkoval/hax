@@ -9,7 +9,8 @@ SOURCE  += $(ARCH)/hax.c          \
            $(ARCH)/init.c         \
            $(ARCH)/stm32f10x_it.c \
            $(ARCH)/syscall.c      \
-           $(ARCH)/usart.c \
+           $(ARCH)/usart.c        \
+	   $(ARCH)/exti.c         \
            $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
            $(wildcard $(FWLIB_DIR)/src/*.c)
 
