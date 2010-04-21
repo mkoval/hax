@@ -21,7 +21,7 @@ ARCH_CFLAGS=-MD -D$(STMPROC) -DHSE_VALUE=$(HSE_VALUE) \
            -Wno-main -DUSE_STDPERIPH_DRIVER -pipe     \
            -ffunction-sections -fno-unwind-tables     \
            -D_SMALL_PRINTF -DNO_FLOATING_POINT        \
-           $(CC_INC) $(CFLAGS)
+           -DARCH_CORTEX $(CC_INC) $(CFLAGS)
 
 ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
             -nostartfiles                             \
