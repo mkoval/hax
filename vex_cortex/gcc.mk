@@ -1,52 +1,66 @@
-PREFIX        = arm-none-eabi
-CC            = $(PREFIX)-gcc
-LD            = $(PREFIX)-gcc
-AS            = $(PREFIX)-gcc
-MD            = $(PREFIX)-gcc
-OBJCOPY       = $(PREFIX)-objcopy
+# External libraries.
+CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib
+LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
 
-ARCH_CFLAGS  += -mcpu=cortex-m3 -D_STM32F103VDH6_ -D_STM3x_ -D_STM32x_     \
-                -mthumb -fsigned-char -ffunction-sections -Wall -Wno-main  \
-                -I$(FWLIB_PATH)/inc -I$(srcdir) -D_GPIOG
-ARCH_LDFLAGS += $(ARCH_CFLAGS) -Wl,-L$(LDSCRIPT_PATH) -Wl,-T$(LD_SCRIPT)   \
-                -Wl,-static,--gc-sections -nostartfiles -Wl,-Map           \
-                -l:$(FWLIB_PATH)/lib/STM32F10x_thumb.lib
-ARCH_MDFLAGS += $(ARCH_CFLAGS)
+LD_SCRIPT = STM32F103_384K_64K_FLASH.ld
+STMPROC   = STM32F10X_HD
+HSE_VALUE = 8000000
 
-TARGET_ELF    = $(TARGET:.hex=.elf)
-OBJECTS      += $(SOURCE:=.o)
-TRASH        += $(OBJECTS) $(OBJECTS:.o.=.d)
+ARCH_CFLAGS=-MD -D$(STMPROC) -DHSE_VALUE=$(HSE_VALUE) \
+           -mthumb -mcpu=cortex-m3 -Wall              \
+           -Wno-main -DUSE_STDPERIPH_DRIVER -pipe     \
+           -ffunction-sections -fno-unwind-tables     \
+           -D_SMALL_PRINTF -DNO_FLOATING_POINT        \
+           $(CC_INC) $(CFLAGS)
 
-.SECONDARY : 
-.SUFFIXES:
+ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
+            -nostartfiles                             \
+            -Wl,--gc-sections,-Map=$@.map,-cref       \
+            -Wl,-u,Reset_Handler                      \
+            -fwhole-program -Wl,-static               \
+            $(LD_INC) -T $(LD_SCRIPT)
+
+OBJECTS       = $(SOURCE:=.o)
+TRASH        += $(TARGET) $(OBJECTS) $(OBJECTS:.o.=.d)
+
+
+clean :
+	@$(RM) $(TRASH)
+	@$(FIND) -E . -regex '.*\.([od]|elf|hex|bin|map|lss|sym|strip)' -delete
+	@echo "CLEAN"
 
 rebuild : clean all
 
-clean :
-	@echo "CLEAN"
-	@$(RM) $(OBJECTS) $(TARGET) $(TARGET_ELF) $(TRASH)
+.SECONDARY : 
 
-$(TARGET_ELF) : $(OBJECTS)
-	@echo "LD $(@F)"
-	@$(LD) -o $@ $^ $(ALL_LDFLAGS) 
-
-%.hex : %.elf
-	@echo "HEX $(@F)"
-	@$(OBJCOPY) --target=ihex $< $@ 
-
--include $(OBJECTS:.o=.d)
-
-%.c.o : %.c 
-	@echo "CC $(@F)"
-	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
-
-	@$(MD) $(ALL_MDFLAGS) -M -o $<.d $<
-	@mv -f $<.d $<.tmp
-	@sed -e 's|.*:|$<.o:|' < $<.tmp > $<.d
-	@$(RM) $<.tmp
-
-%.s.o : %.s $(HEADERS)
-	@echo "AS $(@F)"
+%.s.o: %.s $(HEADER)
 	@$(AS) $(ALL_ASFLAGS) -c -o $@ $<
+	@echo "AS $<"
+
+%.c.o: %.c $(HEADER)
+	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
+	@echo "CC $<"
+
+%.elf: $(OBJECTS)
+	@$(LD) $(ALL_LDFLAGS) -o $@ $^
+	@echo "LD $<"
+
+%.hex: %.elf
+	@$(OBJCOPY) -S -O ihex $< $@
+	@echo "HEX $<"
+
+%.bin: %.elf
+	@$(OBJCOPY) -S -O binary $< $@
+	@echo "BIN $<"
+
+# Create extended listing file from ELF output file.
+%.elf.lss: %.elf
+	@$(OBJDUMP) -h -S $< > $@
+	@echo "LSS $<"
+
+# Create a symbol table from ELF output file.
+%.elf.sym: %.elf
+	@$(NM) -n $< > $@
+	@echo "SYM $<"
 
 .PHONY : all clean install rebuild
