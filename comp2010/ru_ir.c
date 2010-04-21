@@ -5,6 +5,7 @@
 #define IR_LONG_TABLE_SIZE  256
 #define IR_SHORT_TABLE_SIZE 256
 
+#if defined(ROBOT_KEVIN)
 ir_filter_t ir_filters[num_ir_sensors] = {
 	{ IR_FRONT_H },
 	{ IR_SIDE_F },
@@ -12,8 +13,11 @@ ir_filter_t ir_filters[num_ir_sensors] = {
 	{ IR_REAR },
 	{ IR_FRONT_L }
 };
+#else
+ir_filter_t ir_filters[num_ir_sensors];
+#endif
 
-rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
+__rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
 	180,180,180,180,180,180,180,180,180,180,180,180,
 	180,180,180,180,180,180,180,180,180,180,180,177,
 	173,168,163,159,156,154,151,147,141,138,136,134,
@@ -33,7 +37,7 @@ rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
 	22,22,21,21,21,21,21,21,21,21,20,20,20,20,20,20
 };
 
-rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
+__rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
 	120,120,120,120,120,120,120,120,120,120,120,120,
 	116,111,98,95,92,89,84,80,77,74,71,69,68,67,66,
 	65,64,63,62,61,60,58,55,53,51,50,49,48,48,47,46,
@@ -81,7 +85,7 @@ int IR_Short_To_In10(int sig)
 
 void IR_Filter_Routine(void)
 {
-	char i;
+	uint8_t i;
 	
 	for (i=0; i<num_ir_sensors; i++) {
 		ir_filters[i].s2 = ir_filters[i].s1;
