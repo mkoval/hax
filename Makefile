@@ -10,7 +10,14 @@ ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 
 SOURCE      = hax_main.c hax_serial.c
 HEADERS     = hax.h
-TARGET      = $(PROG)-$(ARCH).hex
+
+ifeq ($(ARCH),vex_pic)
+	TARGET  = $(PROG)-$(ARCH).hex
+endif
+
+ifeq ($(ARCH),vex_cortex)
+	TARGET  = $(PROG)-$(ARCH).bin
+endif
 
 .PHONY: all help vex_pic vex_cortex easyc_cortex clean
 

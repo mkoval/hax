@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 
-volatile bool spi_transfer_flag = false;
+volatile bool spi_transfer_flag = true;
 
 void spi_init(void)
 {
@@ -86,8 +86,8 @@ void spi_init(void)
 
 void spi_process_packets(spi_packet_vex *m2u, spi_packet_vex *u2m)
 {
+	/* Bad sync magic: bad packet. */
 	if (m2u->m2u.sync != SYNC_MAGIC) {
-		printf("Bad sync magic\n");
 		return;
 	}
 	
@@ -101,22 +101,19 @@ void spi_process_packets(spi_packet_vex *m2u, spi_packet_vex *u2m)
 			u2m->u2m.state.a = STATE_VALID;
 		}
 
-		printf("Handle config.");
+		printf("[MASTER config]");
 	}
 	
 	if (m2u->m2u.state.b.initializing) {
 		// not yet good data.
 		u2m->u2m.state.a = STATE_VALID; // we have data ready
-		m2u->m2u.packet_num = 1; // XXX: "to skip print"
-		printf("initializing...");
+		m2u->m2u.packet_num = 1; //XXX: "to skip print"
+		printf("[MASTER init]");
 	}
 	
 	if (m2u->m2u.state.b.valid) {
-		// Yay! data!
 		u2m->u2m.state.a = STATE_VALID;
-		
-		printf("Got valid data");
-		// TODO: put it somewhere.
+		// TODO: Buffer the data.
 	}
 }
 
