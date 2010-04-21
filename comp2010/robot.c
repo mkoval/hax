@@ -114,8 +114,6 @@ bool drive_turn(int16_t angle) {
 	int32_t cur   = ABS(left - right) / 2;
 	int32_t tar   = (int32_t)ABS(angle) * ENC_PER_DEG;
 	int32_t diff  = ABS(cur - tar);
-
-	int32_t tmp1  = (int32_t)kMotorMax * diff / DRIVE_TURN_ERRMAX;
 	int32_t turn  = PROP(kMotorMax, DRIVE_TURN_ERRMAX, diff);
 
 	drive_smart(0, SIGN(angle) * turn);
