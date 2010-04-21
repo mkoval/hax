@@ -1,3 +1,13 @@
+ARCH_PREFIX   = arm-none-eabi-
+CC            = $(ARCH_PREFIX)gcc
+LD            = $(ARCH_PREFIX)gcc
+AS            = $(ARCH_PREFIX)gcc
+MD            = $(ARCH_PREFIX)gcc
+OBJCOPY       = $(ARCH_PREFIX)objcopy
+OBJDUMP       = $(ARCH_PREFIX)objdump
+STRIP         = $(ARCH_PREFIX)strip
+FIND          = find
+
 # External libraries.
 CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib
 LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
