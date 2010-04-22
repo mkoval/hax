@@ -194,6 +194,11 @@ enum {
 	POT_LIFT_R,
     ANA_NUM
 };
+
+#define ENC_PER_IN      150
+#define ENC_PER_DEG     15
+
+#define ARM_SPEEDMAX    127
 #endif
 
 enum {

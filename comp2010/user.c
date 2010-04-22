@@ -103,7 +103,8 @@ void telop_loop(void) {
 #elif defined(ARCH_CORTEX)
 	uint16_t left  = CONSTRAIN(analog_oi_get(OI_STICK_L_Y), -127, 127);
 	uint16_t right = CONSTRAIN(analog_oi_get(OI_STICK_R_Y), -127, 127);
-	uint16_t arm   = 127*analog_oi_get(OI_TRIG_L_U) + -127*analog_oi_get(OI_TRIG_L_D);
+	uint16_t arm   = ARM_SPEEDMAX * analog_oi_get(OI_TRIG_L_U)
+	                 + -ARM_SPEEDMAX * analog_oi_get(OI_TRIG_L_D);
 	uint16_t ramp  = 127*analog_oi_get(OI_TRIG_R_U) + -127*analog_oi_get(OI_TRIG_R_D);
 
 	/* Override potentiometer motor limits. */
