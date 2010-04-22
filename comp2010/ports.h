@@ -41,10 +41,10 @@ enum {
 	MTR_DRIVE_R,
 	MTR_LIFT_L,
 	MTR_LIFT_R,
-	MTR_ARM_A1,
-	MTR_ARM_B1,
-	MTR_ARM_A2,
-	MTR_ARM_B2,
+	MTR_ARM_LT,
+	MTR_ARM_LB,
+	MTR_ARM_RT,
+	MTR_ARM_RB,
     MTR_NUM
 };
 
@@ -60,7 +60,6 @@ enum {
     POT_ARM = 0,
 	POT_LIFT,
 	IR_FRONT_H = 7, /* High */
-	IR_SIDE_F,
 	IR_SIDE_B,
 	IR_REAR,
 	IR_FRONT_L,     /* Low */
@@ -105,15 +104,15 @@ enum {
 #define DUMP_DISTANCE_10IN 55
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW   275
-#define POT_LIFT_HIGH  1000
+#define POT_LIFT_LOW   75
+#define POT_LIFT_HIGH  945
 
 #define LIFT_LT(_p1_, _p2_) ((_p1_) < (_p2_))
 #define LIFT_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
 /* Arm potentiometer, used to measure the orientation of the arm. */
 #define POT_ARM_LOW     850
-#define POT_ARM_HIGH    220
+#define POT_ARM_HIGH    200
 
 #define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
