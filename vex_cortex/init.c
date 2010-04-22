@@ -152,17 +152,8 @@ void tim1_init(void) {
 
 __attribute__((interrupt)) void TIM1_CC_IRQHandler(void)
 {
-	static int i = 0;
-
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC1)) {
-		/* Throttle the slow loop to ~18 ms. */
-		if (i == 17) {
-			spi_transfer_flag = true;
-			i = 0;
-		} else {
-			++i;
-		}
-
+		spi_transfer_flag = true;
 		spi_transfer_flag = true;
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC1);
 	}
