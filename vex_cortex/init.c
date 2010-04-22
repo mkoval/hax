@@ -133,6 +133,7 @@ void tim1_init(void) {
 	/* ---------------------------------------------------------------
 	TIM1 Configuration: Output Compare Toggle Mode:
 	TIM2CLK = 72 MHz, Prescaler = 20, 0xFFFF = 4.5ms
+	1/(72*1000*1000/20/0xFFFF)*1e3 = 18.204166666666666
 	--------------------------------------------------------------- */
 	TIM_TimeBaseInitTypeDef  TIM_param;
 	/* Time base configuration */
@@ -147,6 +148,8 @@ void tim1_init(void) {
 
 	/* TIM IT enable */
 	TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
+	
+	// Clear the lower 3 bits (SMS) to disable slave mode.
 	TIM1->SMCR &= 0xFFF8;
 }
 
