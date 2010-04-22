@@ -25,6 +25,9 @@
 #include "spi.h"
 #include "exti.h"
 
+/* Derived from TIM1 */
+uint16_t const kSlowSpeed = 18200;
+
 spi_packet_vex m2u;
 spi_packet_vex u2m;
 
