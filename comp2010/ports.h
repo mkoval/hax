@@ -71,7 +71,11 @@ enum {
 	JUMP_CAL_MODE2,
 	JUMP_CAL_MODE3,
 	SEN_NUM
-};
+}
+
+#define ENC_PER_IN      100
+#define ENC_PER_DEG     15
+
 #elif defined(ARCH_CORTEX)
 enum {
     INT_ENC_L1 = 0,
@@ -92,6 +96,10 @@ enum {
 	IR_REAR,
     ANA_NUM
 };
+
+#define ENC_PER_IN      150
+#define ENC_PER_DEG     15
+
 #endif
 
 enum {
@@ -101,7 +109,7 @@ enum {
 };
 
 /* Where to stop to successfully score. */
-#define DUMP_DISTANCE_10IN 55
+#define DUMP_DISTANCE_10IN 700
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
 #define POT_LIFT_LOW   75
@@ -117,15 +125,13 @@ enum {
 #define ARM_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) < (_p2_))
 
-#define ENC_PER_IN      100
-#define ENC_PER_DEG     15
-
 /* Robot dimensions, used to refine drive distances. */
 #define ROB_WIDTH_IN    18
 #define ROB_LENGTH_IN   18
 #define ROB_HEIGHT_IN   24
 #define ROB_ARM_IN      17
 
+#define ARM_SPEEDMAX    75
 #define LIFT_DEPLOY_VEL 50
 
 #elif defined(ROBOT_NITISH)
@@ -167,6 +173,10 @@ enum {
     INT_ENC_R2,
     INT_NUM
 };
+
+#define ENC_PER_IN      100
+#define ENC_PER_DEG     15
+
 #elif defined(ARCH_CORTEX)
 /* Encoder Interrupts */
 enum {
@@ -225,9 +235,6 @@ enum {
 #define ARM_LT(_p1_, _p2_) ((_p1_) < (_p2_))
 #define ARM_GT(_p1_, _p2_) ((_p1_) > (_p2_))
 
-#define ENC_PER_IN      100
-#define ENC_PER_DEG     15
-
 /* Robot dimensions, used to refine drive distances. */
 #define ROB_WIDTH_IN    18
 #define ROB_LENGTH_IN   24
@@ -235,9 +242,4 @@ enum {
 #define ROB_ARM_IN      17
 
 #endif
-
-/* Calibration routines. */
-#define CAL_ENC_DRIVE 1000
-#define CAL_ENC_TURN  1000
-
 #endif
