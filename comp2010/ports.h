@@ -48,6 +48,14 @@ enum {
     MTR_NUM
 };
 
+#if defined(ARCH_PIC)
+enum {
+    INT_ENC_L1 = 0,
+    INT_ENC_L2,
+    INT_ENC_R1,
+    INT_ENC_R2,
+    INT_NUM
+};
 enum {
     POT_ARM = 0,
 	POT_LIFT,
@@ -65,8 +73,7 @@ enum {
 	JUMP_CAL_MODE3,
 	SEN_NUM
 };
-
-/* Hardware interrupt mappings. */
+#elif defined(ARCH_CORTEX)
 enum {
     INT_ENC_L1 = 0,
     INT_ENC_L2,
@@ -74,8 +81,20 @@ enum {
     INT_ENC_R2,
     INT_NUM
 };
+enum {
+	JUMP_CAL_MODE1 = INT_NUM,
+	JUMP_CAL_MODE2,
+	JUMP_CAL_MODE3,
+	SEN_NUM
+};
+enum {
+    POT_ARM = 0,
+	POT_LIFT,
+	IR_REAR,
+    ANA_NUM
+};
+#endif
 
-/* Arbitrary constants used to interface with the encoder API. */
 enum {
 	ENC_L = 0,
 	ENC_R,
@@ -149,7 +168,6 @@ enum {
     INT_ENC_R2,
     INT_NUM
 };
-
 #elif defined(ARCH_CORTEX)
 /* Encoder Interrupts */
 enum {
@@ -177,7 +195,6 @@ enum {
 	POT_LIFT_R,
     ANA_NUM
 };
-
 #endif
 
 enum {
