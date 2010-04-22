@@ -82,8 +82,6 @@ CtrlMode mode_get(void) {
 /*
  * ANALOG AND DIGITAL INPUTS
  */
-
-
 enum {
 	OI_STICK_L_X,
 	OI_STICK_L_Y,
@@ -103,22 +101,34 @@ enum {
 	OI_TRIG_R_D
 };
 
-int8_t analog_oi_get(OIIx index) {
-	struct oi_data *joystick = &m2u.m2u.joysticks[index / 20].b;
-	int button = index % 20;
+int8_t analog_oi_get(OIIx button) {
+	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
+	uint16_t sp = 0;
+
+	/* TODO Scale the analog values. */
 
 	switch (button) {
 	/* Left Stick */
 	case OI_STICK_L_X:
-		return joystick->axis_4;
+		sp = joystick->axis_4;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		return sp + 128;
+
 	case OI_STICK_L_Y:
-		return joystick->axis_3;
+		sp = joystick->axis_3;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		return sp + 128;
 	
 	/* Right Stick */
-	case OI_STICK_R_X:
-		return joystick->axis_2;
 	case OI_STICK_R_Y:
-		return joystick->axis_1;
+		sp = joystick->axis_2;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		return sp + 128;
+
+	case OI_STICK_R_X:
+		sp = joystick->axis_1;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		return sp + 128;
 	
 	/* Left Buttons */
 	case OI_BUT_L_U:
@@ -141,15 +151,15 @@ int8_t analog_oi_get(OIIx index) {
 		return joystick->g7_r;
 	
 	/* Left Triggers */
-	case OI_TRIG_L_U:
-		return joystick->g5_u;
 	case OI_TRIG_L_D:
+		return joystick->g5_u;
+	case OI_TRIG_L_U:
 		return joystick->g5_d;
 	
 	/* Right Triggers */
-	case OI_TRIG_R_U:
-		return joystick->g6_u;
 	case OI_TRIG_R_D:
+		return joystick->g6_u;
+	case OI_TRIG_R_U:
 		return joystick->g6_d;
 	
 	default:
@@ -158,7 +168,8 @@ int8_t analog_oi_get(OIIx index) {
 }
 
 uint16_t analog_adc_get(PinIx index) {
-	return adc_buffer[index];
+	/* Pretend we're inaccurate as the PIC. */
+	return adc_buffer[index] >> 2;
 }
 
 void digital_set(PinIx index, bool value) {
@@ -170,8 +181,12 @@ void digital_set(PinIx index, bool value) {
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-void analog_set(AnalogOutIx index, AnalogOut value) {
-	/* TODO */
+void analog_set(AnalogOutIx index, AnalogOut sp) {
+	uint8_t val;
+	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+	val = sp + 128;
+
+	u2m.u2m.motors[index] = val;
 }
 
 void motor_set(AnalogOutIx index, MotorSpeed value) {

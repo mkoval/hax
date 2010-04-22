@@ -36,6 +36,9 @@ void init(void) {
 	_puts(auto_current->name);
 	_puts("]\n\r");
 
+	pin_set_io(BUT_B_L, kInput);
+	pin_set_io(BUT_B_R, kInput);
+
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
 	 */
@@ -56,8 +59,6 @@ void disable_spin(void) {
 void auton_loop(void) {
 	state_t const __rom *next = auto_current;
 	uint8_t i;
-
-	if (cal_mode) return;
 
 	/* Start each autonomous slow loop with a clean slate. */
 	for (i = 0; i < MTR_NUM; ++i) {
@@ -100,10 +101,19 @@ void auton_spin(void) {
 }
 
 void telop_loop(void) {
-	uint16_t left    = analog_oi_get(OI_L_Y);
-	uint16_t right   = analog_oi_get(OI_R_Y);
-	uint16_t arm     = analog_oi_get(OI_L_B);
-	uint16_t ramp    = analog_oi_get(OI_R_B);
+#if defined(ARCH_PIC)
+	uint16_t left  = analog_oi_get(OI_L_Y);
+	uint16_t right = analog_oi_get(OI_R_Y);
+	uint16_t arm   = analog_oi_get(OI_L_B);
+	uint16_t ramp  = analog_oi_get(OI_R_B);
+#elif defined(ARCH_CORTEX)
+	uint16_t left  = CONSTRAIN(analog_oi_get(OI_STICK_L_Y), -127, 127);
+	uint16_t right = CONSTRAIN(analog_oi_get(OI_STICK_R_Y), -127, 127);
+	uint16_t arm   = 127*analog_oi_get(OI_TRIG_L_U) + -127*analog_oi_get(OI_TRIG_L_D);
+	uint16_t ramp  = 127*analog_oi_get(OI_TRIG_R_U) + -127*analog_oi_get(OI_TRIG_R_D);
+#endif
+
+	printf("TRIGU %5d  TRIGD %5d ", analog_oi_get(OI_TRIG_L_U), analog_oi_get(OI_TRIG_L_D));
 
 	switch ((cal_done) ? CAL_MODE_NONE : cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
