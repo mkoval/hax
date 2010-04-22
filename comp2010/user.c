@@ -36,18 +36,16 @@ void init(void) {
 	_puts(auto_current->name);
 	_puts("]\n\r");
 
+#if defined(ROBOT_NITISH)
 	pin_set_io(BUT_B_L, kInput);
 	pin_set_io(BUT_B_R, kInput);
+#endif
 
 	/* Initialize the encoder API; from now on we can use the logical mappings
 	 * ENC_L, ENC_R, and ENC_S without worrying about the wiring of the robot.
 	 */
 	encoder_init(ENC_L, INT_ENC_L1, INT_ENC_L2); /* Left  */
 	encoder_init(ENC_R, INT_ENC_R1, INT_ENC_R2); /* Right */
-
-#if defined(ROBOT_KEVIN)
-	IR_Filter_Routine();
-#endif
 }
 
 void disable_loop(void) {
@@ -59,6 +57,11 @@ void disable_spin(void) {
 void auton_loop(void) {
 	state_t const __rom *next = auto_current;
 	uint8_t i;
+
+	/* Remove outliers from the IR distance sensor data. */
+#if defined(ROBOT_KEVIN)
+	IR_Filter_Routine();
+#endif
 
 	/* Start each autonomous slow loop with a clean slate. */
 	for (i = 0; i < MTR_NUM; ++i) {
@@ -113,7 +116,10 @@ void telop_loop(void) {
 	uint16_t ramp  = 127*analog_oi_get(OI_TRIG_R_U) + -127*analog_oi_get(OI_TRIG_R_D);
 #endif
 
-	printf("TRIGU %5d  TRIGD %5d ", analog_oi_get(OI_TRIG_L_U), analog_oi_get(OI_TRIG_L_D));
+	/* Remove outliers from the IR distance sensor data. */
+#if defined(ROBOT_KEVIN)
+	IR_Filter_Routine();
+#endif
 
 	switch ((cal_done) ? CAL_MODE_NONE : cal_mode) {
 	/* Calibrate the ENC_PER_IN constant. */
@@ -168,6 +174,7 @@ void telop_loop(void) {
 	}
 
 #if defined(ROBOT_KEVIN)
+	IR_Filter_Routine();
 	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n\r",
 		   (int)analog_adc_get(POT_ARM),
 		   (int)analog_adc_get(POT_LIFT),
