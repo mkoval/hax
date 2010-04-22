@@ -3,6 +3,7 @@ log
 mikish/AutonSession
 *.o
 *.d
+*.bin
 *.cod
 *.hex
 *.lst
