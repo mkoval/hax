@@ -1,4 +1,5 @@
 #include <hax.h>
+#include <stdint.h>
 
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
@@ -11,24 +12,24 @@
 /* Not used. (replace PC7(3))
  * PE7(9)
  */
-static uint8_t exti_to_pin [16] =
-	{ 10, 11, 0xFF, 0xFF, 0xFF, 0xFF,
-	  2, 3, 6, 0, 7, 1, 8, 4, 5, 0xFF};
+static const uint8_t exti_to_pin [16] =
+	{ 10, 11, 255, 255, 255, 255, 2,   3,
+	   6,  0,   7,   1,   8,   4, 5, 255};
 
 static InterruptServiceRoutine isr_callback[12];
 
 #define __isr __attribute__((interrupt))
 
-#define CALL_ISR(_i_)               \
-	if (EXTI->PR & (1<<_i_)) {      \
-		if (isr_callback[_i_]) {    \
-			isr_callback[_i_](      \
-				interrupt_get(      \
-					exti_to_pin[_i_]\
-					)               \
-				);                  \
-		}                           \
-		EXTI->PR &= ~(1<<_i_);      \
+#define CALL_ISR(_i_)                            \
+	if (EXTI->PR & (1<<_i_)) {                   \
+		EXTI->PR = (1<<_i_);                   \
+		if (isr_callback[exti_to_pin[_i_]]) {    \
+			isr_callback[exti_to_pin[_i_]](      \
+				interrupt_get(                   \
+					exti_to_pin[_i_]             \
+					)                            \
+				);                               \
+		}                                        \
 	}
 
 __isr void EXTI0_IRQHandler(void) {
@@ -61,7 +62,7 @@ static const GPIO_TypeDef *gpio_ports[12] =
 	{GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
 	
 // Maps ifi labels to interrupt/pin indexes
-static const int8_t   gpio_ifipin_to_pin[12] =
+static const int8_t gpio_ifipin_to_pin[12] =
 	{    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 bool digital_get(PinIx index) {
@@ -96,7 +97,7 @@ void pin_set_io(PinIx pin_index, PinMode pin_mode) {
 
 void interrupt_reg_isr(InterruptIx index,
 	InterruptServiceRoutine isr) {
-	isr_callback[gpio_ifipin_to_pin[index]] = isr;
+	isr_callback[index] = isr;
 }
 
 bool interrupt_get(InterruptIx index) {
@@ -106,6 +107,8 @@ bool interrupt_get(InterruptIx index) {
 void interrupt_enable(InterruptIx index) {
 	uint8_t ri = gpio_ifipin_to_pin[index];
 
+	pin_set_io(index,kInput);
+	
 	// unmask the interrupt.
 	EXTI->IMR |= (1 << ri);
 
