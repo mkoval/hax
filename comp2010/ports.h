@@ -3,6 +3,7 @@
 
 #include <hax.h>
 
+#if defined(ARCH_PIC)
 /* Operator interface port mappings are not robot specific. */
 enum {
 	OI_R_X = kAnalogSplit,
@@ -12,6 +13,26 @@ enum {
 	OI_L_B,
 	OI_R_B
 };
+#elif defined(ARCH_CORTEX)
+enum {
+	OI_STICK_L_X,
+	OI_STICK_L_Y,
+	OI_STICK_R_X,
+	OI_STICK_R_Y,
+	OI_BUT_L_U,
+	OI_BUT_L_D,
+	OI_BUT_L_L,
+	OI_BUT_L_R,
+	OI_BUT_R_U,
+	OI_BUT_R_D,
+	OI_BUT_R_L,
+	OI_BUT_R_R,
+	OI_TRIG_L_U,
+	OI_TRIG_L_D,
+	OI_TRIG_R_U,
+	OI_TRIG_R_D
+};
+#endif
 
 #if defined(ROBOT_KEVIN)
 /* PWM Motor Outputs */
@@ -27,8 +48,6 @@ enum {
     MTR_NUM
 };
 
-
-/* Analog Sensors */
 enum {
     POT_ARM = 0,
 	POT_LIFT,
@@ -39,8 +58,6 @@ enum {
 	IR_FRONT_L,     /* Low */
     ANA_NUM
 };
-
-/* Digital Sensors */
 enum {
 	BUT_B = ANA_NUM,
 	JUMP_CAL_MODE1,
@@ -69,8 +86,8 @@ enum {
 #define DUMP_DISTANCE_10IN 55
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_LOW    275
-#define POT_LIFT_HIGH   1000
+#define POT_LIFT_LOW   275
+#define POT_LIFT_HIGH  1000
 
 #define LIFT_LT(_p1_, _p2_) ((_p1_) < (_p2_))
 #define LIFT_GT(_p1_, _p2_) ((_p1_) > (_p2_))
@@ -107,15 +124,14 @@ enum {
     MTR_NUM
 };
 
-/* Analog Sensors */
+#if defined(ARCH_PIC)
+/* Digital and Analog IO */
 enum {
     POT_ARM = 0,
 	POT_LIFT_L,
 	POT_LIFT_R,
     ANA_NUM
 };
-
-/* Digital Sensors */
 enum {
 	BUT_B_R = ANA_NUM,
 	BUT_B_L,
@@ -125,7 +141,7 @@ enum {
 	SEN_NUM
 };
 
-/* Hardware interrupt mappings. */
+/* Encoder Interrupts */
 enum {
     INT_ENC_L1 = 0,
     INT_ENC_L2,
@@ -134,7 +150,36 @@ enum {
     INT_NUM
 };
 
-/* Arbitrary constants used to interface with the encoder API. */
+#elif defined(ARCH_CORTEX)
+/* Encoder Interrupts */
+enum {
+    INT_ENC_L1 = 0,
+    INT_ENC_L2,
+    INT_ENC_R1,
+    INT_ENC_R2,
+    INT_NUM
+};
+
+/* Digital Inputs */
+enum {
+	BUT_B_L = INT_NUM,
+	BUT_B_R,
+	JUMP_CAL_MODE1,
+	JUMP_CAL_MODE2,
+	JUMP_CAL_MODE3,
+	SEN_NUM
+};
+
+/* Analog Inputs */
+enum {
+    POT_ARM = 0,
+	POT_LIFT_L,
+	POT_LIFT_R,
+    ANA_NUM
+};
+
+#endif
+
 enum {
 	ENC_L = 0,
 	ENC_R,
@@ -142,10 +187,10 @@ enum {
 };
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
-#define POT_LIFT_L_LOW    450
-#define POT_LIFT_L_HIGH   250
-#define POT_LIFT_R_LOW    190
-#define POT_LIFT_R_HIGH   320
+#define POT_LIFT_L_LOW    430
+#define POT_LIFT_L_HIGH   300
+#define POT_LIFT_R_LOW    166
+#define POT_LIFT_R_HIGH   276
 
 #define LIFT_L_LT(_p1_, _p2_) ((_p1_) > (_p2_))
 #define LIFT_L_GT(_p1_, _p2_) ((_p1_) < (_p2_))
