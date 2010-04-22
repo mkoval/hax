@@ -7,11 +7,11 @@
 
 #if defined(ROBOT_KEVIN)
 ir_filter_t ir_filters[num_ir_sensors] = {
-	{ IR_FRONT_H },
-	{ IR_SIDE_F },
-	{ IR_SIDE_B },
+	{ 0 },
+	{ 0 },
+	{ 0 },
 	{ IR_REAR },
-	{ IR_FRONT_L }
+	{ 0 }
 };
 #else
 ir_filter_t ir_filters[num_ir_sensors];
