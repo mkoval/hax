@@ -15,10 +15,10 @@ void drive_raw(AnalogOut left, AnalogOut right) {
 }
 
 void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_A1, +vel);
-	motor_set(MTR_ARM_A2, +vel);
-	motor_set(MTR_ARM_B1, -vel);
-	motor_set(MTR_ARM_B2, -vel);
+	motor_set(MTR_ARM_LT, -vel);
+	motor_set(MTR_ARM_LB, +vel);
+	motor_set(MTR_ARM_RT, +vel);
+	motor_set(MTR_ARM_RB, -vel);
 }
 
 void ramp_raw(AnalogOut left, AnalogOut right) {
