@@ -109,7 +109,7 @@ enum {
 };
 
 /* Where to stop to successfully score. */
-#define DUMP_DISTANCE_10IN 700
+#define DUMP_DISTANCE_10IN 90
 
 /* Lift potentiometer, used to measure the orientation of the lift. */
 #define POT_LIFT_LOW   75

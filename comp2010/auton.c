@@ -129,6 +129,7 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 }
 
 bool auto_ram_isdone(state_t const __rom *state, mutable_t *mut) {
+	IR_Filter_Routine();
 	return Get_Rear_IR() < DUMP_DISTANCE_10IN;
 }
 
