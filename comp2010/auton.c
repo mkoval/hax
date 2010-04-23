@@ -48,11 +48,13 @@ bool auto_straight_isdone(state_t const __rom *state, mutable_t *mut) {
 }
 
 void auto_pickup_init(state_t const __rom *state, mutable_t *mut) {
+	mut->enc_left  = encoder_get(ENC_L);
+	mut->enc_right = encoder_get(ENC_R);
 }
 
 void auto_pickup_loop(state_t const __rom *state, mutable_t *mut) {
 	drive_smart(state->data->move.vel, 0);
-	arm_smart(127);
+	arm_smart(ARM_SPEEDMAX);
 }
 
 bool auto_pickup_isdone(state_t const __rom *state, mutable_t *mut) {

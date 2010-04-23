@@ -116,7 +116,7 @@ void auto_straight_init(state_t const __rom *, mutable_t *);
 void auto_straight_loop(state_t const __rom *, mutable_t *);
 bool auto_straight_isdone(state_t const __rom *, mutable_t *);
 
-/* Drive straight while lifting the arm to collect balls. */
+/* Drive back while lifting the arm to collect balls. */
 void auto_pickup_init(state_t const __rom *, mutable_t *);
 void auto_pickup_loop(state_t const __rom *, mutable_t *);
 bool auto_pickup_isdone(state_t const __rom *, mutable_t *);
