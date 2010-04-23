@@ -241,5 +241,7 @@ enum {
 #define ROB_HEIGHT_IN   18
 #define ROB_ARM_IN      17
 
+#define ARM_SPEEDMAX    127
+
 #endif
 #endif
