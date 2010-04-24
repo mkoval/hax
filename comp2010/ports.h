@@ -131,7 +131,7 @@ enum {
 #define ROB_HEIGHT_IN   24
 #define ROB_ARM_IN      17
 
-#define ARM_SPEEDMAX    75
+#define ARM_SPEEDMAX    85
 #define LIFT_DEPLOY_VEL 50
 
 #elif defined(ROBOT_NITISH)
