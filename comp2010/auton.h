@@ -20,6 +20,7 @@
 
 /* Constructors used to wrap the initialization of a data_t. */
 #define AUTO_STRAIGHT(_dist_, _vel_) {{ IN10_TO_TICKS(_dist_), (_vel_)         }}
+#define AUTO_DRIVE(_vel_)            {{ 0,                     (_vel_)         }}
 #define AUTO_DEPLOY()                {{ 0,                     LIFT_DEPLOY_VEL }}
 #define AUTO_RAM(_vel_)              {{ 0,                     (_vel_)         }}
 #define AUTO_TURN(_ang_, _vel_)      {{ DEG_TO_TICKS(_ang_),   (_vel_)         }}
@@ -110,6 +111,10 @@ struct state_s {
 
 void auto_deploy_init(state_t const __rom *, mutable_t *);
 void auto_deploy_loop(state_t const __rom *, mutable_t *);
+
+/* Drive forward until the the terminating condition is true. */
+void auto_drive_init(state_t const __rom *, mutable_t *);
+void auto_drive_loop(state_t const __rom *, mutable_t *);
 
 /* Drive straight for the specified distance.*/
 void auto_straight_init(state_t const __rom *, mutable_t *);

@@ -61,6 +61,14 @@ bool auto_pickup_isdone(state_t const __rom *state, mutable_t *mut) {
 	return auto_arm_isdone(state, mut);
 }
 
+/* Drive forward at the desired velocity. */
+void auto_drive_init(state_t const __rom *state, mutable_t *mut) {
+}
+
+void auto_drive_loop(state_t const __rom *state, mutable_t *mut) {
+	drive_smart(state->data->move.vel, 0);
+}
+
 /* Turn through a specified angle using encoders as velocity control. */
 void auto_turn_init(state_t const __rom *state, mutable_t *mut) {
 	/* Store the initial encoder counts for both wheels. */
