@@ -7,6 +7,9 @@ OBJCOPY       = $(ARCH_PREFIX)objcopy
 OBJDUMP       = $(ARCH_PREFIX)objdump
 STRIP         = $(ARCH_PREFIX)strip
 FIND          = find
+XARGS         = xargs
+RM            = rm -f
+GREP          = grep
 
 # External libraries.
 CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib
@@ -36,7 +39,9 @@ TRASH        += $(TARGET) $(OBJECTS) $(OBJECTS:.o.=.d)
 
 clean :
 	@$(RM) $(TRASH)
-	@$(FIND) -E . -regex '.*\.([od]|elf|hex|bin|map|lss|sym|strip)' -delete
+	@$(FIND) . -print \
+		| $(GREP) '.*\.\([od]\|elf\|hex\|bin\|map\|lss\|sym\|strip\)$$' \
+		| $(XARGS) -- $(RM)
 	@echo "CLEAN"
 
 rebuild : clean all
