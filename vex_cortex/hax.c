@@ -175,11 +175,6 @@ uint16_t analog_adc_get(PinIx index) {
 	return adc_buffer[index] >> 2;
 }
 
-void digital_set(PinIx index, bool value) {
-	/* TODO */
-}
-
-
 
 /*
  * MOTOR AND SERVO OUTPUTS
