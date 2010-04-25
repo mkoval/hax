@@ -6,19 +6,20 @@
     * Some type of POSIX-y environment, we developed this using 
       Cygwin (on Windows), MacOSX, and Linux.
     * A build environment. 
-        * For "vex_pic", this means installing
+        * For 'vex_pic', this means installing
           mcc18-2.4 (subject to change) and the wrapper
           scripts (http://github.com/jmesmon/mcc18-wrapper).
-        * For "vex_cortex" you'll need binutils, gcc, and
+        * For 'vex_cortex' you will need binutils, gcc, and
           possibly newlib (maybe) of the arm-none-eabi arch.
           (arm-elf may also work, but is untested)
-2. Look at the "skel" directory and the (forthcoming) "test" directory
+2. Look at the 'skel' directory and the (forthcoming) 'test' directory
    to get an idea of how the functions work, etc.
 
-3. For everything hax defines, look at "hax.h".
+3. For everything hax defines, look at 'hax.h'.
 
+## Other Stuff ##
 
-### User Code ###
+### Included User Code ###
 * 'comp2010' is code for both RU Vex 2010 
 * 'skel' shows the minimal amount of implimentation neccisarry.
 * 'test' is the code we are using to test HAX
