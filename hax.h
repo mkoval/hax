@@ -11,61 +11,30 @@
 void main(void) __noreturn;
 
 /* Zero-indexed indices for inputs, outputs, and hardware interrupts. */
-typedef uint8_t OIIx; /* OI inputs */
-typedef uint8_t PinIx; /* Pins on the RC */
-typedef uint8_t AnalogOutIx; /* Just the PWMs */
-typedef uint8_t InterruptIx;
-typedef uint8_t TimerIx;
-
-/* Configuration options to be applied to each input. */
-typedef enum {
-	kInput,
-	kOutput
-} PinMode;
-
-typedef int8_t AnalogOut;
-#define kAnalogOutMin -127
-#define kAnalogOutMax +127
-
-/* Motor speed type, where kMotorMin represents full reverse speed
- * and kMotorMax represents full foward speed.
- */
-typedef int8_t MotorSpeed;
-#define kMotorMin -127
-#define kMotorMax +127
-
-/* Severo position type, where kServoMin and kServoMax are the two extremes
- * of the servo's range of motion.
- */
-typedef int8_t ServoPosition;
-#define kServoMin -127
-#define kServoMax +127
+typedef uint8_t index_t;
 
 /* Callback function invoked when a hardware interrupt is fired. */
-typedef void (*InterruptServiceRoutine)(int8_t);
+typedef void (*isr_t)(int8_t);
 
 /* Operating mode of the robot (autonomous or operator controlled). */
 typedef enum {
-	kAuton,
-	kTelop,
-	kDisable
-} CtrlMode;
+	MODE_AUTON,
+	MODE_TELOP,
+	MODE_DISABLE
+} mode_t;
 
-/* Number of microseconds between two consecutive instances of the processor
- * receiving updated data (i.e. the speed of the "slow loop").
- * NOTE: Supplied by the hardware-specific implementation of HAX.
+#define ANALOG_OUT_MIN (-127)
+#define ANALOG_OUT_MAX  (127)
+
+/* Number of microseconds between two consecutive slow loops. Defined by the
+ * architecture-specific implementation of HAX.
  */
 extern uint16_t const kSlowSpeed;
 
-/* Number of analog inputs, numbered 0 to kNumAnalogInputs - 1. This 
- * numbering scheme is required for portability on PIC hardware.
- * NOTE: Supplied by user code.
+/* Number of analog inputs, numbered 0 to kNumAnalogInputs - 1. Defined by user
+ * code.
  */
 extern uint8_t const kNumAnalogInputs;
-
-/* The number below which Analog inputs are ADC, and above which are OI */
-#define kAnalogSplit 127
-
 
 /*
  * USER CONTROLLER CODE
