@@ -54,13 +54,13 @@ __isr void EXTI15_10_IRQHandler(void) {
 	CALL_ISR(15);
 }
 
-	/* PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
+
+    /* PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
 static GPIO_TypeDef *const ifipin_to_port[12] = 
-	{GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
-	
-// Maps ifi labels to interrupt/pin indexes
+    {GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
+
 static const int8_t ifipin_to_pin[12] =
-	{    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
+    {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 bool digital_get(index_t index) {
 	GPIO_TypeDef *port = ifipin_to_port[index];
@@ -78,7 +78,7 @@ void digital_set(index_t index, bool value) {
 }
 
 
-void pin_set_io(index_t pin_index, bool pin_mode) {	
+void pin_set_io(index_t pin_index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
 	if (pin_index >= 12) {
@@ -88,7 +88,7 @@ void pin_set_io(index_t pin_index, bool pin_mode) {
 	GPIO_param.GPIO_Pin =
 		(uint16_t)(1 << ifipin_to_pin[pin_index]);
 	
-	if (!pin_mode) {
+	if (!set_output) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
