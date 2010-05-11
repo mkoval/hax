@@ -104,7 +104,7 @@ enum {
 	OI_TRIG_R_D
 };
 
-int8_t analog_oi_get(OIIx button) {
+int8_t analog_oi_get(index_t button) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 	uint16_t sp = 0;
 
@@ -170,7 +170,7 @@ int8_t analog_oi_get(OIIx button) {
 	}
 }
 
-uint16_t analog_adc_get(PinIx index) {
+uint16_t analog_adc_get(index_t index) {
 	/* Pretend we're inaccurate as the PIC. */
 	return adc_buffer[index] >> 2;
 }
@@ -179,7 +179,7 @@ uint16_t analog_adc_get(PinIx index) {
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-void analog_set(AnalogOutIx index, AnalogOut sp) {
+void analog_set(index_t index, int8_t sp) {
 	uint8_t val;
 	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
 	val = sp + 128;
@@ -187,17 +187,13 @@ void analog_set(AnalogOutIx index, AnalogOut sp) {
 	u2m.u2m.motors[index] = val;
 }
 
-void motor_set(AnalogOutIx index, MotorSpeed value) {
+void motor_set(index_t index, int8_t value) {
 	analog_set(index, value);
 }
 
-void servo_set(AnalogOutIx index, ServoPosition value) {
+void servo_set(index_t index, int8_t value) {
 	analog_set(index, value);
 }
-
-/*
- * INTERRUPT SERVICE ROUTINE FUNCTIONS
- */
 
 /*
  * SERIAL IO
