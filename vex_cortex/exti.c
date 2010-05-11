@@ -62,15 +62,15 @@ static GPIO_TypeDef *const ifipin_to_port[12] =
 static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
-bool digital_get(index_t index) {
-	GPIO_TypeDef *port = ifipin_to_port[index];
-	uint8_t pin = ifipin_to_pin[index];
+bool digital_get(index_t ifi_index) {
+	GPIO_TypeDef *port = ifipin_to_port[ifi_index];
+	uint8_t pin = ifipin_to_pin[ifi_index];
 
 	return (port->IDR & ( 1 << pin )) >> pin;
 }
 
-void digital_set(index_t index, bool value) {
-	if (value) {
+void digital_set(index_t index, bool pull_high) {
+	if (pull_high) {
 		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[index];
 	} else {
 		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[index];
@@ -78,15 +78,15 @@ void digital_set(index_t index, bool value) {
 }
 
 
-void pin_set_io(index_t pin_index, bool set_output ) {	
+void pin_set_io(index_t ifi_index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
-	if (pin_index >= 12) {
+	if (ifi_index >= 12) {
 		return;
 	}
 	
 	GPIO_param.GPIO_Pin =
-		(uint16_t)(1 << ifipin_to_pin[pin_index]);
+		(uint16_t)(1 << ifipin_to_pin[ifi_index]);
 	
 	if (!set_output) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
@@ -95,22 +95,22 @@ void pin_set_io(index_t pin_index, bool set_output ) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
 	
-	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[pin_index],
-		&GPIO_param);	
+	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[ifi_index],
+		&GPIO_param);
 }
 
-void interrupt_reg_isr(index_t index, isr_t isr) {
-	isr_callback[index] = isr;
+void interrupt_reg_isr(index_t ifi_index, isr_t isr) {
+	isr_callback[ifi_index] = isr;
 }
 
-bool interrupt_get(index_t index) {
-	return digital_get(index);
+bool interrupt_get(index_t ifi_index) {
+	return digital_get(ifi_index);
 }
 
-void interrupt_enable(index_t index) {
-	uint8_t ri = ifipin_to_pin[index];
+void interrupt_enable(index_t ifi_index) {
+	uint8_t ri = ifipin_to_pin[ifi_index];
 
-	pin_set_io(index, false);
+	pin_set_io(ifi_index, false);
 	
 	// unmask the interrupt.
 	EXTI->IMR |= (1 << ri);
@@ -123,8 +123,8 @@ void interrupt_enable(index_t index) {
 	EXTI->FTSR |= (1 << ri);
 }
 
-void interrupt_disable(index_t index) {
-	EXTI->IMR &= ~(1 << ifipin_to_pin[index]);
+void interrupt_disable(index_t ifi_index) {
+	EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
 }
 
 
