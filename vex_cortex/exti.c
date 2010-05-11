@@ -20,14 +20,14 @@ static isr_t isr_callback[12];
 
 #define __isr __attribute__((interrupt))
 
-#define CALL_ISR(_i_)                              \
-	if (EXTI->PR & (1<<_i_)) {                     \
-		EXTI->PR = (1<<_i_);                       \
-		uint8_t ri = pin_to_ifipin[_i_];	       \
-		if (isr_callback[ri]) {                    \
-			isr_callback[ri]( interrupt_get(ri) ); \
-		}                                          \
-	}
+#define CALL_ISR(_i_)                                          \
+        if (EXTI->PR & (1<<_i_)) {                             \
+                EXTI->PR = (1<<_i_);                           \
+                uint8_t ri = pin_to_ifipin[_i_];	       \
+                if (isr_callback[ri]) {                        \
+                        isr_callback[ri]( interrupt_get(ri) ); \
+                }                                              \
+        }
 
 __isr void EXTI0_IRQHandler(void) {
 	CALL_ISR(0);
