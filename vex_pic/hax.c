@@ -19,6 +19,7 @@ uint16_t const kSlowSpeed = 18500;
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
 #define kVPMaxMotors 8
 #define kVPNumOIInputs 16
+#define kAnalogSplit 127
 
 /* Variables used for master proc comms by both our code and IFI's lib.
  *  Do not rename.
@@ -39,6 +40,8 @@ typedef enum
   kBaud115 = 21
 } SerialSpeed;
 
+static mode_t mode_s = MODE_AUTON;
+
 /*
  * INITIALIZATION AND MISC
  */
@@ -50,20 +53,20 @@ void setup_1(void) {
 	/* Initialize serial port communication. */
 	statusflag.b.NEW_SPI_DATA = 0;
 
-	Open1USART(USART_TX_INT_OFF &
-		USART_RX_INT_OFF &
-		USART_ASYNCH_MODE &
-		USART_EIGHT_BIT &
-		USART_CONT_RX &
-		USART_BRGH_HIGH,
-		kBaud115);
-	Delay1KTCYx( 50 ); 
+	Open1USART(USART_TX_INT_OFF
+	         & USART_RX_INT_OFF
+	         & USART_ASYNCH_MODE
+	         & USART_EIGHT_BIT
+	         & USART_CONT_RX
+	         & USART_BRGH_HIGH,
+	           kBaud115);
+	Delay1KTCYx(50); 
 
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
 
 	for (i = 0; i < 22; ++i) {
-		pin_set_io( i, kInput);
+		pin_set_io(i, false);
 	}
 
 	/* Init ADC */
@@ -73,7 +76,6 @@ void setup_1(void) {
 	 * where x counts the number of DIGITAL ports. In total, there are
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
-	_puts("[ADC INIT : "); 
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
 		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the FOSC
@@ -86,9 +88,8 @@ void setup_1(void) {
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
-		_puts("DONE ]\r\n");
 	} else { 
-		_puts("FAIL ]\r\n");
+		/* TODO Handle the error. */
 	}
 
 }
@@ -100,7 +101,7 @@ void setup_2(void) {
 void spin(void) {
 }
 
-int16_t get_battery(void) {
+int16_t battery_get(void) {
 	uint8_t tmp;
 	LVDCON = 0b1110;
 	for(;;) {
@@ -165,7 +166,6 @@ bool new_data_received(void) {
 	return statusflag.b.NEW_SPI_DATA;
 }
 
-static CtrlMode mode_s = kAuton;
 
 uint8_t check_oi(void) {
 	uint8_t i;
@@ -177,36 +177,29 @@ uint8_t check_oi(void) {
 	return 0;
 }
 
-CtrlMode mode_get(void) {
+mode_t mode_get(void) {
 	if (rxdata.rcstatusflag.b.oi_on) {
-		if (mode_s != kTelop) {
+		if (mode_s != MODE_TELOP) {
 			if (check_oi()) {
-				mode_s = kTelop;
+				mode_s = MODE_TELOP;
 			}
 		}
 		return mode_s;
 	} else {
-		mode_s = kAuton;
-		return kDisable;
+		mode_s = MODE_AUTON;
+		return MODE_DISABLE;
 	}
-}
-
-void mode_set(CtrlMode mode) {
 }
 
 /*
  * DIGITAL AND ANALOG IO
  */
-
 #define BIT_HI(x, i)     ((x) |=  1 << (i))
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void pin_set_io(PinIx i, PinMode mode) {
-	uint8_t bit = (mode == kInput);
-
+void pin_set_io(index_t i, bool bit) {
 	switch (i) {
-	
 	case 0:
 	case 1:
 	case 2:
@@ -254,7 +247,7 @@ void pin_set_io(PinIx i, PinMode mode) {
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
-bool digital_get(PinIx i) {
+bool digital_get(index_t i) {
 
 	switch (i) {
 	
@@ -303,7 +296,7 @@ bool digital_get(PinIx i) {
 	}
 }
 
-uint16_t analog_adc_get(PinIx ain) {
+uint16_t analog_adc_get(index_t ain) {
 	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
 		/* 0 <= ain < 16 */
 		/* read ADC (0b10000111 = 0x87) */
@@ -320,7 +313,7 @@ uint16_t analog_adc_get(PinIx ain) {
 	}
 }
 
-int8_t analog_oi_get(OIIx ain) {
+int8_t analog_oi_get(index_t ain) {
 	if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
 		/* 127 <= ain < (127 + 16) */
 		/* ain refers to one of the off robot inputs */
@@ -330,8 +323,7 @@ int8_t analog_oi_get(OIIx ain) {
 	return 0;
 }
 
-void analog_set(AnalogOutIx aout, AnalogOut sp) {
-
+void analog_set(index_t aout, int8_t sp) {
 	if ( aout < kVPMaxMotors ) {
 #if defined(MIKE_WHAT____)
 		int16_t val = (int16_t)sp + 127;
@@ -351,24 +343,24 @@ void analog_set(AnalogOutIx aout, AnalogOut sp) {
 	}
 }
 
-void motor_set(AnalogOutIx aout, MotorSpeed sp) {
+void motor_set(index_t aout, int8_t sp) {
 	analog_set(aout,sp);
 }
 
-void servo_set(AnalogOutIx aout, ServoPosition sp) {
+void servo_set(index_t aout, int8_t sp) {
 	analog_set(aout,sp);
 }
 
 /*
  * INTERRUPTS
  */
-InterruptServiceRoutine isr_callbacks[6] = { 0 };
+isr_t isr_callbacks[6] = { 0 };
 
-void interrupt_reg_isr(InterruptIx index, InterruptServiceRoutine isr) {
+void interrupt_reg_isr(index_t index, isr_t isr) {
 	isr_callbacks[index] = isr;
 }
 
-bool interrupt_get(InterruptIx index) {
+bool interrupt_get(index_t index) {
 	/* There are 16 digital pins, so the first interrupt is pin 16. */
 	return digital_get(16 + index);
 }
@@ -441,7 +433,7 @@ void interrupt_vector(void) {
 
 /* TODO Implement interrupt_disable(). */
 
-void interrupt_enable(InterruptIx index) {
+void interrupt_enable(index_t index) {
 	switch (index) {
 	case 0:
 		TRISBbits.TRISB2    = 1;
@@ -473,20 +465,6 @@ void interrupt_enable(InterruptIx index) {
 		break;
 	}
 }
-
-/*
- * TIMERS
- */
-#if 0
-InterruptServiceRoutine isr_callbacks[5] = { 0, 0, 0, 0, 0 };
-
-void timer_set(TimerIx index, bool enabled) {
-	uint8_t flags = TO_16BIT & TO_PS_1_256 & 
-	switch (index) {
-	case 0:
-		OpenTimer0(TO_16BIT & TO_PS_1_256 
-}
-#endif
 
 /*
  * STREAM IO
