@@ -72,13 +72,13 @@ bool new_data_received(void) {
 	return spi_transfer_flag;
 }
 
-CtrlMode mode_get(void) {
+state_t mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
-		return kAuton;
+		return MODE_AUTON;
 	} else if (m2u.m2u.sys_flags.b.disable) {
-		return kDisable;
+		return MODE_DISABLE;
 	} else {
-		return kTelop;
+		return MODE_TELOP;
 	}
 }
 

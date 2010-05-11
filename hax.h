@@ -21,7 +21,7 @@ typedef enum {
 	MODE_AUTON,
 	MODE_TELOP,
 	MODE_DISABLE
-} mode_t;
+} state_t;
 
 #define ANALOG_OUT_MIN (-127)
 #define ANALOG_OUT_MAX  (127)
@@ -81,10 +81,10 @@ void loop_2(void);
 bool new_data_received(void);
 
 /* Determines if the robot is in autonomous or telop mode. */
-mode_t mode_get(void);
+state_t mode_get(void);
 
 /* Puts the robot in autonomous or telop mode. */
-void mode_set(mode_t);
+void mode_set(state_t);
 
 /*
  * ANALOG AND DIGITAL INPUTS

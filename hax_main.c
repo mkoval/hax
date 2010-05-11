@@ -2,7 +2,7 @@
 #include "compilers.h"
 
 void main(void) {
-	static mode_t mode;
+	static state_t mode;
 	
 	setup_1();
 	init();

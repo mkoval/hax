@@ -40,7 +40,7 @@ typedef enum
   kBaud115 = 21
 } SerialSpeed;
 
-static mode_t mode_s = MODE_AUTON;
+static state_t mode_s = MODE_AUTON;
 
 /*
  * INITIALIZATION AND MISC
@@ -177,7 +177,7 @@ uint8_t check_oi(void) {
 	return 0;
 }
 
-mode_t mode_get(void) {
+state_t mode_get(void) {
 	if (rxdata.rcstatusflag.b.oi_on) {
 		if (mode_s != MODE_TELOP) {
 			if (check_oi()) {
