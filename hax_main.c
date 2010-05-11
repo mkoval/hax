@@ -2,7 +2,7 @@
 #include "compilers.h"
 
 void main(void) {
-	static CtrlMode mode;
+	static mode_t mode;
 	
 	setup_1();
 	init();
@@ -15,25 +15,35 @@ void main(void) {
 		if (new_data_received()) {
 			loop_1();
 			
-			if (mode == kAuton) {
+			switch (mode) {
+			case MODE_AUTON:
 				auton_loop();
-			} else if (mode == kTelop) {
+				break;
+
+			case MODE_TELOP:
 				telop_loop();
-			} else if (mode == kDisable) {
+				break;
+
+			default:
 				disable_loop();
 			}
-			
+
 			loop_2();
 		}
 		
 		/* Executes as fast as the hardware allows. */
 		spin();
 
-		if (mode == kAuton) {
+		switch (mode) {
+		case MODE_AUTON:
 			auton_spin();
-		} else if (mode == kTelop) {
+			break;
+
+		case MODE_TELOP:
 			telop_spin();
-		} else if (mode == kDisable) {
+			break;
+
+		default:
 			disable_spin();
 		}
 	}
