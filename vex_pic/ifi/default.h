@@ -10,8 +10,7 @@
 #ifndef __ifi_default_h_
 #define __ifi_default_h_
 
-/* TODO Replace this with a relative path. */
-#include <vex_pic/ifi/picdefs.h>
+#include "ifi/picdefs.h"
 
 #ifdef UNCHANGEABLE_DEFINITION_AREA
 
