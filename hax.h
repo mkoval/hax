@@ -143,22 +143,5 @@ void timer_set(TimerIx, bool);
 uint16_t timer_read(TimerIx);
 
 /* Loads the a new value into the specified timer. */
-void timer_write(TimerIx, uint16_t);
-
-/*
- * STREAM IO
- */
-/* Writes data of the specified type to stdout, formatting it in a human-
- * readable manner. Hex values, written with puth, are not prefixed with "0x"
- * unless manually printed with the other put() methods.
- */
-void _putc(char);
-void puth(uint16_t);
-void _puth(uint8_t);
-void _puth2(uint16_t);
-void _puti(uint16_t);
-void _putf(float);
-void _puts(char const __rom *c);
-
 
 #endif
