@@ -8,7 +8,7 @@ ALL_LDFLAGS = $(ARCH_LDFLAGS) $(LDFLAGS)
 ALL_ASFLAGS = $(ARCH_ASFLAGS) $(ASFLAGS)
 ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 
-SOURCE      = hax_main.c hax_serial.c
+SOURCE      = hax_main.c
 HEADERS     = hax.h
 
 ifeq ($(ARCH),vex_pic)
