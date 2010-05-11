@@ -53,10 +53,10 @@ void disable_spin(void);
 /*
  * INITIALIZATION AND MISC
  */
-/* Hardware-specific initialization code that is executed exactly once
- * prior to any invocations of spin or loop. Responsible for initializing
- * analog inputs, digital inputs, and outputs.
- * setup_1 executes prior to user init, and setup_2 follows user init.
+/* Hardware-specific initialization code that is executed exactly once prior to
+ * any invocations of spin or loop. Initializes analog inputs, digital inputs,
+ * and outputs. Note that setup_1() executes prior to user init, and setup_2()
+ * follows user init.
  */
 void setup_1(void);
 void setup_2(void);
@@ -81,67 +81,72 @@ void loop_2(void);
 bool new_data_received(void);
 
 /* Determines if the robot is in autonomous or telop mode. */
-CtrlMode mode_get(void);
+mode_t mode_get(void);
 
 /* Puts the robot in autonomous or telop mode. */
-void mode_set(CtrlMode new_mode);
-
+void mode_set(mode_t);
 
 /*
  * ANALOG AND DIGITAL INPUTS
  */
-/* Expected to be invoked exactly once, in the setup() function. */
-void pin_set_io(PinIx, PinMode);
+/* Expected to be invoked exactly once, in the setup() function. False treats
+ * the pin as a digital input and true as a digital output.
+ */
+void pin_set_io(index_t, bool);
 
 /* Get a raw analog value from the input with the specified Ix. Produces
  * undefined results if the input is configured as a digital
  * sensor.
  */
-int8_t analog_oi_get(OIIx);
-uint16_t analog_adc_get(PinIx);
+int8_t analog_oi_get(index_t);
+uint16_t analog_adc_get(index_t);
 
 /* Gets and sets digital values for the specified port number. Produces
  * undefined results if the input is configured as an analog sensor.
  */
-void digital_set(PinIx, bool);
-bool digital_get(PinIx);
+void digital_set(index_t, bool);
+bool digital_get(index_t);
+bool digital_oi_get(index_t);
+
+int16_t battery_get(void);
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
 /* More raw function, bounded by kAnalogOut{Max,Min} */
-void analog_set(AnalogOutIx, AnalogOut);
+void analog_set(index_t, int8_t);
 
 /* Motor's speed must be bounded by kMotorMin and kMotorMax. */
-void motor_set(AnalogOutIx, MotorSpeed);
+void motor_set(index_t, int8_t);
 
 /* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(AnalogOutIx, ServoPosition);
+void servo_set(index_t, int8_t);
 
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-void interrupt_reg_isr(InterruptIx, InterruptServiceRoutine);
+void interrupt_reg_isr(index_t, isr_t);
 
 /* Reads from an interrupt port as if it is a digital input. */
-bool interrupt_get(InterruptIx);
+bool interrupt_get(index_t);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations and in initialization.
  */
-void interrupt_enable(InterruptIx);
-void interrupt_disable(InterruptIx);
+void interrupt_enable(index_t);
+void interrupt_disable(index_t);
 
 /*
  * TIMERS
  */
 /* Enable or disable the specified timer. */
-void timer_set(TimerIx, bool);
+void timer_set(index_t, bool);
 
 /* Reads the curent value of the specified timer. */
-uint16_t timer_read(TimerIx);
+uint16_t timer_read(index_t);
 
 /* Loads the a new value into the specified timer. */
+void timer_write(index_t, uint16_t);
 
 #endif
