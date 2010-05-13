@@ -23,6 +23,9 @@ typedef enum {
 	MODE_DISABLE
 } state_t;
 
+/* TODO Remove this hack. */
+#define kAnalogSplit 127
+
 #define ANALOG_OUT_MIN (-127)
 #define ANALOG_OUT_MAX  (127)
 

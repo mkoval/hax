@@ -19,7 +19,6 @@ uint16_t const kSlowSpeed = 18500;
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
 #define kVPMaxMotors 8
 #define kVPNumOIInputs 16
-#define kAnalogSplit 127
 
 /* Variables used for master proc comms by both our code and IFI's lib.
  *  Do not rename.
