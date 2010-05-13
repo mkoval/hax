@@ -14,7 +14,7 @@ void main(void) __noreturn;
 typedef uint8_t index_t;
 
 /* Callback function invoked when a hardware interrupt is fired. */
-typedef void (*isr_t)(int8_t pin_level);
+typedef void (*isr_t)(bool pin_level);
 
 /* Operating mode of the robot (autonomous or operator controlled). */
 typedef enum {
