@@ -18,8 +18,6 @@ ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -I=$(srcdir) -I=$(WIAPATH)   \
                -p=18F8520 /DARCH_PIC
 ARCH_ASFLAGS = /p18f8520
 ARCH_LDFLAGS = $(ARCH)/18f8520user.lkr /l $(WLIBPATH) /a INHX32
-ARCH_MDFLAGS = -MM -DMCC18_24 -D__18CXX -DUNCHANGEABLE_DEFINITION_AREA \
-               -L$(srcdir) -L$(IPATH) -L$(ICPATH)
 
 OBJECTS     += $(SOURCE:=.o)
 TRASH       += $(TARGET:.hex=.cod) \
@@ -47,12 +45,6 @@ $(TARGET) : $(OBJECTS)
 %.c.o : %.c
 	@echo "CC $(@F)"
 	@$(CC) $(ALL_CFLAGS) $< -fo=$@
-
-    # Generate auto-dependancy files using GCC.
-	@$(MD) $(ALL_MDFLAGS) $< -o $<.d
-	@mv -f $<.d $<.tmp
-	@sed -e 's|.*:|$<.o:|' < $<.tmp > $<.d
-	@$(RM) $<.tmp
 
 %.asm.o : %.asm
 	@echo "AS $(@F)"
