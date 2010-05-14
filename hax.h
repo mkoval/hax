@@ -115,7 +115,7 @@ uint16_t analog_adc_get(index_t apin_index);
 bool digital_oi_get(index_t oi_index);
 int8_t analog_oi_get(index_t oi_index);
 
-/* TODO Document this method. */
+/* TODO: Document this method. */
 int16_t battery_get(void);
 
 /*
