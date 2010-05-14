@@ -88,7 +88,7 @@ void setup_1(void) {
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
 	} else { 
-		/* TODO Handle the error. */
+		/* TODO: Handle the error. */
 	}
 
 }
@@ -100,7 +100,7 @@ void setup_2(void) {
 void spin(void) {
 }
 
-int16_t battery_get(void) {
+uint8_t battery_get(void) {
 	uint8_t tmp;
 	/* 0b1110 is the highest detectable voltage level */
 	LVDCON = 0b1110;
@@ -168,14 +168,14 @@ bool new_data_received(void) {
 }
 
 
-uint8_t check_oi(void) {
+static bool check_oi(void) {
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
 		if ( (rxdata.oi_analog[i] > 0xdf) || (rxdata.oi_analog[i] < 0x1f) ) {
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 state_t mode_get(void) {
