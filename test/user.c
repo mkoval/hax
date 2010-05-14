@@ -36,8 +36,8 @@ void auton_loop(void) {
 		/* Motor speeds range from -127 (full power, reverse) to +227 (full
 		 * power, forward).
 		 */
-		motor_set(MTR_LEFT,   127);
-		motor_set(MTR_RIGHT, -127);
+		analog_set(MTR_LEFT,   127);
+		analog_set(MTR_RIGHT, -127);
 
 		/* Buttons and limit switches are active-low, meaning that they have
 		 * a default value of 1 ("true").
@@ -56,8 +56,8 @@ void telop_loop(void) {
 	int8_t left  = analog_oi_get(OI_STICK_L_Y);
 	int8_t right = analog_oi_get(OI_STICK_R_Y);
 
-	motor_set(MTR_LEFT,   left);
-	motor_set(MTR_RIGHT, -right);
+	analog_set(MTR_LEFT,   left);
+	analog_set(MTR_RIGHT, -right);
 }
 
 /* Same as auton_loop() and telop_loop(), except in disabled mode. This is 
