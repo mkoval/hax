@@ -5,6 +5,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* Define an empty error handler for the user to override. */
+#ifndef ERROR
+#define ERROR(_file_, _line_)
+#endif
+
 /*
  * The Main function
  */
