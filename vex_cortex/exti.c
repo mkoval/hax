@@ -66,21 +66,21 @@ static GPIO_TypeDef *const ifipin_to_port[12] =
 static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
-bool digital_get(index_t ifi_index) {
+bool digital_get(index_t index) {
 	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
 		ERROR(__FILE__, __LINE__);
 		return false;
 	}
 
-	GPIO_TypeDef *port = ifipin_to_port[ifi_index - 1];
-	index_t       pin  = ifipin_to_pin[ifi_index - 1];
+	GPIO_TypeDef *port = ifipin_to_port[index - 1];
+	index_t       pin  = ifipin_to_pin[index - 1];
 	return (port->IDR & ( 1 << pin )) >> pin;
 }
 
 void digital_set(index_t index, bool pull_high) {
 	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
@@ -92,45 +92,45 @@ void digital_set(index_t index, bool pull_high) {
 	}
 }
 
-void pin_set_io(index_t ifi_index, bool set_output ) {	
+void pin_set_io(index_t index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
 	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
 	
-	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[ifi_index - 1]);
+	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
 	
 	if (!set_output) {
-		GPIOso _param.GPIO_Mode = GPIO_Mode_IPU;
+		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
 	
-	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[ifi_index - 1], &GPIO_param);
+	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &GPIO_param);
 }
 
-void interrupt_reg_isr(index_t ifi_index, isr_t isr) {
-	if (!IS_INTERRUPT(ifi_index)) {
+void interrupt_reg_isr(index_t index, isr_t isr) {
+	if (!IS_INTERRUPT(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
 
-	isr_callback[ifi_index - 1] = isr;
+	isr_callback[index - 1] = isr;
 }
 
-void interrupt_enable(index_t ifi_index) {
-	uint8_t ri = ifipin_to_pin[ifi_index - 1];
+void interrupt_enable(index_t index) {
+	uint8_t ri = ifipin_to_pin[index - 1];
 
-	if (!IS_INTERRUPT(ifi_index)) {
+	if (!IS_INTERRUPT(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
 
-	pin_set_io(ifi_index, false);
+	pin_set_io(index, false);
 	
 	// unmask the interrupt.
 	EXTI->IMR |= (1 << ri);
@@ -143,13 +143,13 @@ void interrupt_enable(index_t ifi_index) {
 	EXTI->FTSR |= (1 << ri);
 }
 
-void interrupt_disable(index_t ifi_index) {
-	if (!IS_INTERRUPT(ifi_index)) {
+void interrupt_disable(index_t index) {
+	if (!IS_INTERRUPT(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
 
-	EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
+	EXTI->IMR &= ~(1 << ifipin_to_pin[index]);
 }
 
 void exti_init(void) {
