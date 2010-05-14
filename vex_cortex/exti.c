@@ -104,7 +104,7 @@ void pin_set_io(index_t index, bool set_output ) {
 	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
 	
 	if (!set_output) {
-		GPO_param.GPIO_Mode = GPIO_Mode_IPU;
+		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
