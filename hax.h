@@ -130,16 +130,16 @@ void analog_set(index_t ana_out_index, int8_t outp_value);
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-void interrupt_reg_isr(index_t inter_index, isr_t isr_function);
+void interrupt_reg_isr(index_t pin_index, isr_t isr_function);
 
 /* Reads from an interrupt port as if it is a digital input. */
-bool interrupt_get(index_t interrupt_index);
+bool interrupt_get(index_t pin_index);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations and in initialization.
  */
-void interrupt_enable(index_t interrupt_index);
-void interrupt_disable(index_t interrupt_index);
+void interrupt_enable(index_t pin_index);
+void interrupt_disable(index_t pin_index);
 
 /*
  * TIMERS
