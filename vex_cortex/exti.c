@@ -63,52 +63,84 @@ static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 bool digital_get(index_t ifi_index) {
-	GPIO_TypeDef *port = ifipin_to_port[ifi_index];
-	uint8_t pin = ifipin_to_pin[ifi_index];
+	/* Dedicated digital and interrupt pins. */
+	if (1 <= ifi_index && ifi_index <= 12) {
+		GPIO_TypeDef *port = ifipin_to_port[ifi_index - 1];
+		index_t       pin  = ifipin_to_pin[ifi_index - 1];
+		return (port->IDR & ( 1 << pin )) >> pin;
+	}
+	/* Analog pins that are in digital mode. */
+	else if (13 <= ifi_index && ifi_index <= 21) {
+		/* TODO Provide a mapping for the analog pins. */
+		ERROR(__FILE__, __LINE__);
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 
-	return (port->IDR & ( 1 << pin )) >> pin;
 }
 
 void digital_set(index_t index, bool pull_high) {
-	if (pull_high) {
-		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[index];
+	/* Dedicated digital and interrupt pins. */
+	if (1 <= index && index <= 12) {
+		if (pull_high) {
+			ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
+		} else {
+			ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
+		}
+	}
+	/* Analog pins that are in digital mode. */
+	else if (13 <= ifi_index && ifi_index <= 21) {
+		/* TODO Provide a mapping for the analog pins. */
+		ERROR(__FILE__, __LINE__);
 	} else {
-		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[index];
+		ERROR(__FILE__, __LINE__);
 	}
 }
-
 
 void pin_set_io(index_t ifi_index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
-	if (ifi_index >= 12) {
+	/* Index out of the valid range. */
+	if ( !(1 <= ifi_index && ifi_index <= 21) ) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
+	/* Unsupported analog pins. */
+	else if ( !(1 <= ifi_index && ifi_index <= 12) ) {
+		/* TODO Enable digital IO for analog pins. */
+		ERROR(__FILE__, __LINE__);
 		return;
 	}
 	
-	GPIO_param.GPIO_Pin =
-		(uint16_t)(1 << ifipin_to_pin[ifi_index]);
+	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[ifi_index - 1]);
 	
 	if (!set_output) {
-		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
+		GPIOso _param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
 	
-	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[ifi_index],
-		&GPIO_param);
+	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[ifi_index - 1], &GPIO_param);
 }
 
 void interrupt_reg_isr(index_t ifi_index, isr_t isr) {
-	isr_callback[ifi_index] = isr;
-}
-
-bool interrupt_get(index_t ifi_index) {
-	return digital_get(ifi_index);
+	/* Only the dedicated digital pins are external interrupts. */
+	if (1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) {
+		isr_callback[ifi_index - 1] = isr;
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 }
 
 void interrupt_enable(index_t ifi_index) {
-	uint8_t ri = ifipin_to_pin[ifi_index];
+	uint8_t ri = ifipin_to_pin[ifi_index - 1];
+
+	/* Only the dedicated digital pins are mapped to external interrupts. */
+	if ( !(1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) ) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
 
 	pin_set_io(ifi_index, false);
 	
@@ -124,10 +156,12 @@ void interrupt_enable(index_t ifi_index) {
 }
 
 void interrupt_disable(index_t ifi_index) {
-	EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
+	if (1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) {
+		EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 }
-
-
 
 void exti_init(void) {
 	NVIC_InitTypeDef NVIC_param;
@@ -180,8 +214,6 @@ void exti_init(void) {
 		| EXTI_IMR_MR13
 		| EXTI_IMR_MR14
 		);
-	
-	
 	
 	/* Enable the EXTI0 Interrupt */
 	NVIC_param.NVIC_IRQChannel = EXTI0_IRQn;
