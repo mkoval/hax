@@ -97,19 +97,18 @@ void mode_set(state_t new_state);
  */
 void pin_set_io(index_t pin_index, bool as_output);
 
-/* Get a raw analog value from the input with the specified Ix. Produces
- * undefined results if the input is configured as a digital
- * sensor.
- */
-int8_t analog_oi_get(index_t oi_index);
-uint16_t analog_adc_get(index_t apin_index);
-
-/* Gets and sets digital values for the specified port number. Produces
- * undefined results if the input is configured as an analog sensor.
+/* Read and write digital pins, indexed by their physical label. Setting a pin
+ * that is not configured as an output produces undefined results.
  */
 void digital_set(index_t pin_index, bool level);
 bool digital_get(index_t pin_index);
+
+/* Read an analog value from a pin attached to an ADC. */
+uint16_t analog_adc_get(index_t apin_index);
+
+/* Read values from the transmitter (operator interface) in telop mode. */
 bool digital_oi_get(index_t oi_index);
+int8_t analog_oi_get(index_t oi_index);
 
 int16_t battery_get(void);
 
