@@ -116,14 +116,10 @@ int16_t battery_get(void);
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-/* More raw function, bounded by kAnalogOut{Max,Min} */
+/* Set a two-wire motor, three-wire motor, or three-wire servo output. Pin
+ * indexes correspond with their physical labels.
+ */
 void analog_set(index_t ana_out_index, int8_t outp_value);
-
-/* Motor's speed must be bounded by kMotorMin and kMotorMax. */
-void motor_set(index_t motor_index, int8_t speed);
-
-/* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(index_t servo_index, int8_t position);
 
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS

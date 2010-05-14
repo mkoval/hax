@@ -180,19 +180,20 @@ uint16_t analog_adc_get(index_t index) {
  * MOTOR AND SERVO OUTPUTS
  */
 void analog_set(index_t index, int8_t sp) {
-	uint8_t val;
-	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-	val = sp + 128;
+	/* Two-wire motors. */
+	if (index == 1 || index == 10) {
+		/* TODO Two wire motor support. */
+	}
+	/* Three-wire servo or servomotor */
+	else if (2 <= index && index <= 9) {
+		uint8_t val;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		val = sp + 128;
 
-	u2m.u2m.motors[index] = val;
-}
-
-void motor_set(index_t index, int8_t value) {
-	analog_set(index, value);
-}
-
-void servo_set(index_t index, int8_t value) {
-	analog_set(index, value);
+		u2m.u2m.motors[index] = val;
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 }
 
 /*
