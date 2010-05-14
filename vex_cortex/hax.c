@@ -140,9 +140,9 @@ bool digital_oi_get(index_t index) {
 		return joystick->g5_u;
 	case 14: /* Left Trigger, Down */
 		return joystick->g5_d;
-	case OI_TRIG_R_D: /* Right Trigger, Up */
+	case 15: /* Right Trigger, Up */
 		return joystick->g6_u;
-	case OI_TRIG_R_U: /* Right Trigger, Down */
+	case 16: /* Right Trigger, Down */
 		return joystick->g6_d;
 	default:
 		ERROR(__FILE__, __LINE__);
