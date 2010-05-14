@@ -24,13 +24,13 @@ static isr_t isr_callback[12];
 
 #define __isr __attribute__((interrupt))
 
-#define CALL_ISR(_i_)                                          \
-        if (EXTI->PR & (1<<_i_)) {                             \
-                EXTI->PR = (1<<_i_);                           \
+#define CALL_ISR(_i_)                                      \
+        if (EXTI->PR & (1<<_i_)) {                         \
+                EXTI->PR = (1<<_i_);                       \
                 uint8_t ri = pin_to_ifipin[_i_];	       \
-                if (isr_callback[ri]) {                        \
-                        isr_callback[ri]( interrupt_get(ri) ); \
-                }                                              \
+                if (isr_callback[ri]) {                    \
+                        isr_callback[ri](digital_get(ri)); \
+                }                                          \
         }
 
 __isr void EXTI0_IRQHandler(void) {
@@ -104,7 +104,7 @@ void pin_set_io(index_t index, bool set_output ) {
 	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
 	
 	if (!set_output) {
-		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
+		GPO_param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
