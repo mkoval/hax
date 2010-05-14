@@ -18,9 +18,9 @@ static const uint8_t pin_to_ifipin [16] =
 
 static isr_t isr_callback[12];
 
-#define IS_DIGITAL(_x_)   ( 1 <= (_x_) && (_x_) <= 21)
-#define IS_ANALOG(_x_)    (13 <= (_x_) && (_x_) <= 21)
-#define IS_INTERRUPT(_x_) ( 1 <= (_x_) && (_x_) <= 21 && (_x_) != 9)
+#define IS_DIGITAL(_x_)   ( 1 <= (_x_) && (_x_) <= 20)
+#define IS_ANALOG(_x_)    (13 <= (_x_) && (_x_) <= 20)
+#define IS_INTERRUPT(_x_) ( 1 <= (_x_) && (_x_) <= 12 && (_x_) != 9)
 
 #define __isr __attribute__((interrupt))
 
