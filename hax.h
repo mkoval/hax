@@ -130,9 +130,6 @@ void analog_set(index_t ana_out_index, int8_t outp_value);
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-/* XXX: index is inconsistent between platforms. on pic it is in seperate io
- * space. on cortex it is in the standard indexing
- */
 void interrupt_reg_isr(index_t inter_index, isr_t isr_function);
 
 /* Reads from an interrupt port as if it is a digital input. */
