@@ -123,12 +123,14 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 }
 
 void interrupt_enable(index_t index) {
-	uint8_t ri = ifipin_to_pin[index - 1];
+	uint8_t ri;
 
 	if (!IS_INTERRUPT(index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
+
+	ri = ifipin_to_pin[index - 1];
 
 	pin_set_io(index, false);
 	
