@@ -298,7 +298,7 @@ bool digital_get(index_t i) {
 uint16_t analog_adc_get(index_t index) {
 	if (1 <= index && index <= kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)) {
 		/* Read ADC (0b10000111 = 0x87). */
-		uint8_t chan = 0x87 | index << 3;
+		uint8_t chan = 0x87 | (index-1) << 3;
 		SetChanADC(chan);
 		Delay10TCYx(5); /* Wait for capacitor to charge */
 		ConvertADC();
