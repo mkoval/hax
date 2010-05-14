@@ -102,16 +102,18 @@ void spin(void) {
 
 int16_t battery_get(void) {
 	uint8_t tmp;
+	/* 0b1110 is the highest detectable voltage level */
 	LVDCON = 0b1110;
 	for(;;) {
 		PIE2bits.LVDIE = 0;
 		LVDCONbits.LVDEN = 1;
 		while(!LVDCONbits.IRVST);
 		PIR2bits.LVDIF = 0;
-		
-		if ( !PIR2bits.LVDIF || !(LVDCON & 0xF) ) {
+	
+		tmp = LVDCON & 0xF
+		if ( !PIR2bits.LVDIF || !tmp ) {
 			LVDCON = 0;
-			return (LVDCON & 0xF) + 1;
+			return tmp + 1;
 		}
 
 		LVDCONbits.LVDEN = 0;
