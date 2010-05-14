@@ -18,6 +18,10 @@ static const uint8_t pin_to_ifipin [16] =
 
 static isr_t isr_callback[12];
 
+#define IS_DIGITAL(_x_)   ( 1 <= (_x_) && (_x_) <= 21)
+#define IS_ANALOG(_x_)    (13 <= (_x_) && (_x_) <= 21)
+#define IS_INTERRUPT(_x_) ( 1 <= (_x_) && (_x_) <= 21 && (_x_) != 9)
+
 #define __isr __attribute__((interrupt))
 
 #define CALL_ISR(_i_)                                          \
@@ -63,51 +67,36 @@ static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 bool digital_get(index_t ifi_index) {
-	/* Dedicated digital and interrupt pins. */
-	if (1 <= ifi_index && ifi_index <= 12) {
-		GPIO_TypeDef *port = ifipin_to_port[ifi_index - 1];
-		index_t       pin  = ifipin_to_pin[ifi_index - 1];
-		return (port->IDR & ( 1 << pin )) >> pin;
-	}
-	/* Analog pins that are in digital mode. */
-	else if (13 <= ifi_index && ifi_index <= 21) {
-		/* TODO Provide a mapping for the analog pins. */
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
 		ERROR(__FILE__, __LINE__);
-	} else {
-		ERROR(__FILE__, __LINE__);
+		return false;
 	}
 
+	GPIO_TypeDef *port = ifipin_to_port[ifi_index - 1];
+	index_t       pin  = ifipin_to_pin[ifi_index - 1];
+	return (port->IDR & ( 1 << pin )) >> pin;
 }
 
 void digital_set(index_t index, bool pull_high) {
-	/* Dedicated digital and interrupt pins. */
-	if (1 <= index && index <= 12) {
-		if (pull_high) {
-			ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
-		} else {
-			ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
-		}
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
+		ERROR(__FILE__, __LINE__);
+		return;
 	}
-	/* Analog pins that are in digital mode. */
-	else if (13 <= ifi_index && ifi_index <= 21) {
-		/* TODO Provide a mapping for the analog pins. */
-		ERROR(__FILE__, __LINE__);
+
+	if (pull_high) {
+		ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
 	}
 }
 
 void pin_set_io(index_t ifi_index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
-	/* Index out of the valid range. */
-	if ( !(1 <= ifi_index && ifi_index <= 21) ) {
-		ERROR(__FILE__, __LINE__);
-		return;
-	}
-	/* Unsupported analog pins. */
-	else if ( !(1 <= ifi_index && ifi_index <= 12) ) {
-		/* TODO Enable digital IO for analog pins. */
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(ifi_index) || IS_ANALOG(ifi_index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
@@ -125,19 +114,18 @@ void pin_set_io(index_t ifi_index, bool set_output ) {
 }
 
 void interrupt_reg_isr(index_t ifi_index, isr_t isr) {
-	/* Only the dedicated digital pins are external interrupts. */
-	if (1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) {
-		isr_callback[ifi_index - 1] = isr;
-	} else {
+	if (!IS_INTERRUPT(ifi_index)) {
 		ERROR(__FILE__, __LINE__);
+		return;
 	}
+
+	isr_callback[ifi_index - 1] = isr;
 }
 
 void interrupt_enable(index_t ifi_index) {
 	uint8_t ri = ifipin_to_pin[ifi_index - 1];
 
-	/* Only the dedicated digital pins are mapped to external interrupts. */
-	if ( !(1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) ) {
+	if (!IS_INTERRUPT(ifi_index)) {
 		ERROR(__FILE__, __LINE__);
 		return;
 	}
@@ -156,11 +144,12 @@ void interrupt_enable(index_t ifi_index) {
 }
 
 void interrupt_disable(index_t ifi_index) {
-	if (1 <= ifi_index && ifi_index <= 12 && ifi_index != 9) {
-		EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
-	} else {
+	if (!IS_INTERRUPT(ifi_index)) {
 		ERROR(__FILE__, __LINE__);
+		return;
 	}
+
+	EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
 }
 
 void exti_init(void) {
