@@ -88,7 +88,7 @@ void setup_1(void) {
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
 	} else { 
-		/* TODO Handle the error. */
+		/* TODO: Handle the error. */
 	}
 
 }
@@ -100,18 +100,20 @@ void setup_2(void) {
 void spin(void) {
 }
 
-int16_t battery_get(void) {
+uint8_t battery_get(void) {
 	uint8_t tmp;
+	/* 0b1110 is the highest detectable voltage level */
 	LVDCON = 0b1110;
 	for(;;) {
 		PIE2bits.LVDIE = 0;
 		LVDCONbits.LVDEN = 1;
 		while(!LVDCONbits.IRVST);
 		PIR2bits.LVDIF = 0;
-		
-		if ( !PIR2bits.LVDIF || !(LVDCON & 0xF) ) {
+	
+		tmp = LVDCON & 0xF
+		if ( !PIR2bits.LVDIF || !tmp ) {
 			LVDCON = 0;
-			return (LVDCON & 0xF) + 1;
+			return tmp + 1;
 		}
 
 		LVDCONbits.LVDEN = 0;
@@ -166,14 +168,14 @@ bool new_data_received(void) {
 }
 
 
-uint8_t check_oi(void) {
+static bool check_oi(void) {
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
 		if ( (rxdata.oi_analog[i] > 0xdf) || (rxdata.oi_analog[i] < 0x1f) ) {
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 state_t mode_get(void) {
@@ -199,155 +201,140 @@ state_t mode_get(void) {
 
 void pin_set_io(index_t i, bool bit) {
 	switch (i) {
-	case 0:
 	case 1:
 	case 2:
 	case 3:
-		BIT_SET(TRISA, i, bit);
+	case 4:
+		BIT_SET(TRISA, i - 1, bit);
 		break;
 
-	case 4:
-		BIT_SET(TRISA, 5, bit);
+	case 5:
+		BIT_SET(TRISA, 5 - 1, bit);
 		break;
 
 	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
 	 * starting at bit zero.
 	 */
-	case 5:
 	case 6:
 	case 7:
 	case 8:
 	case 9:
 	case 10:
 	case 11:
-		BIT_SET(TRISF, (i - 5) , bit);
+	case 12:
+		BIT_SET(TRISF, (i - 5) - 1 , bit);
 		break;
 
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
 	 * the TRISH register.
 	 */
-	case 12:
 	case 13:
 	case 14:
 	case 15:
-		BIT_SET(TRISH, (i - 12) + 4, bit);
+	case 16:
+		BIT_SET(TRISH, (i - 12) + 4 - 1, bit);
 		break;
 	
-	/* access the interrupt pins */
-	case 16:
+	/* Access the interrupt pins */
 	case 17:
 	case 18:
 	case 19:
 	case 20:
 	case 21:
-		BIT_SET(TRISB, (i - 16) + 2, bit);
+	case 22:
+		BIT_SET(TRISB, (i - 16) + 2 - 1, bit);
 	}
 }
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
 bool digital_get(index_t i) {
-
 	switch (i) {
-	
-	case 0:
 	case 1:
 	case 2:
 	case 3:
-		return BIT_GET(PORTA,i);
-
 	case 4:
-		return BIT_GET(PORTA, 5);
+		return BIT_GET(PORTA, i - 1);
+
+	case 5:
+		return BIT_GET(PORTA, 5 - 1);
 
 	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
 	 * starting at bit zero.
 	 */
-	case 5:
 	case 6:
 	case 7:
 	case 8:
 	case 9:
 	case 10:
 	case 11:
-		return BIT_GET(PORTF, (i - 5));
+	case 12:
+		return BIT_GET(PORTF, (i - 5) - 1);
 
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
 	 * the TRISH register.
 	 */
-	case 12:
 	case 13:
 	case 14:
 	case 15:
-		return BIT_GET(PORTH, (i - 12) + 4);
-
+	case 16:
+		return BIT_GET(PORTH, (i - 12) + 4 - 1);
 	
 	/* access the interrupt pins */
-	case 16:
 	case 17:
 	case 18:
 	case 19:
 	case 20:
 	case 21:
-		return BIT_GET(PORTB, (i - 16) + 2);
+	case 22:
+		return BIT_GET(PORTB, (i - 16) + 2 - 1);
 
 	default:
-		return -1;
+		ERROR(__FILE__, __LINE__);
+		return false;
 	}
 }
 
-uint16_t analog_adc_get(index_t ain) {
-	if ( ain < kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)  ) {
-		/* 0 <= ain < 16 */
-		/* read ADC (0b10000111 = 0x87) */
-		uint8_t chan = 0x87 | ain << 3;
+uint16_t analog_adc_get(index_t index) {
+	if (1 <= index && index <= kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)) {
+		/* Read ADC (0b10000111 = 0x87). */
+		uint8_t chan = 0x87 | (index-1) << 3;
 		SetChanADC(chan);
-		Delay10TCYx( 5 ); /* Wait for capacitor to charge */
+		Delay10TCYx(5); /* Wait for capacitor to charge */
 		ConvertADC();
-		while( BusyADC() );
+		while(BusyADC());
 		return ReadADC();
-	}
-	else {
-		/* ain is not valid */
+	} else {
+		ERROR(__FILE__, __LINE__);
 		return 0xFFFF;
 	}
 }
 
-int8_t analog_oi_get(index_t ain) {
-	if ( ain >= kAnalogSplit && ain < (kAnalogSplit + kVPNumOIInputs) ) {
-		/* 127 <= ain < (127 + 16) */
-		/* ain refers to one of the off robot inputs */
-		int8_t v = rxdata.oi_analog[ ain - kAnalogSplit ] - 128;
+int8_t analog_oi_get(index_t index) {
+	if (1 <= index && index <= kVPNumOIInputs) {
+		int8_t v = rxdata.oi_analog[index - 1] - 128;
 		return (v < 0) ? v + 1 : v;
+	} else {
+		ERROR(__FILE__, __LINE__);
+		return 0;
 	}
-	return 0;
 }
 
-void analog_set(index_t aout, int8_t sp) {
-	if ( aout < kVPMaxMotors ) {
-#if defined(MIKE_WHAT____)
-		int16_t val = (int16_t)sp + 127;
+bool digital_io_get(index_t index) {
+	/* All ports on the old transmitter are analog, including the buttons. */
+	ERROR(__FILE__, __LINE__);
+	return false;
+}
 
-		/* Constrain the value to fit in a uint8. */
-		if (val > 255) {
-			val = 255;
-		} else if (val < 0) {
-			val = 0;
-		}
-#else
+void analog_set(index_t index, int8_t sp) {
+	if (1 <= index && index <= kVPMaxMotors) {
 		uint8_t val;
 		sp = ( sp < 0 && sp != -128) ? sp - 1 : sp;
 		val = sp + 128;
-#endif
-		txdata.rc_pwm[aout] = (uint8_t)val;
+		txdata.rc_pwm[index - 1] = (uint8_t)val;
+	} else {
+		ERROR(__FILE__, __LINE__);
 	}
-}
-
-void motor_set(index_t aout, int8_t sp) {
-	analog_set(aout,sp);
-}
-
-void servo_set(index_t aout, int8_t sp) {
-	analog_set(aout,sp);
 }
 
 /*
@@ -356,12 +343,11 @@ void servo_set(index_t aout, int8_t sp) {
 isr_t isr_callbacks[6] = { 0 };
 
 void interrupt_reg_isr(index_t index, isr_t isr) {
-	isr_callbacks[index] = isr;
-}
-
-bool interrupt_get(index_t index) {
-	/* There are 16 digital pins, so the first interrupt is pin 16. */
-	return digital_get(16 + index);
+	if (17 <= index && index <= 22) {
+		isr_callbacks[index - 17] = isr;
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 }
 
 #if   defined(MCC18_30)
@@ -434,7 +420,7 @@ void interrupt_vector(void) {
 
 void interrupt_enable(index_t index) {
 	switch (index) {
-	case 0:
+	case 1:
 		TRISBbits.TRISB2    = 1;
 		INTCON3bits.INT2IP  = 0;
 		INTCON3bits.INT2IF  = 0;
@@ -442,7 +428,7 @@ void interrupt_enable(index_t index) {
 		INTCON3bits.INT2IE  = 1;
 		break;
 	
-	case 1:
+	case 2:
 		TRISBbits.TRISB3    = 1;
 		INTCON2bits.INT3IP  = 0;
 		INTCON2bits.INTEDG3 = 1;
@@ -450,10 +436,10 @@ void interrupt_enable(index_t index) {
 		INTCON3bits.INT3IE  = 1;
 		break;
 	
-	case 2:
 	case 3:
 	case 4:
 	case 5:
+	case 6:
 		TRISBbits.TRISB4 = 1;
 		TRISBbits.TRISB5 = 1;
 		TRISBbits.TRISB6 = 1;
@@ -462,6 +448,9 @@ void interrupt_enable(index_t index) {
 		INTCONbits.RBIF  = 0;
 		INTCONbits.RBIE  = 1;
 		break;
+	
+	default:
+		ERROR(__FILE__, __LINE__);
 	}
 }
 

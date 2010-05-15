@@ -20,15 +20,19 @@ static const uint8_t pin_to_ifipin [16] =
 
 static isr_t isr_callback[12];
 
+#define IS_DIGITAL(_x_)   ( 1 <= (_x_) && (_x_) <= 20)
+#define IS_ANALOG(_x_)    (13 <= (_x_) && (_x_) <= 20)
+#define IS_INTERRUPT(_x_) ( 1 <= (_x_) && (_x_) <= 12 && (_x_) != 9)
+
 #define __isr __attribute__((interrupt))
 
 #define CALL_ISR(_i_)                                          \
         if (EXTI->PR & (1<<(_i_))) {                           \
                 EXTI->PR = 1<<(_i_);                           \
                 uint8_t ri = pin_to_ifipin[_i_];	       \
-                if (isr_callback[ri]) {                        \
-                        isr_callback[ri]( interrupt_get(ri) ); \
-                }                                              \
+                if (isr_callback[ri]) {                    \
+                        isr_callback[ri](digital_get(ri)); \
+                }                                          \
         }
 
 __isr void EXTI0_IRQHandler(void) {
@@ -64,31 +68,46 @@ static GPIO_TypeDef *const ifipin_to_port[12] =
 static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
-bool digital_get(index_t ifi_index) {
-	GPIO_TypeDef *port = ifipin_to_port[ifi_index];
-	uint8_t pin = ifipin_to_pin[ifi_index];
+bool digital_get(index_t index) {
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
+		ERROR(__FILE__, __LINE__);
+		return false;
+	}
 
+<<<<<<< HEAD:vex_cortex/exti.c
 	return (port->IDR & ( 1 << pin )) == (1 << pin);
+=======
+	GPIO_TypeDef *port = ifipin_to_port[index - 1];
+	index_t       pin  = ifipin_to_pin[index - 1];
+	return (port->IDR & ( 1 << pin )) >> pin;
+>>>>>>> 62d87f066a097a3882c170c408345599989deaf6:arch_cortex/exti.c
 }
 
 void digital_set(index_t index, bool pull_high) {
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
+
 	if (pull_high) {
-		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[index];
+		ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
 	} else {
-		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[index];
+		ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
 	}
 }
 
-
-void pin_set_io(index_t ifi_index, bool set_output ) {	
+void pin_set_io(index_t index, bool set_output ) {	
 	GPIO_InitTypeDef GPIO_param;
 
-	if (ifi_index >= 12) {
+	/* TODO Enable support for using analog pins as digital IOs. */
+	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
+		ERROR(__FILE__, __LINE__);
 		return;
 	}
 	
-	GPIO_param.GPIO_Pin =
-		(uint16_t)(1 << ifipin_to_pin[ifi_index]);
+	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
 	
 	if (!set_output) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
@@ -97,22 +116,29 @@ void pin_set_io(index_t ifi_index, bool set_output ) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
 	
-	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[ifi_index],
-		&GPIO_param);
+	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &GPIO_param);
 }
 
-void interrupt_reg_isr(index_t ifi_index, isr_t isr) {
-	isr_callback[ifi_index] = isr;
+void interrupt_reg_isr(index_t index, isr_t isr) {
+	if (!IS_INTERRUPT(index)) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
+
+	isr_callback[index - 1] = isr;
 }
 
-bool interrupt_get(index_t ifi_index) {
-	return digital_get(ifi_index);
-}
+void interrupt_enable(index_t index) {
+	uint8_t ri;
 
-void interrupt_enable(index_t ifi_index) {
-	uint8_t ri = ifipin_to_pin[ifi_index];
+	if (!IS_INTERRUPT(index)) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
 
-	pin_set_io(ifi_index, false);
+	ri = ifipin_to_pin[index - 1];
+
+	pin_set_io(index, false);
 	
 	// unmask the interrupt.
 	EXTI->IMR |= (1 << ri);
@@ -125,11 +151,14 @@ void interrupt_enable(index_t ifi_index) {
 	EXTI->FTSR |= (1 << ri);
 }
 
-void interrupt_disable(index_t ifi_index) {
-	EXTI->IMR &= ~(1 << ifipin_to_pin[ifi_index]);
+void interrupt_disable(index_t index) {
+	if (!IS_INTERRUPT(index)) {
+		ERROR(__FILE__, __LINE__);
+		return;
+	}
+
+	EXTI->IMR &= ~(1 << ifipin_to_pin[index]);
 }
-
-
 
 void exti_init(void) {
 	NVIC_InitTypeDef NVIC_param;
@@ -182,8 +211,6 @@ void exti_init(void) {
 		| EXTI_IMR_MR13
 		| EXTI_IMR_MR14
 		);
-	
-	
 	
 	/* Enable the EXTI0 Interrupt */
 	NVIC_param.NVIC_IRQChannel = EXTI0_IRQn;

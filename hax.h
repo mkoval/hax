@@ -5,6 +5,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* Define an empty error handler for the user to override. */
+#ifndef ERROR
+#define ERROR(_file_, _line_)
+#endif
+
 /*
  * The Main function
  */
@@ -97,51 +102,44 @@ void mode_set(state_t new_state);
  */
 void pin_set_io(index_t pin_index, bool as_output);
 
-/* Get a raw analog value from the input with the specified Ix. Produces
- * undefined results if the input is configured as a digital
- * sensor.
- */
-int8_t analog_oi_get(index_t oi_index);
-uint16_t analog_adc_get(index_t apin_index);
-
-/* Gets and sets digital values for the specified port number. Produces
- * undefined results if the input is configured as an analog sensor.
+/* Read and write digital pins, indexed by their physical label. Setting a pin
+ * that is not configured as an output produces undefined results.
  */
 void digital_set(index_t pin_index, bool level);
 bool digital_get(index_t pin_index);
-bool digital_oi_get(index_t oi_index);
 
-int16_t battery_get(void);
+/* Read an analog value from a pin attached to an ADC. */
+uint16_t analog_adc_get(index_t apin_index);
+
+/* Read values from the transmitter (operator interface) in telop mode. */
+bool digital_oi_get(index_t oi_index);
+int8_t analog_oi_get(index_t oi_index);
+
+/* returns something resembling a battery voltage */
+uint8_t battery_get(void);
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-/* More raw function, bounded by kAnalogOut{Max,Min} */
+/* Set a two-wire motor, three-wire motor, or three-wire servo output. Pin
+ * indexes correspond with their physical labels.
+ */
 void analog_set(index_t ana_out_index, int8_t outp_value);
-
-/* Motor's speed must be bounded by kMotorMin and kMotorMax. */
-void motor_set(index_t motor_index, int8_t speed);
-
-/* Servo's position must be bounded by kServoMin and kServoMax. */
-void servo_set(index_t servo_index, int8_t position);
 
 /*
  * INTERRUPT SERVICE ROUTINE FUNCTIONS
  */
 /* Sets the ISR callback function to be invoked when this interrupt occurs. */
-/* XXX: index is inconsistent between platforms. on pic it is in seperate io
- * space. on cortex it is in the standard indexing
- */
-void interrupt_reg_isr(index_t inter_index, isr_t isr_function);
+void interrupt_reg_isr(index_t pin_index, isr_t isr_function);
 
 /* Reads from an interrupt port as if it is a digital input. */
-bool interrupt_get(index_t interrupt_index);
+bool interrupt_get(index_t pin_index);
 
 /* Enable and disable interrupts to prevent an ISR from being invoked in
  * potentially dangerous locations and in initialization.
  */
-void interrupt_enable(index_t interrupt_index);
-void interrupt_disable(index_t interrupt_index);
+void interrupt_enable(index_t pin_index);
+void interrupt_disable(index_t pin_index);
 
 /*
  * TIMERS

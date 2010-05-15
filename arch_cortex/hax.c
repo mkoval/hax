@@ -85,114 +85,89 @@ state_t mode_get(void) {
 /*
  * ANALOG AND DIGITAL INPUTS
  */
-enum {
-	OI_STICK_L_X,
-	OI_STICK_L_Y,
-	OI_STICK_R_X,
-	OI_STICK_R_Y,
-	OI_BUT_L_U,
-	OI_BUT_L_D,
-	OI_BUT_L_L,
-	OI_BUT_L_R,
-	OI_BUT_R_U,
-	OI_BUT_R_D,
-	OI_BUT_R_L,
-	OI_BUT_R_R,
-	OI_TRIG_L_U,
-	OI_TRIG_L_D,
-	OI_TRIG_R_U,
-	OI_TRIG_R_D
-};
-
 int8_t analog_oi_get(index_t button) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 	uint16_t sp = 0;
 
-	/* TODO Scale the analog values. */
-
 	switch (button) {
-	/* Left Stick */
-	case OI_STICK_L_X:
+	case 1: /* Left Stick, X */
 		sp = joystick->axis_4;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		return sp + 128;
-
-	case OI_STICK_L_Y:
+		break;
+	case 2: /* Left Stick, Y */
 		sp = joystick->axis_3;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		return sp + 128;
-	
-	/* Right Stick */
-	case OI_STICK_R_Y:
+		break;
+	case 3: /* Right Stick, X */
 		sp = joystick->axis_2;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		return sp + 128;
-
-	case OI_STICK_R_X:
+		break;
+	case 4: /* Right Stick, Y */
 		sp = joystick->axis_1;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		return sp + 128;
-	
-	/* Left Buttons */
-	case OI_BUT_L_U:
-		return joystick->g8_u;
-	case OI_BUT_L_D:
-		return joystick->g8_d;
-	case OI_BUT_L_L:
-		return joystick->g8_l;
-	case OI_BUT_L_R:
-		return joystick->g8_r;
-	
-	/* Right Buttons */
-	case OI_BUT_R_U:
-		return joystick->g7_u;
-	case OI_BUT_R_D:
-		return joystick->g7_d;
-	case OI_BUT_R_L:
-		return joystick->g7_l;
-	case OI_BUT_R_R:
-		return joystick->g7_r;
-	
-	/* Left Triggers */
-	case OI_TRIG_L_D:
-		return joystick->g5_u;
-	case OI_TRIG_L_U:
-		return joystick->g5_d;
-	
-	/* Right Triggers */
-	case OI_TRIG_R_D:
-		return joystick->g6_u;
-	case OI_TRIG_R_U:
-		return joystick->g6_d;
-	
+		break;
 	default:
+		ERROR(__FILE__, __LINE__);
 		return 0;
 	}
+
+	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+	return sp + 128;
 }
 
 uint16_t analog_adc_get(index_t index) {
-	/* Pretend we're inaccurate as the PIC. */
-	return adc_buffer[index] >> 2;
+	/* Pretend the Cortex has the same precision as the PIC. */
+	return adc_buffer[index - 1] >> 2;
 }
 
+bool digital_oi_get(index_t index) {
+	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
+
+	switch (index) {
+	case 5: /* Left Buttons, Up */
+		return joystick->g8_u;
+	case 6: /* Left Buttons, Down */
+		return joystick->g8_d;
+	case 7: /* Left Buttons, Left */
+		return joystick->g8_l;
+	case 8: /* Left Buttons, Right */
+		return joystick->g8_r;
+	case 9: /* Right Buttons, Up */
+		return joystick->g7_u;
+	case 10: /* Right Buttons, Down */
+		return joystick->g7_d;
+	case 11: /* Right Buttons, Left */
+		return joystick->g7_l;
+	case 12: /* Right Buttons, Right */
+		return joystick->g7_r;
+	case 13: /* Left Trigger, Up */
+		return joystick->g5_u;
+	case 14: /* Left Trigger, Down */
+		return joystick->g5_d;
+	case 15: /* Right Trigger, Up */
+		return joystick->g6_u;
+	case 16: /* Right Trigger, Down */
+		return joystick->g6_d;
+	default:
+		ERROR(__FILE__, __LINE__);
+		return false;
+	}
+}
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
 void analog_set(index_t index, int8_t sp) {
-	uint8_t val;
-	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-	val = sp + 128;
+	/* Two-wire motors. */
+	if (index == 1 || index == 10) {
+		/* TODO Two wire motor support. */
+	}
+	/* Three-wire servo or servomotor */
+	else if (2 <= index && index <= 9) {
+		uint8_t val;
+		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
+		val = sp + 128;
 
-	u2m.u2m.motors[index] = val;
-}
-
-void motor_set(index_t index, int8_t value) {
-	analog_set(index, value);
-}
-
-void servo_set(index_t index, int8_t value) {
-	analog_set(index, value);
+		u2m.u2m.motors[index] = val;
+	} else {
+		ERROR(__FILE__, __LINE__);
+	}
 }
 
 /*
