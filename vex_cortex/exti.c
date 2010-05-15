@@ -13,7 +13,9 @@
  * PE7(9)
  */
 static const uint8_t pin_to_ifipin [16] =
+	/* 0   1    2    3    4    5  6    7 */   
 	{ 10, 11, 255, 255, 255, 255, 2,   3,
+	/* 8   9   10   11   12   13 14   15 */
 	   6,  0,   7,   1,   8,   4, 5, 255};
 
 static isr_t isr_callback[12];
@@ -21,8 +23,8 @@ static isr_t isr_callback[12];
 #define __isr __attribute__((interrupt))
 
 #define CALL_ISR(_i_)                                          \
-        if (EXTI->PR & (1<<_i_)) {                             \
-                EXTI->PR = (1<<_i_);                           \
+        if (EXTI->PR & (1<<(_i_))) {                           \
+                EXTI->PR = 1<<(_i_);                           \
                 uint8_t ri = pin_to_ifipin[_i_];	       \
                 if (isr_callback[ri]) {                        \
                         isr_callback[ri]( interrupt_get(ri) ); \
@@ -66,7 +68,7 @@ bool digital_get(index_t ifi_index) {
 	GPIO_TypeDef *port = ifipin_to_port[ifi_index];
 	uint8_t pin = ifipin_to_pin[ifi_index];
 
-	return (port->IDR & ( 1 << pin )) >> pin;
+	return (port->IDR & ( 1 << pin )) == (1 << pin);
 }
 
 void digital_set(index_t index, bool pull_high) {
