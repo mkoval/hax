@@ -1,26 +1,21 @@
 # Prints a decorative header with the specified title and subtitle.
 header () {
 	if [ "$1" ]; then
-		$ECHO -n "$1"
+		echo -n "$1"
 		
 		if [ "$2" ]; then
-			$ECHO -n " :: $2"
+			echo -n " :: $2"
 			
 			if [ "$3" ]; then
-				$ECHO -n " - $3"
+				echo -n " - $3"
 			fi
 		fi
 	fi
 	echo ""
 }
 
-# Deletes the current terminal line.
-wipe () {
-	$ECHO -en "\033[0F\033[K"
-}
-
 error () {
-	$ECHO "err: $1" >&2
+	echo "err: $1" >&2
 }
 
 if_error () {
@@ -52,7 +47,7 @@ download () {
 	DIR_RESTORE=`pwd`
 	cd "$DIR_DOWNLOAD"
 
-	md5sum -c "$DIR_CHECKSUM/$2.md5"
+	md5sum -c "$DIR_CHECKSUM/$2.md5" > /dev/null
 	if_error $? "download of \"$2.$3\" failed checksum"
 
 	cd "$DIR_RESTORE"
@@ -66,6 +61,6 @@ extract () {
 
 	DIR_RESTORE=`pwd`
 	cd "$2"
-	$BASE/bar -n $1 | tar xzpf -
+	tar xzpf $1
 	cd "$DIR_RESTORE"
 }
