@@ -40,11 +40,18 @@ mkdir_safe () {
 download () {
 	# Only download the file if it does not already exist.
 	if [ ! -e "$DIR_DOWNLOAD/$2.$3" ]; then
-		curl -# -o "$DIR_DOWNLOAD/$2.$3" "$1"
+		if [ "`which curl`" ]; then
+			curl -# -o "$DIR_DOWNLOAD/$2.$3" -- "$1"
+		elif [ "`which wget`" ]; then
+			wget -O "$DIR_DOWNLOAD/$2.$3" -- "$1" &> /dev/null
+		else
+			error "no installation of 'curl' or 'wget' detected"
+			exit 1
+		fi
 	fi
 
 	# Check the downloaded file's MD5 checksum.
-	DIR_RESTORE=`pwd`
+	DIR_RESTORE="`pwd`"
 	cd "$DIR_DOWNLOAD"
 
 	md5sum -c "$DIR_CHECKSUM/$2.md5" > /dev/null
@@ -59,8 +66,8 @@ extract () {
 		exit 1
 	fi
 
-	DIR_RESTORE=`pwd`
+	DIR_RESTORE="`pwd`"
 	cd "$2"
-	tar xzpf $1
+	tar xf $1
 	cd "$DIR_RESTORE"
 }
