@@ -1,5 +1,10 @@
 #! /bin/bash
 
+# Issue a warning if this is not a Bash shell to explain potential errors.
+if [ ! `echo "$SHELL" | grep "bash"` ]; then
+	war "untested shell detected, use bash for full compatability"
+fi
+
 # Prints an error message to stderr and exits the program.
 function err {
 	echo "error: $1" 1>&2
@@ -119,11 +124,6 @@ elif [ ! "`has 'gcc'`" ]; then
 	err "missing dependency 'gcc'"
 fi
 
-# Issue a warning if this is not a Bash shell to explain potential errors.
-if [ ! `echo "$SHELL" | grep "bash"` ]; then
-	war "untested shell detected, use bash for full compatability"
-fi
-
 # Verify permissions on the installation directory.
 if [ -z "$PREFIX" ]; then
 	PREFIX="/usr/local"
@@ -185,6 +185,32 @@ if [ "$COMMAND" = "install" ]; then
 	if [ $ARCH_ARM9 -ne 0 ]; then
 		war "skipping ARM9 architecture; currently unsupported"
 	fi
+elif [ "$COMMAND" = "help" ]; then
+	cat << HELP
+usage: ./hax-install.sh COMMAND [ARCH1 [ARCH2 [...]]]
+COMMANDS
+    install  Install dependencies for the listed archs.
+    info     Print a list of dependencies required by the listed archs.
+    help     Prints this help text.
+
+ARCHS
+    pic      Original PIC Microcontroller v0.5 (using SDCC and Rigel).
+    cortex   VexNET-enabled Cortex Microcontroller (using GCC and stm32loader).
+    arm9     Currently unreleased ARM9-based Microcontroller. *UNSUPPORTED*
+
+EXAMPLES
+    sudo ./hax-install.sh install pic cortex
+        Install all PIC and Cortex dependencies to '/usr/local'.
+
+    export PARALLEL=9
+    sudo ./hax-install.sh install pic cortex
+        Speed up build times on quad-core processors by using more threads.
+
+    export PREFIX="\$HOME/vex"
+    ./hax-install.sh install cortex
+        Install the Cortex dependencies to '\$HOME/vex'.
+
+HELP
 else
 	error "unsupported command '$COMMAND'"
 fi
