@@ -64,10 +64,8 @@ if [ "$COMMAND" = "install" ]; then
 	ARCH_CORTEX=0
 	ARCH_ARM9=0
 
-	for ARCH in "$@"; do
-		if [ "$ARCH" = "install" ]; then
-			: # TODO: Remove this hack.
-		elif [ "$ARCH" = "pic" ]; then
+	for ARCH in "${@:2}"; do
+		if [ "$ARCH" = "pic" ]; then
 			ARCH_PIC=1
 		elif [ "$ARCH" = "cortex" ]; then
 			ARCH_CORTEX=1
