@@ -6,6 +6,12 @@ function err {
 	exit 1
 }
 
+function if_err {
+	if [ $1 ]; then
+		err "$2"
+	fi
+}
+
 # Prints a warning message to stderr and continues execution.
 function war {
 	echo "warning: $1" 1>&2
@@ -15,6 +21,89 @@ function war {
 function has {
 	command -v "$1"
 }
+
+# Gets a variable added to an associative array with assoc_set().
+function assoc_get {
+	eval `echo echo \$\{__assoc_${1}_${2}\}`
+}
+
+# Adds a value to an associative array, to be read with assoc_get().
+function assoc_set {
+	eval `echo export __assoc_${1}_${2}=\"${3}\"`
+}
+
+# Verify a download using its MD5 checksum.
+function verify {
+	if [ -e "$1/$2" ]; then
+		MD5=`assoc_get "md5" "$2"`
+
+		if [ "`has "md5"`" ]; then
+			if [ ! "`md5 "$1/$2" | grep "$MD5"`" ]; then
+				echo "`md5 "$1/$2"` ?= $MD5"
+				return 1
+			fi
+		elif [ "`has "md5sum"`" ]; then
+			if [ ! "`md5 "$1/$2" | grep "$MD5"`" ]; then
+				return 1
+			fi
+		else
+			war "missing 'md5' and 'md5sum'; not verifying checksum"
+		fi
+	fi
+	return 0
+}
+
+# Downloads a list of URLs to a target directory.
+function download {
+	for NAME in ${@:2}; do
+		URL=`assoc_get "url" "$2"`
+
+		# Verify the checksum of an already-present file.
+		if [ -e "$1/$NAME" ]; then
+			verify "$1" "$NAME"
+			if_err $? "'$NAME' failed checksum"
+			continue
+		fi
+
+		echo "Downloading $NAME"
+		
+		# Use curl or wget to download the URL to the target directory.
+		if [ "`has 'curl'`" ]; then
+			curl -o "$1/$NAME" -- "$URL" #&> "/dev/null"
+			if_err $? "unable to download $NAME"
+		elif [ "`has 'wget'`" ]; then
+			wget -o "$1/$NAME" -- "$URL" #&> "/dev/null"
+			if_err $? "unable to download $NAME"
+		else
+			error "missing 'wget' and 'curl'"
+		fi
+
+		verify "$1" "$NAME"
+		if_err $? "'$NAME' failed checksum"
+	done
+}
+
+#
+# CONFIG VARIABLES
+#
+assoc_set "url" "sdcc"     "http://sdcc.sourceforge.net/snapshots/sdcc-extra-src/sdcc-extra-src-20100516-5824.tar.bz2"
+assoc_set "url" "m4"       "http://ftp.gnu.org/gnu/m4/m4-1.4.14.tar.bz2"
+assoc_set "url" "gmp"      "ftp://ftp.gmplib.org/pub/gmp-4.3.2/gmp-4.3.2.tar.bz2"
+assoc_set "url" "mpfr"     "http://www.mpfr.org/mpfr-current/mpfr-2.4.2.tar.gz"
+assoc_set "url" "binutils" "ftp://ftp.gnu.org/gnu/binutils/binutils-2.20.1.tar.gz"
+assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz"
+assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
+
+assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
+assoc_set "md5" "m4"       "0b798395deb542b65232727078e25951"
+assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
+assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
+assoc_set "md5" "binutils" "eccf0f9bc62864b29329e3302c88a228"
+assoc_set "md5" "gcc"      "04b7b74df06b919bc36b8eb462dfef7a"
+assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
+
+DIR_BASE="`pwd`/hax_install"
+DIR_DOWNLOAD="$DIR_BASE/download"
 
 #
 # SHELL CONFIG AND ENV-VARS
@@ -34,11 +123,19 @@ fi
 if [ ! `echo "$SHELL" | grep "bash"` ]; then
 	war "untested shell detected, use bash for full compatability"
 fi
+
 # Verify permissions on the installation directory.
 if [ -z "$PREFIX" ]; then
 	PREFIX="/usr/local"
 elif [ ! -w "$PREFIX" ]; then
 	err "insufficient permission to write to '$PREFIX'"
+fi
+
+# Verify permissions of the installation directory.
+mkdir -p "$DIR_BASE"     &> "/dev/null"
+mkdir -p "$DIR_DOWNLOAD" &> "/dev/null"
+if [ ! -w "$DIR_BASE" ]; then
+	err "insufficient permissions to write to '$DIR_BASE'"
 fi
 
 # Issue a warning if $PREFIX is not in the user's $PATH to prevent confusion.
@@ -57,8 +154,6 @@ else
 fi
 
 if [ "$COMMAND" = "install" ]; then
-	INSTALL=""
-
 	# Parse the architecture flags.
 	ARCH_PIC=0
 	ARCH_CORTEX=0
