@@ -28,20 +28,19 @@ function has {
 }
 
 # Gets a variable added to an associative array with assoc_set().
-function assoc_get {
-	eval `echo echo \$\{__assoc_${1}_${2}\}`
+function assoc_get () {
+	VARNAME="__assoc_${1}_${2}"
+	printf "%s" ${!VARNAME}
 }
 
 # Adds a value to an associative array, to be read with assoc_get().
 function assoc_set {
-	eval `echo export __assoc_${1}_${2}=\"${3}\"`
+	eval "__assoc_${1}_${2}=${3}"
 }
 
 # Verify a download using its MD5 checksum.
 function verify {
 	if [ -e "$1/$2" ]; then
-		MD5=`assoc_get "md5" "$2"`
-
 		if [ "`has "md5"`" ]; then
 			if [ ! "`md5 "$1/$2" | grep "$MD5"`" ]; then
 				echo "`md5 "$1/$2"` ?= $MD5"
@@ -63,6 +62,8 @@ function download {
 	for NAME in ${@:2}; do
 		URL=`assoc_get "url" "$2"`
 
+		echo "URL = $URL"
+
 		# Verify the checksum of an already-present file.
 		if [ -e "$1/$NAME" ]; then
 			verify "$1" "$NAME"
@@ -74,10 +75,10 @@ function download {
 		
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
-			curl -o "$1/$NAME" -- "$URL" #&> "/dev/null"
+			curl -o -# "$1/$NAME" -- "$URL"
 			if_err $? "unable to download $NAME"
 		elif [ "`has 'wget'`" ]; then
-			wget -o "$1/$NAME" -- "$URL" #&> "/dev/null"
+			wget -o "$1/$NAME" -- "$URL" &> "/dev/null"
 			if_err $? "unable to download $NAME"
 		else
 			error "missing 'wget' and 'curl'"
