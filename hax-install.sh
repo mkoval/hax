@@ -65,6 +65,12 @@ function download {
 	for NAME in ${@:2}; do
 		URL=`assoc_get "url" "$NAME"`
 
+		# Skip dependencies that are already installed.
+		if [ ! "`assoc_get "dep" "$NAME"`" ]; then
+			echo "$NAME - Already Installed"
+			continue
+		fi
+
 		# Verify the checksum of an already-present file.
 		if [ -e "$1/$NAME" ]; then
 			verify "$1" "$NAME"
@@ -74,11 +80,12 @@ function download {
 				war "redownloading '$NAME' due to failed checksum"
 				rm -f "$1/$NAME"
 			else
+				echo "$NAME - Already Downloaded"
 				continue
 			fi
 		fi
 
-		echo "Downloading $NAME"
+		echo "$NAME - Downloading"
 		
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
@@ -93,6 +100,13 @@ function download {
 
 		verify "$1" "$NAME"
 		if_err $? "'$NAME' failed checksum"
+	done
+}
+
+# Extract an already-downloaded (potentially compressed) tar archive.
+function extract {
+	for NAME in ${@:3}; do
+		:
 	done
 }
 
@@ -114,6 +128,14 @@ assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
 assoc_set "md5" "binutils" "eccf0f9bc62864b29329e3302c88a228"
 assoc_set "md5" "gcc"      "04b7b74df06b919bc36b8eb462dfef7a"
 assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
+
+assoc_set "dep" "sdcc"     "`has 'sdcc'`"
+assoc_set "dep" "m4"       "`has 'm4'`"
+assoc_set "dep" "gmp"      ""
+assoc_set "dep" "mpfr"     ""
+assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
+assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
+assoc_set "dep" "newlib"   ""
 
 DIR_BASE="`pwd`/hax_install"
 DIR_DOWNLOAD="$DIR_BASE/download"
@@ -182,11 +204,20 @@ if [ "$COMMAND" = "install" ]; then
 	# PIC Dependencies
 	if [ $ARCH_PIC -ne 0 ]; then
 		download "$DIR_DOWNLOAD" "sdcc"
+		extract "$DIR_DOWNLOAD" "$DIR_BUILD" "sdcc"
 	fi
 
 	# Cortex Dependnecies
 	if [ $ARCH_CORTEX -ne 0 ]; then
 		download "$DIR_DOWNLOAD" "m4" "gmp" "mpfr" "binutils" "gcc"
+
+		# M4 
+		if [ ! "`assoc_get "dep" "m4"`" ]; then
+			extract "$DIR_DOWNLOAD" "$DIR_BUILD" "m4"
+		fi
+
+		# Binutils
+		
 	fi
 
 	# ARM9 Dependencies
