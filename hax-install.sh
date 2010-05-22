@@ -12,7 +12,7 @@ function err {
 }
 
 function if_err {
-	if [ $1 ]; then
+	if [ "$1" -ne 0 ]; then
 		err "$2"
 	fi
 }
@@ -41,13 +41,16 @@ function assoc_set {
 # Verify a download using its MD5 checksum.
 function verify {
 	if [ -e "$1/$2" ]; then
+		MD5=`assoc_get "md5" "$2"`
+
 		if [ "`has "md5"`" ]; then
-			if [ ! "`md5 "$1/$2" | grep "$MD5"`" ]; then
-				echo "`md5 "$1/$2"` ?= $MD5"
+			md5 "$1/$2" | grep "$MD5" &> "/dev/null"
+			if [ $? -ne 0 ]; then
 				return 1
 			fi
 		elif [ "`has "md5sum"`" ]; then
-			if [ ! "`md5 "$1/$2" | grep "$MD5"`" ]; then
+			md5sum "$1/$2" | grep "$MD5" &> "/dev/null"
+			if [ $? -ne 0 ]; then
 				return 1
 			fi
 		else
@@ -60,22 +63,26 @@ function verify {
 # Downloads a list of URLs to a target directory.
 function download {
 	for NAME in ${@:2}; do
-		URL=`assoc_get "url" "$2"`
-
-		echo "URL = $URL"
+		URL=`assoc_get "url" "$NAME"`
 
 		# Verify the checksum of an already-present file.
 		if [ -e "$1/$NAME" ]; then
 			verify "$1" "$NAME"
-			if_err $? "'$NAME' failed checksum"
-			continue
+
+			# Redownload if the old file fails the checksum.
+			if [ $? -ne 0 ]; then
+				war "redownloading '$NAME' due to failed checksum"
+				rm -f "$1/$NAME"
+			else
+				continue
+			fi
 		fi
 
 		echo "Downloading $NAME"
 		
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
-			curl -o -# "$1/$NAME" -- "$URL"
+			curl -# -o "$1/$NAME" -- "$URL"
 			if_err $? "unable to download $NAME"
 		elif [ "`has 'wget'`" ]; then
 			wget -o "$1/$NAME" -- "$URL" &> "/dev/null"
@@ -101,7 +108,7 @@ assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz
 assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
 
 assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
-assoc_set "md5" "m4"       "0b798395deb542b65232727078e25951"
+assoc_set "md5" "m4"       "e6fb7d08d50d87e796069cff12a52a93"
 assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
 assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
 assoc_set "md5" "binutils" "eccf0f9bc62864b29329e3302c88a228"
