@@ -214,7 +214,7 @@ if [ "$COMMAND" = "install" ]; then
 		extract "$DIR_DOWNLOAD" "$DIR_BUILD" "sdcc"
 	fi
 
-	# Cortex Dependnecies
+	# Cortex Dependencies
 	if [ $ARCH_CORTEX -ne 0 ]; then
 		download "$DIR_DOWNLOAD" "m4" "gmp" "mpfr" "binutils" "gcc"
 
