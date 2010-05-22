@@ -105,9 +105,15 @@ function download {
 
 # Extract an already-downloaded (potentially compressed) tar archive.
 function extract {
-	for NAME in ${@:3}; do
-		:
-	done
+	DIR_RESTORE="`pwd`"
+	cd "$3"
+
+	echo "$2 - Extracting"
+
+	tar -xzf "$1/$2" &> "/dev/null"
+	if_err $? "unable to extract $2"
+
+	cd "$DIR_RESTORE"
 }
 
 #
@@ -138,6 +144,7 @@ assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
 assoc_set "dep" "newlib"   ""
 
 DIR_BASE="`pwd`/hax_install"
+DIR_BUILD="$DIR_BASE/extract"
 DIR_DOWNLOAD="$DIR_BASE/download"
 
 #
@@ -213,11 +220,13 @@ if [ "$COMMAND" = "install" ]; then
 
 		# M4 
 		if [ ! "`assoc_get "dep" "m4"`" ]; then
-			extract "$DIR_DOWNLOAD" "$DIR_BUILD" "m4"
+			extract "$DIR_DOWNLOAD" "m4" "$DIR_BUILD"
 		fi
 
 		# Binutils
-		
+		if [ ! "`assoc_get "dep" "binutils"`" ]; then
+			extract "$DIR_DOWNLOAD" "binutils" "$DIR_BUILD"
+		fi
 	fi
 
 	# ARM9 Dependencies
