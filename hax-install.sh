@@ -40,16 +40,16 @@ function assoc_set {
 
 # Verify a download using its MD5 checksum.
 function verify {
-	if [ -e "$1/$2" ]; then
-		MD5=`assoc_get "md5" "$2"`
+	if [ -e "$DIR_DOWNLOAD/$1" ]; then
+		MD5=`assoc_get "md5" "$1"`
 
 		if [ "`has "md5"`" ]; then
-			md5 "$1/$2" | grep "$MD5" &> "/dev/null"
+			md5 "$DIR_DOWNLOAD/$1" | grep "$MD5" &> "/dev/null"
 			if [ $? -ne 0 ]; then
 				return 1
 			fi
 		elif [ "`has "md5sum"`" ]; then
-			md5sum "$1/$2" | grep "$MD5" &> "/dev/null"
+			md5sum "$DIR_DOWNLOAD/$1" | grep "$MD5" &> "/dev/null"
 			if [ $? -ne 0 ]; then
 				return 1
 			fi
@@ -62,7 +62,7 @@ function verify {
 
 # Downloads a list of URLs to a target directory.
 function download {
-	for NAME in ${@:2}; do
+	for NAME in $@; do
 		URL=`assoc_get "url" "$NAME"`
 
 		# Skip dependencies that are already installed.
@@ -72,13 +72,13 @@ function download {
 		fi
 
 		# Verify the checksum of an already-present file.
-		if [ -e "$1/$NAME" ]; then
-			verify "$1" "$NAME"
+		if [ -e "$DIR_DOWNLOAD/$NAME" ]; then
+			verify "$NAME"
 
 			# Redownload if the old file fails the checksum.
 			if [ $? -ne 0 ]; then
 				war "redownloading '$NAME' due to failed checksum"
-				rm -f "$1/$NAME"
+				rm -f "$DIR_DOWNLOAD/$NAME"
 			else
 				echo "$NAME - Already Downloaded"
 				continue
@@ -89,16 +89,16 @@ function download {
 		
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
-			curl -# -o "$1/$NAME" -- "$URL"
+			curl -# -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
 			if_err $? "unable to download $NAME"
 		elif [ "`has 'wget'`" ]; then
-			wget -o "$1/$NAME" -- "$URL" &> "/dev/null"
+			wget -o "$DIR_DOWNLOAD/$NAME" -- "$URL" &> "/dev/null"
 			if_err $? "unable to download $NAME"
 		else
 			error "missing 'wget' and 'curl'"
 		fi
 
-		verify "$1" "$NAME"
+		verify "$NAME"
 		if_err $? "'$NAME' failed checksum"
 	done
 }
@@ -210,22 +210,22 @@ if [ "$COMMAND" = "install" ]; then
 
 	# PIC Dependencies
 	if [ $ARCH_PIC -ne 0 ]; then
-		download "$DIR_DOWNLOAD" "sdcc"
+		download "sdcc"
 		extract "$DIR_DOWNLOAD" "$DIR_BUILD" "sdcc"
 	fi
 
 	# Cortex Dependencies
 	if [ $ARCH_CORTEX -ne 0 ]; then
-		download "$DIR_DOWNLOAD" "m4" "gmp" "mpfr" "binutils" "gcc"
+		download "m4" "gmp" "mpfr" "binutils" "gcc"
 
 		# M4 
 		if [ ! "`assoc_get "dep" "m4"`" ]; then
-			extract "$DIR_DOWNLOAD" "m4" "$DIR_BUILD"
+			extract "m4" "$DIR_BUILD"
 		fi
 
 		# Binutils
 		if [ ! "`assoc_get "dep" "binutils"`" ]; then
-			extract "$DIR_DOWNLOAD" "binutils" "$DIR_BUILD"
+			extract "binutils" "$DIR_BUILD"
 		fi
 	fi
 
