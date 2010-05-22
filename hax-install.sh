@@ -200,6 +200,7 @@ assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
 
 # Name of the folder extracted from the downloaded tarball.
 # TODO: name for SDCC
+assoc_set "ext" "sdcc"     "sdcc-extra-src"
 assoc_set "ext" "m4"       "m4-1.4.14"
 assoc_set "ext" "gmp"      "gmp-4.3.2"
 assoc_set "ext" "mpfr"     "mpfr-2.4.2"
