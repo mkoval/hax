@@ -30,12 +30,12 @@ function has {
 # Gets a variable added to an associative array with assoc_set().
 function assoc_get () {
 	VARNAME="__assoc_${1}_${2}"
-	printf "%s" ${!VARNAME}
+	printf "%s" "${!VARNAME}"
 }
 
 # Adds a value to an associative array, to be read with assoc_get().
 function assoc_set {
-	eval "__assoc_${1}_${2}=${3}"
+	eval "__assoc_${1}_${2}='${3}'"
 }
 
 # Verify a download using its MD5 checksum.
@@ -106,12 +106,12 @@ function download {
 # Extract an already-downloaded (potentially compressed) tar archive.
 function extract {
 	DIR_RESTORE="`pwd`"
-	cd "$3"
+	cd "$DIR_EXTRACT"
 
-	echo "$2 - Extracting"
+	echo "$1 - Extracting"
 
-	tar -xzf "$1/$2" &> "/dev/null"
-	if_err $? "unable to extract $2"
+	tar -xzf "$DIR_EXTRACT/$1" &> "/dev/null"
+	if_err $? "unable to extract $1"
 
 	cd "$DIR_RESTORE"
 }
@@ -144,8 +144,8 @@ assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
 assoc_set "dep" "newlib"   ""
 
 DIR_BASE="`pwd`/hax_install"
-DIR_BUILD="$DIR_BASE/extract"
 DIR_DOWNLOAD="$DIR_BASE/download"
+DIR_EXTRACT="$DIR_BASE/extract"
 
 #
 # SHELL CONFIG AND ENV-VARS
