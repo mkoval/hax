@@ -91,7 +91,7 @@ function download {
 		fi
 
 		echo "$NAME - Downloading"
-		
+
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
 			curl -# -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
@@ -110,47 +110,36 @@ function download {
 
 # Extract an already-downloaded (potentially compressed) tar archive.
 function extract {
-	DIR_RESTORE="`pwd`"
-	cd "$DIR_EXTRACT"
-
-	echo "$1 - Extracting"
-
-	tar -xzf "$DIR_EXTRACT/$1" &> "/dev/null"
-	if_err $? "unable to extract $1"
-
-	cd "$DIR_RESTORE"
+	for NAME in $@; do
+		echo "$NAME - Extracting"
+		tar -C "$DIR_EXTRACT" -xzf "$DIR_DOWNLOAD/$NAME" &> "/dev/null"
+		if_err $? "unable to extract $NAME"
+	done
 }
 
-#
-# CONFIG VARIABLES
-#
-assoc_set "url" "sdcc"     "http://sdcc.sourceforge.net/snapshots/sdcc-extra-src/sdcc-extra-src-20100516-5824.tar.bz2"
-assoc_set "url" "m4"       "http://ftp.gnu.org/gnu/m4/m4-1.4.14.tar.bz2"
-assoc_set "url" "gmp"      "ftp://ftp.gmplib.org/pub/gmp-4.3.2/gmp-4.3.2.tar.bz2"
-assoc_set "url" "mpfr"     "http://www.mpfr.org/mpfr-current/mpfr-2.4.2.tar.gz"
-assoc_set "url" "binutils" "ftp://ftp.gnu.org/gnu/binutils/binutils-2.20.1.tar.gz"
-assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz"
-assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
+# Configure (./configure), make, and install an extracted dependency.
+function build {
+	DIR_RESTORE="`pwd`"
+	NAME="`assoc_get "ext" "$1"`"
+	FLAGS="`assoc_get "con" "$1"`"
 
-assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
-assoc_set "md5" "m4"       "e6fb7d08d50d87e796069cff12a52a93"
-assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
-assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
-assoc_set "md5" "binutils" "eccf0f9bc62864b29329e3302c88a228"
-assoc_set "md5" "gcc"      "04b7b74df06b919bc36b8eb462dfef7a"
-assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
+	# Clean any previous build attempts.
+	rm -rf   "$DIR_COMPILE/$NAME"
+	mkdir -p "$DIR_COMPILE/$NAME"
+	cd       "$DIR_COMPILE/$NAME"
 
-assoc_set "dep" "sdcc"     "`has 'sdcc'`"
-assoc_set "dep" "m4"       "`has 'm4'`"
-assoc_set "dep" "gmp"      ""
-assoc_set "dep" "mpfr"     ""
-assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
-assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
-assoc_set "dep" "newlib"   ""
+	echo "$1 - Configuring"
+	"$DIR_EXTRACT/$NAME/configure" "$FLAGS" &> "/dev/null"
+	if_err $? "unable to configure '$1'"
 
-DIR_BASE="`pwd`/hax_install"
-DIR_DOWNLOAD="$DIR_BASE/download"
-DIR_EXTRACT="$DIR_BASE/extract"
+	echo "$1 - Compiling"
+	make -j$PARALLEL $2 &> "/dev/null"
+	if_err $? "unable to compile '$1'"
+
+	echo "$1 - Installing"
+	make $3 &> "/dev/null"
+	if_err $? "unable to install '$1'"
+}
 
 #
 # SHELL CONFIG AND ENV-VARS
@@ -187,6 +176,54 @@ fi
 
 # Verify the number of threads that should be used by make.
 # TODO 
+
+#
+# CONFIG VARIABLES
+#
+# Direct download URLs for all dependencies.
+assoc_set "url" "sdcc"     "http://sdcc.sourceforge.net/snapshots/sdcc-extra-src/sdcc-extra-src-20100516-5824.tar.bz2"
+assoc_set "url" "m4"       "http://ftp.gnu.org/gnu/m4/m4-1.4.14.tar.bz2"
+assoc_set "url" "gmp"      "ftp://ftp.gmplib.org/pub/gmp-4.3.2/gmp-4.3.2.tar.bz2"
+assoc_set "url" "mpfr"     "http://www.mpfr.org/mpfr-current/mpfr-2.4.2.tar.gz"
+assoc_set "url" "binutils" "ftp://ftp.gnu.org/gnu/binutils/binutils-2.20.1.tar.gz"
+assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz"
+assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
+
+# MD5 checksums for the above-listed downloads.
+assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
+assoc_set "md5" "m4"       "e6fb7d08d50d87e796069cff12a52a93"
+assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
+assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
+assoc_set "md5" "binutils" "eccf0f9bc62864b29329e3302c88a228"
+assoc_set "md5" "gcc"      "04b7b74df06b919bc36b8eb462dfef7a"
+assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
+
+# Name of the folder extracted from the downloaded tarball.
+# TODO: name for SDCC
+assoc_set "ext" "m4"       "m4-1.4.14"
+assoc_set "ext" "gmp"      "gmp-4.3.2"
+assoc_set "ext" "mpfr"     "mpfr-2.4.2"
+assoc_set "ext" "binutils" "binutils-2.20.1"
+assoc_set "ext" "gcc"      "gcc-4.4.4"
+assoc_set "ext" "newlib"   "newlib-1.18.0"
+
+# Attempt to detect previous installations of each dependency.
+assoc_set "dep" "sdcc"     "`has 'sdcc'`"
+assoc_set "dep" "m4"       "`has 'm4'`"
+assoc_set "dep" "gmp"      ""
+assoc_set "dep" "mpfr"     ""
+assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
+assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
+assoc_set "dep" "newlib"   ""
+
+# Configuration (./configure) flags for each dependency.
+assoc_set "con" "m4"       "--prefix='$PREFIX'"
+assoc_set "con" "m4"       "--prefix='$PREFIX' --disable-werror"
+assoc_set "con" "gmp"      "--prefix='$PREFIX' --disable-werror"
+assoc_set "con" "mpfr"     "--prefix='$PREFIX' --disable-werror"
+assoc_set "con" "binutils" "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror"
+assoc_set "con" "gcc"      "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --enable-languages='c'"
+assoc_set "con" "newlib"   "--prefix='$PREFIX' --target='arm-none-eabi'"
 
 #
 # COMMAND LINE ARGUMENTS
