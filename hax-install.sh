@@ -1,5 +1,10 @@
 #! /bin/bash
 
+DIR_BASE="`pwd`/hax_install"
+DIR_DOWNLOAD="$DIR_BASE/download"
+DIR_EXTRACT="$DIR_BASE/extract"
+DIR_COMPILE="$DIR_BASE/compile"
+
 # Issue a warning if this is not a Bash shell to explain potential errors.
 if [ ! `echo "$SHELL" | grep "bash"` ]; then
 	war "untested shell detected, use bash for full compatability"
@@ -171,6 +176,8 @@ fi
 # Verify permissions of the installation directory.
 mkdir -p "$DIR_BASE"     &> "/dev/null"
 mkdir -p "$DIR_DOWNLOAD" &> "/dev/null"
+mkdir -p "$DIR_EXTRACT"  &> "/dev/null"
+mkdir -p "$DIR_COMPILE"  &> "/dev/null"
 if [ ! -w "$DIR_BASE" ]; then
 	err "insufficient permissions to write to '$DIR_BASE'"
 fi
