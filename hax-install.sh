@@ -71,7 +71,7 @@ function download {
 		URL=`assoc_get "url" "$NAME"`
 
 		# Skip dependencies that are already installed.
-		if [ ! "`assoc_get "dep" "$NAME"`" ]; then
+		if [ "`assoc_get "dep" "$NAME"`" ]; then
 			echo "$NAME - Already Installed"
 			continue
 		fi
