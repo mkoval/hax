@@ -223,16 +223,41 @@ if [ "$COMMAND" = "install" ]; then
 
 	# Cortex Dependencies
 	if [ $ARCH_CORTEX -ne 0 ]; then
-		download "m4" "gmp" "mpfr" "binutils" "gcc"
+		# Skip if the arm-none-eabi toolchain is installed.
+		if [ ! "`assoc_get "dep" "gcc"`" ]; then
+			download "m4" "gmp" "mpfr" "binutils" "newlib" "gcc"
 
-		# M4 
-		if [ ! "`assoc_get "dep" "m4"`" ]; then
-			extract "m4" "$DIR_BUILD"
-		fi
+			# M4
+			if [ ! "`assoc_get "dep" "m4"`" ]; then
+				extract "m4"
+				build "m4" "all" "install"
+			fi
 
-		# Binutils
-		if [ ! "`assoc_get "dep" "binutils"`" ]; then
-			extract "binutils" "$DIR_BUILD"
+			# Binutils
+			if [ ! "`assoc_get "dep" "binutils"`" ]; then
+				extract "binutils"
+				build "binutils" "all" "install"
+			fi
+
+			# GCC (Stage 1), Newlib, and GCC (Stage 2)
+			if [ ! "`assoc_get "dep" "gcc"`" ]; then
+				NAME_GCC="`assoc_get "ext" "gcc"`"
+				NAME_GMP="`assoc_get "ext" "gmp"`"
+				NAME_MPFR="`assoc_get "ext" "mpfr"`"
+
+				# GCC Bootstrap (Stage 1)
+				extract "gcc" "gmp" "mpfr"
+				cp -r "$DIR_EXTRACT/$NAME_GMP"  "$DIR_EXTRACT/$NAME_GCC/gmp"
+				cp -r "$DIR_EXTRACT/$NAME_MPFR" "$DIR_EXTRACT/$NAME_GCC/mpfr"
+				build "gcc" "all-gcc" "install-gcc"
+
+				# Newlib
+				extract "newlib"
+				build "newlib" "all" "install"
+
+				# GCC with Newlib (Stage 2)
+				build "gcc" "all" "install"
+			fi
 		fi
 	fi
 
