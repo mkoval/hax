@@ -85,8 +85,8 @@ void setup_1(void) {
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
-		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the FOSC
-		 * is 40Mhz.
+		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the 
+		 * FOSC is 40Mhz.
 		 * Also according to the doc, section 19.2, the
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
@@ -97,6 +97,7 @@ void setup_1(void) {
 		       		           ADC_VREFMINUS_VSS );
 	} else { 
 		/* TODO: Handle the error. */
+		puts("ADC is disabled");
 	}
 
 }
