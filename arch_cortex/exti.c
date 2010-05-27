@@ -71,7 +71,7 @@ static const int8_t ifipin_to_pin[12] =
 bool digital_get(index_t index) {
 	/* TODO Enable support for using analog pins as digital IOs. */
 	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool digital_get(index_t index) {
 void digital_set(index_t index, bool pull_high) {
 	/* TODO Enable support for using analog pins as digital IOs. */
 	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return;
 	}
 
@@ -103,7 +103,7 @@ void pin_set_io(index_t index, bool set_output ) {
 
 	/* TODO Enable support for using analog pins as digital IOs. */
 	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return;
 	}
 	
@@ -121,7 +121,7 @@ void pin_set_io(index_t index, bool set_output ) {
 
 void interrupt_reg_isr(index_t index, isr_t isr) {
 	if (!IS_INTERRUPT(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return;
 	}
 
@@ -132,7 +132,7 @@ void interrupt_enable(index_t index) {
 	uint8_t ri;
 
 	if (!IS_INTERRUPT(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return;
 	}
 
@@ -153,7 +153,7 @@ void interrupt_enable(index_t index) {
 
 void interrupt_disable(index_t index) {
 	if (!IS_INTERRUPT(index)) {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return;
 	}
 

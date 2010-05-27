@@ -234,8 +234,8 @@ void pin_set_io(index_t i, bool bit) {
 		BIT_SET(TRISF, (i - 5) - 1 , bit);
 		break;
 
-	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
-	 * the TRISH register.
+	/* The reimaining inputs, 12 through 15, are stored starting at 
+	 * bit 4 in the TRISH register.
 	 */
 	case 13:
 	case 14:
@@ -299,7 +299,7 @@ bool digital_get(index_t i) {
 		return BIT_GET(PORTB, (i - 16) + 2 - 1);
 
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return false;
 	}
 }
@@ -314,7 +314,7 @@ uint16_t analog_adc_get(index_t index) {
 		while(BusyADC());
 		return ReadADC();
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return 0xFFFF;
 	}
 }
@@ -324,14 +324,14 @@ int8_t analog_oi_get(index_t index) {
 		int8_t v = rxdata.oi_analog[index - 1] - 128;
 		return (v < 0) ? v + 1 : v;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return 0;
 	}
 }
 
 bool digital_io_get(index_t index) {
 	/* All ports on the old transmitter are analog, including the buttons. */
-	ERROR(__FILE__, __LINE__);
+	ERROR();
 	return false;
 }
 
@@ -342,7 +342,7 @@ void analog_set(index_t index, int8_t sp) {
 		val = sp + 128;
 		txdata.rc_pwm[index - 1] = (uint8_t)val;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 
@@ -355,7 +355,7 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 	if (17 <= index && index <= 22) {
 		isr_callbacks[index - 17] = isr;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 
@@ -459,7 +459,7 @@ void interrupt_enable(index_t index) {
 		break;
 	
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 

@@ -6,9 +6,11 @@
 #include <stdbool.h>
 
 /* Define an empty error handler for the user to override. */
-#ifndef ERROR
-#define ERROR(_file_, _line_)
+#ifndef ERROR_HANDLER
+#define ERROR_HANDLER(_file_, _line_)
 #endif
+
+#define ERROR() ERROR_HANDLER(__FILE__,__LINE__)
 
 /*
  * The Main function
