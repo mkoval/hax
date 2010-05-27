@@ -41,4 +41,4 @@ easyc_cortex:
 
 
 include $(PROG)/Makefile
-include $(ARCH)/Makefile
+include $(ARCH)/build.mk
