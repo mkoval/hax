@@ -5,4 +5,5 @@ SOURCE  += $(ARCH)/hax.c        \
 HEADERS += $(ARCH)/master.h     \
            $(ARCH)/ifi_lib.h
 
-include $(ARCH)/mcc18.mk
+COMPILER = mcc18
+include $(ARCH)/$(COMPILER).mk
