@@ -179,7 +179,8 @@ bool new_data_received(void) {
 static bool check_oi(void) {
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
-		if ( (rxdata.oi_analog[i] > 0xdf) || (rxdata.oi_analog[i] < 0x1f) ) {
+		if((rxdata.oi_analog[i] > 0xdf)
+		            || (rxdata.oi_analog[i] < 0x1f)) {
 			return true;
 		}
 	}
