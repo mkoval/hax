@@ -361,13 +361,21 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 }
 
 #if   defined(MCC18_30)
-#pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
+#pragma interruptlow interrupt_handler nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
 #elif defined(MCC18_24)
 #pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+#elif defined(SDCC)
 #else
-#error Interrupts are unsuported with this compiler.
+#error "Bad compiler."
 #endif
+
+#if defined(MCC18)
 void interrupt_handler(void) {
+#elif defined(SDCC)
+void interrupt_handler(void) __interrupt {
+#else
+#error "Bad compiler."
+#endif
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
 	/* Interrupt 1 */
@@ -418,7 +426,13 @@ void interrupt_handler(void) {
 }
 
 #pragma code interrupt_vector=0x818
+#if defined(SDCC)
+void interrupt_vector(void) __naked {
+#elif defined(MCC18)
 void interrupt_vector(void) {
+#else 
+#error "Bad Compiler."
+#endif
 	/* There's not much space for this function... */
 	_asm
 	goto interrupt_handler
