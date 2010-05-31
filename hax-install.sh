@@ -95,7 +95,7 @@ function download {
 
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
-			curl -# -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
+			curl -# -L -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
 			if_err $? "unable to download $NAME"
 		elif [ "`has 'wget'`" ]; then
 			wget -o "$DIR_DOWNLOAD/$NAME" -- "$URL" &> "/dev/null"
