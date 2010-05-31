@@ -184,7 +184,7 @@ fi
 # CONFIG VARIABLES
 #
 # Direct download URLs for all dependencies.
-assoc_set "url" "sdcc"     "http://sdcc.sourceforge.net/snapshots/sdcc-extra-src/sdcc-extra-src-20100516-5824.tar.bz2"
+assoc_set "url" "sdcc"     "http://downloads.sourceforge.net/project/sdcc/sdcc/2.8.0/sdcc-src-2.8.0.tar.bz2"
 assoc_set "url" "m4"       "http://ftp.gnu.org/gnu/m4/m4-1.4.14.tar.bz2"
 assoc_set "url" "gmp"      "ftp://ftp.gmplib.org/pub/gmp-4.3.2/gmp-4.3.2.tar.bz2"
 assoc_set "url" "mpfr"     "http://www.mpfr.org/mpfr-current/mpfr-2.4.2.tar.gz"
@@ -193,7 +193,7 @@ assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz
 assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
 
 # MD5 checksums for the above-listed downloads.
-assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
+assoc_set "md5" "sdcc"     "1b9c2e581b92d5e3f13bca37c5784080"
 assoc_set "md5" "m4"       "e6fb7d08d50d87e796069cff12a52a93"
 assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
 assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
@@ -262,7 +262,8 @@ if [ "$COMMAND" = "install" ]; then
 	# PIC Dependencies
 	if [ $ARCH_PIC -ne 0 ]; then
 		download "sdcc"
-		extract "$DIR_DOWNLOAD" "$DIR_BUILD" "sdcc"
+		extract "sdcc"
+		build "sdcc" "all" "install"
 	fi
 
 	# Cortex Dependencies
