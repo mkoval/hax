@@ -294,7 +294,7 @@ if [ "$COMMAND" = "install" ]; then
 				extract "gcc" "gmp" "mpfr"
 				cp -r "$DIR_EXTRACT/$NAME_GMP"  "$DIR_EXTRACT/$NAME_GCC/gmp"
 				cp -r "$DIR_EXTRACT/$NAME_MPFR" "$DIR_EXTRACT/$NAME_GCC/mpfr"
-				build "gcc" "all-gcc" "install-gcc"
+				build "gcc_bs" "all-gcc" "install-gcc"
 
 				# Newlib
 				extract "newlib"
