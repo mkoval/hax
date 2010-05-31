@@ -157,6 +157,7 @@ elif [ ! "`has 'gcc'`" ]; then
 fi
 
 # Verify permissions on the installation directory.
+mkdir -p "$PREFIX" &> "/dev/null"
 if [ -z "$PREFIX" ]; then
 	PREFIX="/usr/local"
 elif [ ! -w "$PREFIX" ]; then
