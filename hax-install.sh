@@ -1,6 +1,7 @@
 #! /bin/bash
 
 DIR_BASE="`pwd`/hax_install"
+DIR_LOGS="$DIR_BASE/logs"
 DIR_DOWNLOAD="$DIR_BASE/download"
 DIR_EXTRACT="$DIR_BASE/extract"
 DIR_COMPILE="$DIR_BASE/compile"
@@ -129,15 +130,15 @@ function build {
 	cd       "$DIR_COMPILE/$NAME"
 
 	echo "$1 - Configuring"
-	"$DIR_EXTRACT/$NAME/configure" "$FLAGS" &> "/dev/null"
+	"$DIR_EXTRACT/$NAME/configure" "$FLAGS" &> "$DIR_LOGS/conf_$1.log"
 	if_err $? "unable to configure '$1'"
 
 	echo "$1 - Compiling"
-	make -j$PARALLEL $2 &> "/dev/null"
+	make -j$PARALLEL $2 &> "$DIR_LOGS/make_$1.log"
 	if_err $? "unable to compile '$1'"
 
 	echo "$1 - Installing"
-	make $3 &> "/dev/null"
+	make $3 &> "$DIR_LOGS/inst_$1.log"
 	if_err $? "unable to install '$1'"
 }
 
@@ -164,6 +165,7 @@ fi
 
 # Verify permissions of the installation directory.
 mkdir -p "$DIR_BASE"     &> "/dev/null"
+mkdir -p "$DIR_LOGS"     &> "/dev/null"
 mkdir -p "$DIR_DOWNLOAD" &> "/dev/null"
 mkdir -p "$DIR_EXTRACT"  &> "/dev/null"
 mkdir -p "$DIR_COMPILE"  &> "/dev/null"
