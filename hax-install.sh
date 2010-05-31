@@ -202,13 +202,14 @@ assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
 
 # Name of the folder extracted from the downloaded tarball.
 # TODO: name for SDCC
-assoc_set "ext" "sdcc"     "sdcc-extra-src"
+assoc_set "ext" "sdcc"     "sdcc"
 assoc_set "ext" "m4"       "m4-1.4.14"
 assoc_set "ext" "gmp"      "gmp-4.3.2"
 assoc_set "ext" "mpfr"     "mpfr-2.4.2"
 assoc_set "ext" "binutils" "binutils-2.20.1"
-assoc_set "ext" "gcc"      "gcc-4.4.4"
+assoc_set "ext" "gcc_bs"   "gcc-4.4.4"
 assoc_set "ext" "newlib"   "newlib-1.18.0"
+assoc_set "ext" "gcc"      "gcc-4.4.4"
 
 # Attempt to detect previous installations of each dependency.
 assoc_set "dep" "sdcc"     "`has 'sdcc'`"
@@ -216,17 +217,19 @@ assoc_set "dep" "m4"       "`has 'm4'`"
 assoc_set "dep" "gmp"      ""
 assoc_set "dep" "mpfr"     ""
 assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
-assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
+assoc_set "dep" "gcc_bs"   "`has 'arm-none-eabi-gcc'`"
 assoc_set "dep" "newlib"   ""
+assoc_set "dep" "gcc_bs"   ""
 
 # Configuration (./configure) flags for each dependency.
-assoc_set "con" "m4"       "--prefix='$PREFIX'"
+assoc_set "con" "sdcc"     "--prefix='$PREFIX'"
 assoc_set "con" "m4"       "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "gmp"      "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "mpfr"     "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "binutils" "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror"
-assoc_set "con" "gcc"      "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --enable-languages='c'"
+assoc_set "con" "gcc_bs"   "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --without-headers --enable-languages='c'"
 assoc_set "con" "newlib"   "--prefix='$PREFIX' --target='arm-none-eabi'"
+assoc_set "con" "gcc"      "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --with-headers --enable-languages='c'"
 
 #
 # COMMAND LINE ARGUMENTS
