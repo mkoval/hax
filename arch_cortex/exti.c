@@ -75,13 +75,9 @@ bool digital_get(index_t index) {
 		return false;
 	}
 
-<<<<<<< HEAD:vex_cortex/exti.c
-	return (port->IDR & ( 1 << pin )) == (1 << pin);
-=======
 	GPIO_TypeDef *port = ifipin_to_port[index - 1];
 	index_t       pin  = ifipin_to_pin[index - 1];
-	return (port->IDR & ( 1 << pin )) >> pin;
->>>>>>> 62d87f066a097a3882c170c408345599989deaf6:arch_cortex/exti.c
+	return (port->IDR & ( 1 << pin )) == (1 << pin);
 }
 
 void digital_set(index_t index, bool pull_high) {
