@@ -4,6 +4,8 @@ CC = sdcc
 LD = sdcc
 AS = sdcc
 
+SOURCE += crt0iz_sdcc.c
+
 ARCH_CFLAGS = -mpic16 -p18f8520 
 ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
 ARCH_CFLAGS += --ivt-loc=0x800
