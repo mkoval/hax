@@ -488,10 +488,10 @@ void interrupt_enable(index_t index) {
 /*
  * STREAM IO
  */
-void _putc(char data) {
+void _putc(char c) {
 	/* From the Microchip C Library Docs */
 	while(Busy1USART());
-	Write1USART(data);
+	Write1USART(c);
 }
  
 /* IFI lib uses this. (IT BURNNNNSSSS) */
