@@ -5,9 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef bool
-#error "Hello"
+#if !defined(bool)
+#define bool uint8_t
 #endif
+
 
 /* Define an empty error handler for the user to override. */
 #ifndef ERROR_HANDLER
