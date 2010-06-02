@@ -3,11 +3,11 @@
  * PIC Arch
  */
 #include <adc.h>
-#include <delays.h>
 #include <hax.h>
 
 #if defined(MCC18)
 #include <p18cxxx.h>
+#include <delays.h>
 #elif defined(SDCC)
 #include <pic18fregs.h>
 #else
