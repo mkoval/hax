@@ -1,8 +1,7 @@
 CC = sdcc
 #LD = gplink
-#AS = gpasm
+AS = gpasm
 LD = sdcc
-AS = sdcc
 
 SOURCE += crt0iz_sdcc.c
 
@@ -13,7 +12,7 @@ ARCH_CFLAGS += --optimize-cmp --optimize-goto
 #ARCH_CFLAGS += --optimize-df
 #ARCH_CFLAGS += --pstack-model=large
 
-ARCH_ASFLAGS = -p 18f8520
+ARCH_ASFLAGS = -p18f8520
 
 OBJECTS     += $(SOURCE:=.o)
 #TRASH       += 
