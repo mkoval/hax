@@ -5,20 +5,23 @@
  * User Guide.
  */
 #if defined(__18CXX)
-  #define MCC18 1
-
   //FIXME: need to actually detect version.
+  #define MCC18 240
+
+  //XXX: Depricated. Version comes from value of MCC18 macro.
   #define MCC18_24 1
 
   #define __noreturn 
   #define __rom	rom
   #define __overlay overlay
 
-/* GCC 4.3.2 does not seem to support ROM or overlay attributes. */
 #elif defined(__GNUC__)
+  #define GCC 1
+
+  //XXX: Depricated. ARCH and COMPILER are seperate.
   #define GCC_ARM 1
 
-  #define __noreturn __attribute__((__noreturn__))
+  #define __noreturn __attribute__((noreturn))
   #define __rom
   #define __overlay
 
