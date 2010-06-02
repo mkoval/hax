@@ -44,7 +44,6 @@ clean :
 		| $(XARGS) -- $(RM)
 	@echo "CLEAN"
 
-rebuild : clean all
 
 .SECONDARY : 
 
@@ -78,4 +77,4 @@ rebuild : clean all
 	@echo "SYM $<"
 	@$(NM) -n $< > $@
 
-.PHONY : all clean install rebuild
+.PHONY : clean rebuild
