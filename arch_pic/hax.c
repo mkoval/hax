@@ -331,7 +331,10 @@ int8_t analog_oi_get(index_t index) {
 }
 
 bool digital_io_get(index_t index) {
-	/* All ports on the old transmitter are analog, including the buttons. */
+	/* All ports on the old transmitter are analog, including the
+	 * buttons.
+	 * FIXME: the buttons aren't reallly.
+	 */
 	ERROR();
 	return false;
 }
@@ -360,22 +363,19 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 	}
 }
 
-#if   defined(MCC18_30)
-#pragma interruptlow interrupt_handler nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
-#elif defined(MCC18_24)
-#pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+#if   defined(MCC18)
+  #if MCC18 >= 300
+    #pragma interruptlow interrupt_handler nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
+  #else
+    #pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+  #endif
 #elif defined(SDCC)
+  // nada.
 #else
-#error "Bad compiler."
+ #error "Bad compiler."
 #endif
 
-#if defined(MCC18)
 void interrupt_handler(void) {
-#elif defined(SDCC)
-void interrupt_handler(void) __interrupt {
-#else
-#error "Bad compiler."
-#endif
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
 	/* Interrupt 1 */
@@ -425,14 +425,15 @@ void interrupt_handler(void) __interrupt {
 	}
 }
 
-#pragma code interrupt_vector=0x818
 #if defined(SDCC)
-void interrupt_vector(void) __naked {
+  void interrupt_vector(void) __naked __interrupt 2
 #elif defined(MCC18)
-void interrupt_vector(void) {
+  #pragma code interrupt_vector=0x818
+  void interrupt_vector(void)
 #else 
-#error "Bad Compiler."
+  #error "Bad Compiler."
 #endif
+{
 	/* There's not much space for this function... */
 	_asm
 	goto interrupt_handler
