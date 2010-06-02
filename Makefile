@@ -13,6 +13,7 @@ HEADERS     = hax.h
 
 all: build
 
+include $(PROG)/Makefile
 include $(ARCH)/build.mk
 TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
 
@@ -32,4 +33,3 @@ vex_pic:
 vex_cortex:
 	@$(MAKE) ARCH="arch_cortex" $(MAKEFLAGS) all
 
-include $(PROG)/Makefile
