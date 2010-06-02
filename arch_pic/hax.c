@@ -119,8 +119,8 @@ uint8_t battery_get(void) {
 		while(!LVDCONbits.IRVST);
 		PIR2bits.LVDIF = 0;
 	
-		tmp = LVDCON & 0xF
-		if ( !PIR2bits.LVDIF || !tmp ) {
+		tmp = LVDCON & 0xF;
+		if (!(PIR2bits.LVDIF)||!tmp) {
 			LVDCON = 0;
 			return tmp + 1;
 		}
