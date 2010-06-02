@@ -47,20 +47,34 @@ unsigned char *txPtr;                   // not used?
 unsigned char OneShot;
 unsigned char AutoOn;
 
+#if defined(MCC18)
+
 #pragma code InterruptVectorHigh=0x808
 void InterruptVectorHigh(void)
 {
-_asm GOTO InterruptHandlerHigh _endasm
+	_asm 
+		GOTO isr_high 
+	_endasm
 }
 #pragma code
 
-#define V240
-#ifndef V240
-#pragma interrupt InterruptHandlerHigh nosave=TBLPTR, TABLAT, PCLATH, PROD, section(".tmpdata"), section("MATH_DATA")
-#else
-#pragma interrupt InterruptHandlerHigh
+#elif defined(SDCC)
+
+void ivt_high(void) __naked __interrupt 1
+{
+	__asm
+		goto _isr_high
+	__endasm;
+}
+
+#endif /* defined(SDCC) */
+
+#if defined(MCC18_30)
+#pragma interrupt isr_high nosave=TBLPTR, TABLAT, PCLATH, PROD, section(".tmpdata"), section("MATH_DATA")
+#elif defined(MCC18_24)
+#pragma interrupt isr_high
 #endif
-void InterruptHandlerHigh(void)
+void isr_high(void)
 {
 	if ( INTCONbits.INT0IF )
 		Prep_SPI_4_First_Byte();
