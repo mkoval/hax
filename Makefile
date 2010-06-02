@@ -12,13 +12,14 @@ SOURCE      = hax_main.c
 HEADERS     = hax.h
 
 all: build
+rebuild : | clean build
 
 include $(PROG)/Makefile
 include $(ARCH)/build.mk
 TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
 
 
-.PHONY: all help vex_pic vex_cortex easyc_cortex clean build
+.PHONY: all help arch_pic arch_cortex clean build rebuild
 
 build: $(TARGET)
 
