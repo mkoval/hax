@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef bool
+#error "Hello"
+#endif
+
 /* Define an empty error handler for the user to override. */
 #ifndef ERROR_HANDLER
 #define ERROR_HANDLER(_file_, _line_)

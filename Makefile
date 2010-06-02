@@ -11,15 +11,13 @@ ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 SOURCE      = hax_main.c
 HEADERS     = hax.h
 
+.PHONY: all help arch_pic arch_cortex clean build rebuild
 all: build
 rebuild : | clean build
 
 include $(PROG)/Makefile
 include $(ARCH)/build.mk
 TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
-
-
-.PHONY: all help arch_pic arch_cortex clean build rebuild
 
 build: $(TARGET)
 
