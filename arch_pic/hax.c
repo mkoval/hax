@@ -426,13 +426,15 @@ void interrupt_handler(void) {
 }
 
 #if defined(SDCC)
-  void interrupt_vector(void) __naked __interrupt 2
+void interrupt_vector(void) __naked __interrupt 2
+{
+	__asm
+		goto _interrupt_handler
+	__endasm;
+}
 #elif defined(MCC18)
-  #pragma code interrupt_vector=0x818
-  void interrupt_vector(void)
-#else 
-  #error "Bad Compiler."
-#endif
+#pragma code interrupt_vector=0x818
+void interrupt_vector(void)
 {
 	/* There's not much space for this function... */
 	_asm
@@ -440,6 +442,10 @@ void interrupt_handler(void) {
 	_endasm
 }
 #pragma code
+#else
+#error "Bad Compiler."
+#endif
+
 
 /* TODO Implement interrupt_disable(). */
 
