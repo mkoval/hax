@@ -1,3 +1,6 @@
+#ifndef MASTER_H_
+#define MASTER_H_
+
 /*
  * Structures for comunication with the master proc
  */
@@ -144,3 +147,5 @@ typedef struct {
 	uint8_t current_mode;
 	uint8_t control;
 } TxData;
+
+#endif /* MASTER_H_ */
