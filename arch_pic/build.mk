@@ -4,5 +4,6 @@ SOURCE  += $(ARCH)/hax.c        \
 HEADERS += $(ARCH)/master.h     \
            $(ARCH)/ifi_lib.h
 
+ARCH_EXT = hex
 COMPILER = mcc18
 include $(ARCH)/$(COMPILER).mk
