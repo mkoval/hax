@@ -1,6 +1,7 @@
 #! /bin/bash
 
 DIR_BASE="`pwd`/hax_install"
+DIR_LOGS="$DIR_BASE/logs"
 DIR_DOWNLOAD="$DIR_BASE/download"
 DIR_EXTRACT="$DIR_BASE/extract"
 DIR_COMPILE="$DIR_BASE/compile"
@@ -94,7 +95,7 @@ function download {
 
 		# Use curl or wget to download the URL to the target directory.
 		if [ "`has 'curl'`" ]; then
-			curl -# -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
+			curl -# -L -o "$DIR_DOWNLOAD/$NAME" -- "$URL"
 			if_err $? "unable to download $NAME"
 		elif [ "`has 'wget'`" ]; then
 			wget -o "$DIR_DOWNLOAD/$NAME" -- "$URL" &> "/dev/null"
@@ -129,15 +130,15 @@ function build {
 	cd       "$DIR_COMPILE/$NAME"
 
 	echo "$1 - Configuring"
-	"$DIR_EXTRACT/$NAME/configure" "$FLAGS" &> "/dev/null"
+	"$DIR_EXTRACT/$NAME/configure" "$FLAGS" &> "$DIR_LOGS/conf_$1.log"
 	if_err $? "unable to configure '$1'"
 
 	echo "$1 - Compiling"
-	make -j$PARALLEL $2 &> "/dev/null"
+	make -j$PARALLEL $2 &> "$DIR_LOGS/make_$1.log"
 	if_err $? "unable to compile '$1'"
 
 	echo "$1 - Installing"
-	make $3 &> "/dev/null"
+	make $3 &> "$DIR_LOGS/inst_$1.log"
 	if_err $? "unable to install '$1'"
 }
 
@@ -156,6 +157,7 @@ elif [ ! "`has 'gcc'`" ]; then
 fi
 
 # Verify permissions on the installation directory.
+mkdir -p "$PREFIX" &> "/dev/null"
 if [ -z "$PREFIX" ]; then
 	PREFIX="/usr/local"
 elif [ ! -w "$PREFIX" ]; then
@@ -164,6 +166,7 @@ fi
 
 # Verify permissions of the installation directory.
 mkdir -p "$DIR_BASE"     &> "/dev/null"
+mkdir -p "$DIR_LOGS"     &> "/dev/null"
 mkdir -p "$DIR_DOWNLOAD" &> "/dev/null"
 mkdir -p "$DIR_EXTRACT"  &> "/dev/null"
 mkdir -p "$DIR_COMPILE"  &> "/dev/null"
@@ -181,7 +184,7 @@ fi
 # CONFIG VARIABLES
 #
 # Direct download URLs for all dependencies.
-assoc_set "url" "sdcc"     "http://sdcc.sourceforge.net/snapshots/sdcc-extra-src/sdcc-extra-src-20100516-5824.tar.bz2"
+assoc_set "url" "sdcc"     "http://downloads.sourceforge.net/project/sdcc/sdcc/2.8.0/sdcc-src-2.8.0.tar.bz2"
 assoc_set "url" "m4"       "http://ftp.gnu.org/gnu/m4/m4-1.4.14.tar.bz2"
 assoc_set "url" "gmp"      "ftp://ftp.gmplib.org/pub/gmp-4.3.2/gmp-4.3.2.tar.bz2"
 assoc_set "url" "mpfr"     "http://www.mpfr.org/mpfr-current/mpfr-2.4.2.tar.gz"
@@ -190,7 +193,7 @@ assoc_set "url" "gcc"      "ftp://ftp.gnu.org/gnu/gcc/gcc-4.4.4/gcc-4.4.4.tar.gz
 assoc_set "url" "newlib"   "ftp://sources.redhat.com/pub/newlib/newlib-1.18.0.tar.gz"
 
 # MD5 checksums for the above-listed downloads.
-assoc_set "md5" "sdcc"     "8db303a896d6d046fb5cb108fcc025dc"
+assoc_set "md5" "sdcc"     "1b9c2e581b92d5e3f13bca37c5784080"
 assoc_set "md5" "m4"       "e6fb7d08d50d87e796069cff12a52a93"
 assoc_set "md5" "gmp"      "dd60683d7057917e34630b4a787932e8"
 assoc_set "md5" "mpfr"     "0e3dcf9fe2b6656ed417c89aa9159428"
@@ -200,12 +203,14 @@ assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
 
 # Name of the folder extracted from the downloaded tarball.
 # TODO: name for SDCC
+assoc_set "ext" "sdcc"     "sdcc"
 assoc_set "ext" "m4"       "m4-1.4.14"
 assoc_set "ext" "gmp"      "gmp-4.3.2"
 assoc_set "ext" "mpfr"     "mpfr-2.4.2"
 assoc_set "ext" "binutils" "binutils-2.20.1"
-assoc_set "ext" "gcc"      "gcc-4.4.4"
+assoc_set "ext" "gcc_bs"   "gcc-4.4.4"
 assoc_set "ext" "newlib"   "newlib-1.18.0"
+assoc_set "ext" "gcc"      "gcc-4.4.4"
 
 # Attempt to detect previous installations of each dependency.
 assoc_set "dep" "sdcc"     "`has 'sdcc'`"
@@ -213,17 +218,19 @@ assoc_set "dep" "m4"       "`has 'm4'`"
 assoc_set "dep" "gmp"      ""
 assoc_set "dep" "mpfr"     ""
 assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
-assoc_set "dep" "gcc"      "`has 'arm-none-eabi-gcc'`"
+assoc_set "dep" "gcc_bs"   "`has 'arm-none-eabi-gcc'`"
 assoc_set "dep" "newlib"   ""
+assoc_set "dep" "gcc_bs"   ""
 
 # Configuration (./configure) flags for each dependency.
-assoc_set "con" "m4"       "--prefix='$PREFIX'"
+assoc_set "con" "sdcc"     "--prefix='$PREFIX'"
 assoc_set "con" "m4"       "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "gmp"      "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "mpfr"     "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "binutils" "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror"
-assoc_set "con" "gcc"      "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --enable-languages='c'"
+assoc_set "con" "gcc_bs"   "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --without-headers --enable-languages='c'"
 assoc_set "con" "newlib"   "--prefix='$PREFIX' --target='arm-none-eabi'"
+assoc_set "con" "gcc"      "--prefix='$PREFIX' --target='arm-none-eabi' --disable-werror --with-newlib --with-headers --enable-languages='c'"
 
 #
 # COMMAND LINE ARGUMENTS
@@ -255,7 +262,8 @@ if [ "$COMMAND" = "install" ]; then
 	# PIC Dependencies
 	if [ $ARCH_PIC -ne 0 ]; then
 		download "sdcc"
-		extract "$DIR_DOWNLOAD" "$DIR_BUILD" "sdcc"
+		extract "sdcc"
+		build "sdcc" "all" "install"
 	fi
 
 	# Cortex Dependencies
@@ -286,7 +294,7 @@ if [ "$COMMAND" = "install" ]; then
 				extract "gcc" "gmp" "mpfr"
 				cp -r "$DIR_EXTRACT/$NAME_GMP"  "$DIR_EXTRACT/$NAME_GCC/gmp"
 				cp -r "$DIR_EXTRACT/$NAME_MPFR" "$DIR_EXTRACT/$NAME_GCC/mpfr"
-				build "gcc" "all-gcc" "install-gcc"
+				build "gcc_bs" "all-gcc" "install-gcc"
 
 				# Newlib
 				extract "newlib"
