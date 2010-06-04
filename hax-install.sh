@@ -1,6 +1,6 @@
 #! /bin/bash
 
-DIR_BASE="`pwd`/hax_install"
+DIR_BASE="`pwd`/hax-install"
 DIR_LOGS="$DIR_BASE/logs"
 DIR_DOWNLOAD="$DIR_BASE/download"
 DIR_EXTRACT="$DIR_BASE/extract"
@@ -34,7 +34,7 @@ function has {
 }
 
 # Gets a variable added to an associative array with assoc_set().
-function assoc_get () {
+function assoc_get {
 	VARNAME="__assoc_${1}_${2}"
 	printf "%s" "${!VARNAME}"
 }
@@ -174,12 +174,6 @@ if [ ! -w "$DIR_BASE" ]; then
 	err "insufficient permissions to write to '$DIR_BASE'"
 fi
 
-# Issue a warning if $PREFIX is not in the user's $PATH to prevent confusion.
-# TODO
-
-# Verify the number of threads that should be used by make.
-# TODO 
-
 #
 # CONFIG VARIABLES
 #
@@ -202,7 +196,6 @@ assoc_set "md5" "gcc"      "04b7b74df06b919bc36b8eb462dfef7a"
 assoc_set "md5" "newlib"   "3dae127d4aa659d72f8ea8c0ff2a7a20"
 
 # Name of the folder extracted from the downloaded tarball.
-# TODO: name for SDCC
 assoc_set "ext" "sdcc"     "sdcc"
 assoc_set "ext" "m4"       "m4-1.4.14"
 assoc_set "ext" "gmp"      "gmp-4.3.2"
