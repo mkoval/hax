@@ -14,3 +14,4 @@ mikish/AutonSession
 *.DS_Store
 *.elf
 *.map
+*.c.asm
