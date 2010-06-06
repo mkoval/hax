@@ -3,7 +3,7 @@
 
 #include "compilers.h"
 
-#if defined(MCC18_24)
+#if defined(MCC18)
 typedef unsigned char bool;
 #define true 1
 #define false 0

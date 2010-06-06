@@ -44,38 +44,37 @@ clean :
 		| $(XARGS) -- $(RM)
 	@echo "CLEAN"
 
-rebuild : clean all
 
 .SECONDARY : 
 
 %.s.o: %.s $(HEADER)
-	@$(AS) $(ALL_ASFLAGS) -c -o $@ $<
 	@echo "AS $<"
+	@$(AS) $(ALL_ASFLAGS) -c -o $@ $<
 
 %.c.o: %.c $(HEADER)
-	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
 	@echo "CC $<"
+	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
 %.elf: $(OBJECTS)
+	@echo "LD $^"
 	@$(LD) $(ALL_LDFLAGS) -o $@ $^
-	@echo "LD $<"
 
 %.hex: %.elf
-	@$(OBJCOPY) -S -O ihex $< $@
 	@echo "HEX $<"
+	@$(OBJCOPY) -S -O ihex $< $@
 
 %.bin: %.elf
-	@$(OBJCOPY) -S -O binary $< $@
 	@echo "BIN $<"
+	@$(OBJCOPY) -S -O binary $< $@
 
 # Create extended listing file from ELF output file.
 %.elf.lss: %.elf
-	@$(OBJDUMP) -h -S $< > $@
 	@echo "LSS $<"
+	@$(OBJDUMP) -h -S $< > $@
 
 # Create a symbol table from ELF output file.
 %.elf.sym: %.elf
-	@$(NM) -n $< > $@
 	@echo "SYM $<"
+	@$(NM) -n $< > $@
 
-.PHONY : all clean install rebuild
+.PHONY : clean rebuild

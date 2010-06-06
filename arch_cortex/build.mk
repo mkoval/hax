@@ -14,4 +14,5 @@ SOURCE  += $(ARCH)/hax.c          \
            $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
            $(wildcard $(FWLIB_DIR)/src/*.c)
 
+ARCH_EXT = bin
 include $(ARCH)/gcc.mk

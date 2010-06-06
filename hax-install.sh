@@ -216,7 +216,15 @@ assoc_set "dep" "newlib"   ""
 assoc_set "dep" "gcc_bs"   ""
 
 # Configuration (./configure) flags for each dependency.
-assoc_set "con" "sdcc"     "--prefix='$PREFIX'"
+function mk_sdcc_conf () {
+	local sdcc_conf=""
+	for port in mcs51 gbz80 z80 ds390 ds400 pic hc08; do
+		sdcc_conf="$sdcc_conf --disable-$port-port"
+	done
+	printf "%s" "$sdcc_conf"
+}
+
+assoc_set "con" "sdcc"     "--prefix='$PREFIX' `mk_sdcc_conf`"
 assoc_set "con" "m4"       "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "gmp"      "--prefix='$PREFIX' --disable-werror"
 assoc_set "con" "mpfr"     "--prefix='$PREFIX' --disable-werror"

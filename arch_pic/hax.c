@@ -3,9 +3,17 @@
  * PIC Arch
  */
 #include <adc.h>
-#include <delays.h>
 #include <hax.h>
+
+#if defined(MCC18)
 #include <p18cxxx.h>
+#include <delays.h>
+#elif defined(SDCC)
+#include <pic18fregs.h>
+#else
+#error "Bad compiler"
+#endif
+
 #include <stdio.h>
 #include <usart.h>
 
@@ -77,8 +85,8 @@ void setup_1(void) {
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
-		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the FOSC
-		 * is 40Mhz.
+		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the 
+		 * FOSC is 40Mhz.
 		 * Also according to the doc, section 19.2, the
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
@@ -89,6 +97,7 @@ void setup_1(void) {
 		       		           ADC_VREFMINUS_VSS );
 	} else { 
 		/* TODO: Handle the error. */
+		puts("ADC is disabled");
 	}
 
 }
@@ -110,8 +119,8 @@ uint8_t battery_get(void) {
 		while(!LVDCONbits.IRVST);
 		PIR2bits.LVDIF = 0;
 	
-		tmp = LVDCON & 0xF
-		if ( !PIR2bits.LVDIF || !tmp ) {
+		tmp = LVDCON & 0xF;
+		if (!(PIR2bits.LVDIF)||!tmp) {
 			LVDCON = 0;
 			return tmp + 1;
 		}
@@ -171,7 +180,8 @@ bool new_data_received(void) {
 static bool check_oi(void) {
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
-		if ( (rxdata.oi_analog[i] > 0xdf) || (rxdata.oi_analog[i] < 0x1f) ) {
+		if((rxdata.oi_analog[i] > 0xdf)
+		            || (rxdata.oi_analog[i] < 0x1f)) {
 			return true;
 		}
 	}
@@ -225,8 +235,8 @@ void pin_set_io(index_t i, bool bit) {
 		BIT_SET(TRISF, (i - 5) - 1 , bit);
 		break;
 
-	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
-	 * the TRISH register.
+	/* The reimaining inputs, 12 through 15, are stored starting at 
+	 * bit 4 in the TRISH register.
 	 */
 	case 13:
 	case 14:
@@ -290,7 +300,7 @@ bool digital_get(index_t i) {
 		return BIT_GET(PORTB, (i - 16) + 2 - 1);
 
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return false;
 	}
 }
@@ -305,7 +315,7 @@ uint16_t analog_adc_get(index_t index) {
 		while(BusyADC());
 		return ReadADC();
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return 0xFFFF;
 	}
 }
@@ -315,14 +325,17 @@ int8_t analog_oi_get(index_t index) {
 		int8_t v = rxdata.oi_analog[index - 1] - 128;
 		return (v < 0) ? v + 1 : v;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return 0;
 	}
 }
 
 bool digital_io_get(index_t index) {
-	/* All ports on the old transmitter are analog, including the buttons. */
-	ERROR(__FILE__, __LINE__);
+	/* All ports on the old transmitter are analog, including the
+	 * buttons.
+	 * FIXME: the buttons aren't reallly.
+	 */
+	ERROR();
 	return false;
 }
 
@@ -333,7 +346,7 @@ void analog_set(index_t index, int8_t sp) {
 		val = sp + 128;
 		txdata.rc_pwm[index - 1] = (uint8_t)val;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 
@@ -346,17 +359,22 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 	if (17 <= index && index <= 22) {
 		isr_callbacks[index - 17] = isr;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 
-#if   defined(MCC18_30)
-#pragma interruptlow interrupt_handler nosave=section(".tmpdata"),TBLPTRU,TBLPTRH,TBLPTRL,TABLAT,PCLATH,PCLATU
-#elif defined(MCC18_24)
-#pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+#if   defined(MCC18)
+  #if MCC18 >= 300
+    #pragma interruptlow interrupt_handler nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
+  #else
+    #pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+  #endif
+#elif defined(SDCC)
+  // nada.
 #else
-#error Interrupts are unsuported with this compiler.
+ #error "Bad compiler."
 #endif
+
 void interrupt_handler(void) {
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
@@ -407,14 +425,27 @@ void interrupt_handler(void) {
 	}
 }
 
+#if defined(SDCC)
+void interrupt_vector(void) __naked __interrupt 2
+{
+	__asm
+		goto _interrupt_handler
+	__endasm;
+}
+#elif defined(MCC18)
 #pragma code interrupt_vector=0x818
-void interrupt_vector(void) {
+void interrupt_vector(void)
+{
 	/* There's not much space for this function... */
 	_asm
 	goto interrupt_handler
 	_endasm
 }
 #pragma code
+#else
+#error "Bad Compiler."
+#endif
+
 
 /* TODO Implement interrupt_disable(). */
 
@@ -450,17 +481,17 @@ void interrupt_enable(index_t index) {
 		break;
 	
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 
 /*
  * STREAM IO
  */
-void _putc(char data) {
+void _putc(char c) {
 	/* From the Microchip C Library Docs */
 	while(Busy1USART());
-	Write1USART(data);
+	Write1USART(c);
 }
  
 /* IFI lib uses this. (IT BURNNNNSSSS) */

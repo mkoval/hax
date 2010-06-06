@@ -4,7 +4,8 @@
 #include "compilers.h"
 
 /* As defined in Section 2.1, Page 11 of the MCC18 C18 User Guide */
-#if defined(MCC18_24)
+/* FIXME: what version? */
+#if defined(MCC18)
 typedef signed   char int8_t;
 typedef unsigned char uint8_t;
 

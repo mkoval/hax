@@ -47,20 +47,34 @@ unsigned char *txPtr;                   // not used?
 unsigned char OneShot;
 unsigned char AutoOn;
 
+#if defined(MCC18)
+
 #pragma code InterruptVectorHigh=0x808
 void InterruptVectorHigh(void)
 {
-_asm GOTO InterruptHandlerHigh _endasm
+	_asm 
+		GOTO isr_high 
+	_endasm
 }
 #pragma code
 
-#define V240
-#ifndef V240
-#pragma interrupt InterruptHandlerHigh nosave=TBLPTR, TABLAT, PCLATH, PROD, section(".tmpdata"), section("MATH_DATA")
-#else
-#pragma interrupt InterruptHandlerHigh
+#elif defined(SDCC)
+
+void ivt_high(void) __naked __interrupt 1
+{
+	__asm
+		goto _isr_high
+	__endasm;
+}
+
+#endif /* defined(SDCC) */
+
+#if defined(MCC18_30)
+#pragma interrupt isr_high nosave=TBLPTR, TABLAT, PCLATH, PROD, section(".tmpdata"), section("MATH_DATA")
+#elif defined(MCC18_24)
+#pragma interrupt isr_high
 #endif
-void InterruptHandlerHigh(void)
+void isr_high(void)
 {
 	if ( INTCONbits.INT0IF )
 		Prep_SPI_4_First_Byte();
@@ -298,6 +312,7 @@ void Getdata(rx_data_ptr ptr)
 			else if ( (int)rxdata.oi_analog05 < 0x9a )
 				OneShot = 0;
 
+			// XXX: What? (see below as well)
 			rxdata.rc_mode_byte.mode.autonomous = AutoOn;
 		}
 
@@ -310,11 +325,13 @@ void Getdata(rx_data_ptr ptr)
 		if ( rxdata.rc_receiver_status_byte.allbits == 0 )
 			AutoOn = 0;
 
+		// XXX: Why the hell are we setting things in the recieved data?
 		rxdata.rc_mode_byte.mode.autonomous = AutoOn;
 #endif
 #if defined(COMPETITION) || defined(AUTONOMOUS)
 		if ( AutoOn )
 		{
+			// XXX: Again. 
 			rxdata.rc_receiver_status_byte.allbits = 4;
 			rxdata.oi_analog01 = rxdata.oi_analog02 = rxdata.oi_analog03 = rxdata.oi_analog04 = 0x7f;
 			rxdata.oi_analog05 = rxdata.oi_analog06 = rxdata.oi_analog07 = rxdata.oi_analog08 = 0x7f;
@@ -342,7 +359,8 @@ void Putdata(tx_data_ptr ptr)
 		if ( ptr->current_mode == 2 )
 			Check_4_Violations(ptr);
 
-		ptr->cmd_byte1 &= 0b01111111; // clear the highest bit of cmd_byte1
+		//ptr->cmd_byte1 &= 0b01111111; // clear the highest bit of cmd_byte1
+		ptr->cmd_byte1 &= ~(1<<7);
 		SendDataToMaster(ptr);
 		PIE1bits.SSPIE = 0;
 		statusflag.TX_BUFFSELECT = !statusflag.TX_BUFFSELECT;
@@ -384,22 +402,22 @@ void Setup_PWM_Output_Type(int pwmSpec1,int pwmSpec2,int pwmSpec3,int pwmSpec4)
 	PWMdisableMask = 0;
 
 	if ( pwmSpec1 == USER_CCP )
-		PWMdisableMask |= 0b00000001;
+		PWMdisableMask |= 1<<0;
 	else
 		CCP2CON = 0;
 
 	if ( pwmSpec2 == USER_CCP )
-		PWMdisableMask |= 0b00000010;
+		PWMdisableMask |= 1<<1;
 	else
 		CCP3CON = 0;
 		
 	if ( pwmSpec3 == USER_CCP )
-		PWMdisableMask |= 0b00000100;
+		PWMdisableMask |= 1<<2;
 	else
 		CCP4CON = 0;
 
 	if ( pwmSpec4 == USER_CCP )
-		PWMdisableMask |= 0b00001000;
+		PWMdisableMask |= 1<<3;
 	else
 		CCP5CON = 0;
 }
