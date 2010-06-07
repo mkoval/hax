@@ -11,24 +11,24 @@ ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 SOURCE      = hax_main.c
 HEADERS     = hax.h
 
-.PHONY: all help pic cortex clean build rebuild
+.PHONY: all help arch_pic arch_cortex clean build rebuild
 all: build
 rebuild : | clean build
 
 include $(PROG)/Makefile
-include arch_$(ARCH)/build.mk
+include $(ARCH)/build.mk
 TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
 
 build: $(TARGET)
 
 help:
 	@echo "Valid targets:"
-	@echo "  pic"
-	@echo "  cortex"
+	@echo "  arch_pic"
+	@echo "  arch_cortex"
 
-pic:
-	@$(MAKE) ARCH="pic" $(MAKEFLAGS) all
+vex_pic:
+	@$(MAKE) ARCH="arch_pic" $(MAKEFLAGS) all
 
-cortex:
-	@$(MAKE) ARCH="cortex" $(MAKEFLAGS) all
+vex_cortex:
+	@$(MAKE) ARCH="arch_cortex" $(MAKEFLAGS) all
 
