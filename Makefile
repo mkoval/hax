@@ -15,6 +15,8 @@ HEADERS     = hax.h
 all: build
 rebuild : | clean build
 
+ARCH = arch_$(arch)
+PROG = $(prog)
 include $(PROG)/Makefile
 include $(ARCH)/build.mk
 TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
