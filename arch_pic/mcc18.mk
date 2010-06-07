@@ -27,22 +27,17 @@ TRASH       += $(TARGET:.hex=.cod) \
                $(OBJECTS:.o=.err)  \
                $(OBJECTS:.o=.d)
 
-.SUFFIXES:
+.PHONY : clean
 .SECONDARY:
-
-all : $(TARGET)
-
-rebuild : clean all
-
 clean :
 	@echo "CLEAN"
 	@$(RM) $(OBJECTS) $(TARGET) $(TRASH)
 
-$(TARGET) : $(OBJECTS)
+%.hex : $(OBJECTS)
 	@echo "LD $(@F)"
 	@$(LD) $(ALL_LDFLAGS) $^ /o$@
 
--include $(OBJECTS:.o=.d)
+#-include $(OBJECTS:.o=.d)
 
 %.c.o : %.c
 	@echo "CC $(@F)"
@@ -52,4 +47,3 @@ $(TARGET) : $(OBJECTS)
 	@echo "AS $(@F)"
 	@$(AS) /q $(ALL_ASFLAGS) $< /o$@
 
-.PHONY : all clean install rebuild
