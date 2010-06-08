@@ -11,6 +11,7 @@ ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 SOURCE      = hax_main.c
 HEADERS     = hax.h
 
+.SUFFIXES:
 .PHONY: all help arch_pic arch_cortex clean build rebuild
 all: build
 rebuild : | clean build
