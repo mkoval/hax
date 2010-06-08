@@ -8,8 +8,10 @@
 #if defined(MCC18)
 #include <p18cxxx.h>
 #include <delays.h>
+#include "compat_mcc18.h"
 #elif defined(SDCC)
 #include <pic18fregs.h>
+#include <delay.h>
 #else
 #error "Bad compiler"
 #endif
@@ -67,7 +69,7 @@ void setup_1(void) {
 	         & USART_CONT_RX
 	         & USART_BRGH_HIGH,
 	           kBaud115);
-	Delay1KTCYx(50); 
+	delay1ktcy(50);
 
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
@@ -91,10 +93,16 @@ void setup_1(void) {
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
 		 */
+		#if defined(MCC18)
 		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & 
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
+		#elif defined(SDCC)
+		adc_open( ADC_CHN_0, ADC_FOSC_64, pcfg, config);
+		#else
+		#error "Bad Comp"
+		#endif
 	} else { 
 		/* TODO: Handle the error. */
 		puts("ADC is disabled");
@@ -309,11 +317,11 @@ uint16_t analog_adc_get(index_t index) {
 	if (1 <= index && index <= kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)) {
 		/* Read ADC (0b10000111 = 0x87). */
 		uint8_t chan = 0x87 | (index-1) << 3;
-		SetChanADC(chan);
-		Delay10TCYx(5); /* Wait for capacitor to charge */
-		ConvertADC();
-		while(BusyADC());
-		return ReadADC();
+		adc_setchannel(chan);
+		delay10tcy(5); /* Wait for capacitor to charge */
+		adc_conv();
+		while(adc_busy());
+		return adc_read();
 	} else {
 		ERROR();
 		return 0xFFFF;
