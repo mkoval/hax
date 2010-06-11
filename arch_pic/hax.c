@@ -4,6 +4,8 @@
  */
 #include <adc.h>
 #include <hax.h>
+#include <stdio.h>
+#include <usart.h>
 
 #if defined(MCC18)
 #include <p18cxxx.h>
@@ -12,12 +14,10 @@
 #elif defined(SDCC)
 #include <pic18fregs.h>
 #include <delay.h>
+#include "usart_sdcc.h"
 #else
 #error "Bad compiler"
 #endif
-
-#include <stdio.h>
-#include <usart.h>
 
 #include "master.h"
 #include "ifi_lib.h"
@@ -62,7 +62,7 @@ void setup_1(void) {
 	/* Initialize serial port communication. */
 	statusflag.b.NEW_SPI_DATA = 0;
 
-	Open1USART(USART_TX_INT_OFF
+	usart1_open(USART_TX_INT_OFF
 	         & USART_RX_INT_OFF
 	         & USART_ASYNCH_MODE
 	         & USART_EIGHT_BIT
@@ -496,14 +496,15 @@ void interrupt_enable(index_t index) {
 /*
  * STREAM IO
  */
-void _putc(char c) {
-	/* From the Microchip C Library Docs */
-	while(Busy1USART());
-	Write1USART(c);
-}
- 
-/* IFI lib uses this. (IT BURNNNNSSSS) */
-void Wait4TXEmpty(void) {
-	while(Busy1USART());
+
+/* used in ifi_util.asm */
+void usart1_busywait(void)
+{
+	while(usart1_busy());
 }
 
+void _putc(char c)
+{
+	usart1_busywait();
+	usart1_putc(c);
+}
