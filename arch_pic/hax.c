@@ -99,7 +99,11 @@ void setup_1(void) {
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
 		#elif defined(SDCC)
-		adc_open( ADC_CHN_0, ADC_FOSC_64, pcfg, config);
+		adc_open(
+			ADC_CHN_0,
+			ADC_FOSC_64,
+			pcfg,
+			ADC_INT_OFF & ADC_FRM_RJUST);
 		#else
 		#error "Bad Comp"
 		#endif
