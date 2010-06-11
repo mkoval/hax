@@ -11,7 +11,9 @@
 #define adc_read ReadADC
 #define adc_setchannel SetChanADC
 
-
+#define usart1_open Open1USART
+#define usart1_busy Busy1USART
+#define usart1_putc Write1USART
 
 #endif /* def MCC18 */
 
