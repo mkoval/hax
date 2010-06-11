@@ -186,12 +186,13 @@ void loop_2(void) {
 	Putdata(&txdata);
 }
 
-bool new_data_received(void) {
+bool new_data_received(void)
+{
 	return statusflag.b.NEW_SPI_DATA;
 }
 
-
-static bool check_oi(void) {
+static bool check_oi(void)
+{
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
 		if((rxdata.oi_analog[i] > 0xdf)
@@ -202,7 +203,8 @@ static bool check_oi(void) {
 	return false;
 }
 
-state_t mode_get(void) {
+state_t mode_get(void)
+{
 	if (rxdata.rcstatusflag.b.oi_on) {
 		if (mode_s != MODE_TELOP) {
 			if (check_oi()) {
@@ -353,7 +355,8 @@ bool digital_io_get(index_t index) {
 	return false;
 }
 
-void analog_set(index_t index, int8_t sp) {
+void analog_set(index_t index, int8_t sp)
+{
 	if (1 <= index && index <= kVPMaxMotors) {
 		uint8_t val;
 		sp = ( sp < 0 && sp != -128) ? sp - 1 : sp;
@@ -367,9 +370,10 @@ void analog_set(index_t index, int8_t sp) {
 /*
  * INTERRUPTS
  */
-isr_t isr_callbacks[6] = { 0 };
+static isr_t isr_callbacks[6];
 
-void interrupt_reg_isr(index_t index, isr_t isr) {
+void interrupt_reg_isr(index_t index, isr_t isr)
+{
 	if (17 <= index && index <= 22) {
 		isr_callbacks[index - 17] = isr;
 	} else {
@@ -389,7 +393,8 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
  #error "Bad compiler."
 #endif
 
-void interrupt_handler(void) {
+static void interrupt_handler(void)
+{
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
 	/* Interrupt 1 */
@@ -443,14 +448,13 @@ void interrupt_handler(void) {
 void interrupt_vector(void) __naked __interrupt 2
 {
 	__asm
-		goto _interrupt_handler
+	goto _interrupt_handler
 	__endasm;
 }
 #elif defined(MCC18)
 #pragma code interrupt_vector=0x818
 void interrupt_vector(void)
 {
-	/* There's not much space for this function... */
 	_asm
 	goto interrupt_handler
 	_endasm
