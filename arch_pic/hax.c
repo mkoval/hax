@@ -124,7 +124,13 @@ uint8_t battery_get(void) {
 	for(;;) {
 		PIE2bits.LVDIE = 0;
 		LVDCONbits.LVDEN = 1;
+#if defined(MCC18)
 		while(!LVDCONbits.IRVST);
+#elif defined(SDCC)
+		while(!LVDCONbits.VRST);
+#else
+#error "bad compiler"
+#endif
 		PIR2bits.LVDIF = 0;
 	
 		tmp = LVDCON & 0xF;
@@ -469,7 +475,11 @@ void interrupt_enable(index_t index) {
 	
 	case 2:
 		TRISBbits.TRISB3    = 1;
+#if defined(MCC18)
 		INTCON2bits.INT3IP  = 0;
+#elif defined(SDCC)
+		INTCON2bits.INT3P   = 0;
+#endif
 		INTCON2bits.INTEDG3 = 1;
 		INTCON3bits.INT3IF  = 0;
 		INTCON3bits.INT3IE  = 1;
