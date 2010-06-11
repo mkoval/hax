@@ -60,7 +60,7 @@ PWMdisableMask  res     1
 ;
 UTIL_LIB        code
 
-	extern  Wait4TXEmpty,statusflag
+	extern  usart1_busywait,statusflag
 
 	global  Clear_Memory
 	global  Hex_output
@@ -104,7 +104,7 @@ Hex_output
 	addlw   0x7
 	addlw   0x2a
 	movwf   TXREG1
-	call    Wait4TXEmpty
+	call   	usart1_busywait 
 
 	movf    tmp, w
 	andlw   0x0f
@@ -113,7 +113,7 @@ Hex_output
 	addlw   0x7
 	addlw   0x2a
 	movwf   TXREG1
-	call    Wait4TXEmpty
+	call    usart1_busywait
 
 	retlw   0
 
