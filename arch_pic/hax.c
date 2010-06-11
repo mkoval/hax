@@ -461,11 +461,12 @@ void interrupt_vector(void)
 #endif
 
 
-/* TODO Implement interrupt_disable(). */
+/* TODO: Implement interrupt_disable(). */
 
-void interrupt_enable(index_t index) {
+void interrupt_enable(index_t index)
+{
 	switch (index) {
-	case 1:
+	case 17:
 		TRISBbits.TRISB2    = 1;
 		INTCON3bits.INT2IP  = 0;
 		INTCON3bits.INT2IF  = 0;
@@ -473,7 +474,7 @@ void interrupt_enable(index_t index) {
 		INTCON3bits.INT2IE  = 1;
 		break;
 	
-	case 2:
+	case 18:
 		TRISBbits.TRISB3    = 1;
 #if defined(MCC18)
 		INTCON2bits.INT3IP  = 0;
@@ -485,10 +486,10 @@ void interrupt_enable(index_t index) {
 		INTCON3bits.INT3IE  = 1;
 		break;
 	
-	case 3:
-	case 4:
-	case 5:
-	case 6:
+	case 19:
+	case 20:
+	case 21:
+	case 22:
 		TRISBbits.TRISB4 = 1;
 		TRISBbits.TRISB5 = 1;
 		TRISBbits.TRISB6 = 1;
