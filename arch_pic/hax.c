@@ -2,9 +2,9 @@
  * Hardware Specific Code,
  * PIC Arch
  */
+#include <stdio.h>
 #include <adc.h>
 #include <hax.h>
-#include <stdio.h>
 #include <usart.h>
 
 #if defined(MCC18)
@@ -102,8 +102,8 @@ void setup_1(void) {
 		adc_open(
 			ADC_CHN_0,
 			ADC_FOSC_64,
-			pcfg,
-			ADC_INT_OFF & ADC_FRM_RJUST);
+			ADC_CFG_16A,
+			ADC_FRM_RJUST | ADC_INT_OFF | ADC_VCFG_VDD_VSS );
 		#else
 		#error "Bad Comp"
 		#endif
