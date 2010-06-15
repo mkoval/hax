@@ -11,6 +11,7 @@
 #ifndef __ifi_default_h_
 #define __ifi_default_h_
 
+#include <compilers.h>
 #if defined(MCC18)
 #include <p18cxxx.h>
 #elif defined(SDCC)
