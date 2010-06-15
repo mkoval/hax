@@ -48,32 +48,12 @@ unsigned char OneShot;
 unsigned char AutoOn;
 
 #if defined(MCC18)
-
-#pragma code InterruptVectorHigh=0x808
-void InterruptVectorHigh(void)
-{
-	_asm 
-		GOTO isr_high 
-	_endasm
-}
-#pragma code
-
-#elif defined(SDCC)
-
-void ivt_high(void) __naked __interrupt 1
-{
-	__asm
-		goto _isr_high
-	__endasm;
-}
-
-#endif /* defined(SDCC) */
-
-#if defined(MCC18_30)
+#if MCC18 > 300
 #pragma interrupt isr_high nosave=TBLPTR, TABLAT, PCLATH, PROD, section(".tmpdata"), section("MATH_DATA")
-#elif defined(MCC18_24)
+#elif MCC18 > 240
 #pragma interrupt isr_high
-#endif
+#endif /* MCC18 > 240 */
+#endif /* defined(MCC18) */
 void isr_high(void)
 {
 	if ( INTCONbits.INT0IF )
@@ -82,6 +62,25 @@ void isr_high(void)
 		Handle_Spi_Int();
 }
 
+
+#if defined(MCC18)
+#pragma code InterruptVectorHigh=0x808
+void InterruptVectorHigh(void)
+{
+	_asm 
+		GOTO isr_high 
+	_endasm
+}
+
+#elif defined(SDCC)
+void ivt_high(void) __naked __interrupt 1
+{
+	__asm
+		goto _isr_high
+	__endasm;
+}
+
+#endif /* defined(SDCC) */
 //#pragma code
 
 /*******************************************************************************
