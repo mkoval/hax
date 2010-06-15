@@ -45,25 +45,25 @@ enum {
 	MTR_ARM_LB,
 	MTR_ARM_RT,
 	MTR_ARM_RB,
-    MTR_NUM
+	MTR_NUM
 };
 
 #if defined(ARCH_PIC)
 enum {
-    INT_ENC_L1 = 0,
-    INT_ENC_L2,
-    INT_ENC_R1,
-    INT_ENC_R2,
-    INT_NUM
+	INT_ENC_L1 = 17,
+	INT_ENC_L2,
+	INT_ENC_R1,
+	INT_ENC_R2,
+	INT_NUM
 };
 enum {
-    POT_ARM = 0,
+	POT_ARM = 0,
 	POT_LIFT,
 	IR_FRONT_H = 7, /* High */
 	IR_SIDE_B,
 	IR_REAR,
 	IR_FRONT_L,     /* Low */
-    ANA_NUM
+	ANA_NUM
 };
 enum {
 	BUT_B = ANA_NUM,
@@ -78,11 +78,11 @@ enum {
 
 #elif defined(ARCH_CORTEX)
 enum {
-    INT_ENC_L1 = 0,
-    INT_ENC_L2,
-    INT_ENC_R1,
-    INT_ENC_R2,
-    INT_NUM
+	INT_ENC_L1 = 17,
+	INT_ENC_L2,
+	INT_ENC_R1,
+	INT_ENC_R2,
+	INT_NUM
 };
 enum {
 	JUMP_CAL_MODE1 = INT_NUM,
@@ -91,10 +91,10 @@ enum {
 	SEN_NUM
 };
 enum {
-    POT_ARM = 0,
+	POT_ARM = 0,
 	POT_LIFT,
 	IR_REAR,
-    ANA_NUM
+	ANA_NUM
 };
 
 #define ENC_PER_IN      150
@@ -145,16 +145,16 @@ enum {
 	MTR_DRIVE_R2,
 	MTR_ARM_L,
 	MTR_ARM_R,
-    MTR_NUM
+	MTR_NUM
 };
 
 #if defined(ARCH_PIC)
 /* Digital and Analog IO */
 enum {
-    POT_ARM = 0,
+	POT_ARM = 0,
 	POT_LIFT_L,
 	POT_LIFT_R,
-    ANA_NUM
+	ANA_NUM
 };
 enum {
 	BUT_B_R = ANA_NUM,
@@ -167,11 +167,11 @@ enum {
 
 /* Encoder Interrupts */
 enum {
-    INT_ENC_L1 = 0,
-    INT_ENC_L2,
-    INT_ENC_R1,
-    INT_ENC_R2,
-    INT_NUM
+	INT_ENC_L1 = 17,
+	INT_ENC_L2,
+	INT_ENC_R1,
+	INT_ENC_R2,
+	INT_NUM
 };
 
 #define ENC_PER_IN      100
@@ -180,11 +180,11 @@ enum {
 #elif defined(ARCH_CORTEX)
 /* Encoder Interrupts */
 enum {
-    INT_ENC_L1 = 0,
-    INT_ENC_L2,
-    INT_ENC_R1,
-    INT_ENC_R2,
-    INT_NUM
+	INT_ENC_L1 = 0,
+	INT_ENC_L2,
+	INT_ENC_R1,
+	INT_ENC_R2,
+	INT_NUM
 };
 
 /* Digital Inputs */
@@ -199,10 +199,10 @@ enum {
 
 /* Analog Inputs */
 enum {
-    POT_ARM = 0,
+	POT_ARM = 0,
 	POT_LIFT_L,
 	POT_LIFT_R,
-    ANA_NUM
+	ANA_NUM
 };
 
 #define ENC_PER_IN      150
