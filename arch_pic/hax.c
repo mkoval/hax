@@ -397,7 +397,7 @@ void interrupt_reg_isr(index_t index, isr_t isr)
  #error "Bad compiler."
 #endif
 
-static void interrupt_handler(void)
+void interrupt_handler(void)
 {
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
