@@ -19,8 +19,6 @@
 #error "Bad compiler"
 #endif
 
-#ifdef UNCHANGEABLE_DEFINITION_AREA
-
 /*******************************************************************************
                              ALIAS DEFINITIONS
 *******************************************************************************/
@@ -133,9 +131,6 @@ extern tx_data_record txdata;
 extern rx_data_record rxdata;
 extern packed_struct statusflag;
 
-#else				/*  */
-#error  *** Error - Invalid Default File!
-#endif				/*  */
 
 /*******************************************************************************
                            FUNCTION PROTOTYPES
