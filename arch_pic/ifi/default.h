@@ -11,7 +11,13 @@
 #ifndef __ifi_default_h_
 #define __ifi_default_h_
 
-#include "ifi/picdefs.h"
+#if defined(MCC18)
+#include <p18cxxx.h>
+#elif defined(SDCC)
+#include <pic18fregs.h>
+#else
+#error "Bad compiler"
+#endif
 
 #ifdef UNCHANGEABLE_DEFINITION_AREA
 
