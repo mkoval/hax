@@ -5,4 +5,6 @@
 #define usart1_busy usart_busy
 #define usart1_putc usart_putc
 
+extern int puts(const char *);
+
 #endif
