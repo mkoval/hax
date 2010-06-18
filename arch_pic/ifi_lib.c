@@ -1,5 +1,17 @@
-#include <spi.h>
 
+#if defined(MCC18)
+#include <p18cxxx.h>
+#include <delays.h>
+#include "compat_mcc18.h"
+#elif defined(SDCC)
+#include <pic18fregs.h>
+#include <delay.h>
+#include "usart_sdcc.h"
+#else
+#error "Bad compiler"
+#endif
+
+#include <spi.h>
 #include "ifi/default.h"
 #include "ifi/aliases.h"
 
@@ -92,7 +104,7 @@ void ivt_high(void) __naked __interrupt 1
 *******************************************************************************/
 void Setup_Spi_Slave(void)
 {
-	OpenSPI(SLV_SSOFF, MODE_01, SMPMID);
+	spi_open(SLV_SSOFF, MODE_01, SMPMID);
 }
 
 /*******************************************************************************
