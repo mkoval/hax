@@ -4,6 +4,7 @@ AS = gpasm
 LD = sdcc
 
 SOURCE += $(ARCH)/crt0iz_sdcc.c
+SOURCE += $(ARCH)/spi_open.c
 
 ARCH_CFLAGS = -mpic16 -p18f8520
 ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
