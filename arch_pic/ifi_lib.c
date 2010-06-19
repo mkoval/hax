@@ -504,7 +504,7 @@ void Check_4_Violations(tx_data_ptr ptr)
 	{
 		ptr->error_code = 9;
 		ptr->warning_code = INTCON;
-	} else if (INTCON2 & 0 b01000111)
+	} else if (INTCON2 & 0b01000111)
 		// bits{0,1,2,6} == 1
 		//x0:  RBIP: RB Port Change Interrupt Priority bit
 		//x1:  INT3IP: INT3 External Interrupt Priority bit
@@ -515,13 +515,13 @@ void Check_4_Violations(tx_data_ptr ptr)
 		//x6:  INTEDG0: External Interrupt 0 Edge Select bit
 		// 7:  RBPU: PORTB Pull-up Enable bit
 		//
-		// if (PortB pin change isr high proroity || INT3 high priority \
+		// if (PortB pin change isr high proroity || INT3 high priority
 		//     || TMR0 Ovf High Priority || INT0 edge is on rising edge )
 		// if ( some INT is high prority || INT0 edge is on rising edge ) 
 	{
 		ptr->error_code = 10;
 		ptr->warning_code = INTCON2;
-	} else if (INTCON3 & 0 b11000000)
+	} else if (INTCON3 & 0b11000000)
 		//x7: INT2 Priority
 		//x6: INT1 Priority
 		// if ( INT2 or IN1 is high priority )
