@@ -150,7 +150,11 @@ void Initialize_Registers(void)
 	INTCONbits.INT0IE = 1;
 	INTCON3bits.INT2IP = 0;
 	INTCON3bits.INT2IE = 0;
+#if defined(MCC18)
 	INTCON2bits.INT3IP = 0;
+#elif defined(SDCC)
+	INTCON2bits.INT3P = 0;
+#endif
 	INTCON3bits.INT3IE = 0;
 	INTCON2 = 0;
 	INTCONbits.GIEL = 1;
