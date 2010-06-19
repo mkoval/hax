@@ -128,7 +128,11 @@ void Initialize_Registers(void)
 	TRISJ = 0xff;
 	ADCON1 = 0x0f;
 	ADCON2 = 0x07;
+#if defined(MCC18)
 	INTCON2bits.NOT_RBPU = 0;
+#elif defined(SDCC)
+	INTCON2bits.RBPU = 0;
+#endif
 	PSPCONbits.PSPMODE = 0;
 	MEMCONbits.EBDIS = 1;
 	IPR1 = IPR2 = 0;
@@ -443,9 +447,12 @@ void Check_4_Violations(tx_data_ptr ptr)
 	{
 		SSPCON1bits.WCOL = 0;
 		ptr->warning_code = 1;
-	} else if ((INTCON2bits.NOT_RBPU == 1) && (INTCONbits.RBIE == 1))
+#if defined(MCC18)
+	} else if ((INTCON2bits.NOT_RBPU == 1) && (INTCONbits.RBIE == 1)) {
+#elif defined(SDCC)
+	} else if ((INTCON2bits.RBPU == 1) && (INTCONbits.RBIE == 1)) {
+#endif
 		// PORTB Pullups disabled or RB Port Chaange interrupt enable
-	{
 		ptr->warning_code = 2;
 	} else if (INTCON3bits.INT1IE)
 		// External interrupt 1 enabled
