@@ -442,9 +442,8 @@ void Check_4_Violations(tx_data_ptr ptr)
 	ptr->error_code = 0;
 	ptr->warning_code = 0;
 
-	if (SSPCON1bits.WCOL)
+	if (SSPCON1bits.WCOL) {
 		// spi write collision
-	{
 		SSPCON1bits.WCOL = 0;
 		ptr->warning_code = 1;
 #if defined(MCC18)
@@ -454,9 +453,8 @@ void Check_4_Violations(tx_data_ptr ptr)
 #endif
 		// PORTB Pullups disabled or RB Port Chaange interrupt enable
 		ptr->warning_code = 2;
-	} else if (INTCON3bits.INT1IE)
+	} else if (INTCON3bits.INT1IE) {
 		// External interrupt 1 enabled
-	{
 		LATHbits.LATH7 = 0;	// PortH.pin7 = low
 		ptr->warning_code = 3;
 	}
@@ -469,49 +467,41 @@ void Check_4_Violations(tx_data_ptr ptr)
 	{
 		ptr->error_code = 1;
 		ptr->warning_code = SSPCON1;
-	} else if (SSPCON2)
+	} else if (SSPCON2) {
 		// Using I2C mode instead of spi.
-	{
 		ptr->error_code = 2;
 		ptr->warning_code = SSPCON2;
-	} else if (!RCONbits.IPEN)
+	} else if (!RCONbits.IPEN) {
 		// Interrupt priority disabled.
-	{
 		ptr->error_code = 3;
 		ptr->warning_code = RCON;
-	} else if (!PIE1bits.SSPIE)
+	} else if (!PIE1bits.SSPIE) {
 		// SPI Interrupt dissabled.
-	{
 		ptr->error_code = 4;
 		ptr->warning_code = PIE1;
-	} else if (MEMCON)
+	} else if (MEMCON) {
 		// Page 73. External memory.
-	{
 		ptr->error_code = 5;
 		ptr->warning_code = MEMCON;
-	} else if (IPR1 != 0x08)
+	} else if (IPR1 != 0x08) {
 		// 0x08 = 0b00001000, bit3
 		// Some interupt in IPR1 other than SSPIP is high priority.
-	{
 		ptr->error_code = 6;
 		ptr->warning_code = IPR1;
-	} else if (IPR2)
+	} else if (IPR2) {
 		// some interrupt in IPR2 is high priority
-	{
 		ptr->error_code = 7;
 		ptr->warning_code = IPR2;
-	} else if (IPR3)
+	} else if (IPR3) {
 		// some interrupt in IPR3 is high priority
-	{
 		ptr->error_code = 8;
 		ptr->warning_code = IPR3;
-	} else if ((INTCON & 0x10) != 0x10)
+	} else if ((INTCON & 0x10) != 0x10) {
 		// 0x10 = 0b00010000, bit4
 		// if Exteral Int0 is disabled.
-	{
 		ptr->error_code = 9;
 		ptr->warning_code = INTCON;
-	} else if (INTCON2 & 0b01000111)
+	} else if (INTCON2 & 0b01000111) {
 		// bits{0,1,2,6} == 1
 		//x0:  RBIP: RB Port Change Interrupt Priority bit
 		//x1:  INT3IP: INT3 External Interrupt Priority bit
@@ -525,27 +515,23 @@ void Check_4_Violations(tx_data_ptr ptr)
 		// if (PortB pin change isr high proroity || INT3 high priority
 		//     || TMR0 Ovf High Priority || INT0 edge is on rising edge )
 		// if ( some INT is high prority || INT0 edge is on rising edge ) 
-	{
 		ptr->error_code = 10;
 		ptr->warning_code = INTCON2;
-	} else if (INTCON3 & 0b11000000)
+	} else if (INTCON3 & 0b11000000) {
 		//x7: INT2 Priority
 		//x6: INT1 Priority
 		// if ( INT2 or IN1 is high priority )
-	{
 		ptr->error_code = 11;
 		ptr->warning_code = INTCON3;
-	} else if (TRISAbits.TRISA4)
+	} else if (TRISAbits.TRISA4) {
 		// If PortA pin4 is not an output:
-	{
 		ptr->error_code = 12;
 		ptr->warning_code = TRISA;
-	} else if (!TRISBbits.TRISB0)
+	} else if (!TRISBbits.TRISB0) {
 		// If PortB pin0 is not an input :
-	{
 		ptr->error_code = 13;
 		ptr->warning_code = TRISB;
-	} else if ((TRISC & 0x3e) != 0x1c)
+	} else if ((TRISC & 0x3e) != 0x1c) {
 		// 0x3e = 0b00111110
 		// 0x1c = 0b00011100
 		// 1@0:
@@ -556,12 +542,10 @@ void Check_4_Violations(tx_data_ptr ptr)
 		// PortC: 
 		//              pin1 and pin5 are not outputs
 		//      or      pin2, pin3, and pin4 are not inputs
-	{
 		ptr->error_code = 14;
 		ptr->warning_code = TRISC;
-	} else if (!TRISFbits.TRISF7)
+	} else if (!TRISFbits.TRISF7) {
 		// if (PortF pin7 is not an input)
-	{
 		ptr->error_code = 15;
 		ptr->warning_code = TRISF;
 	}
