@@ -3,7 +3,8 @@ LD           = '$(MCCPATH)/bin/mplink'
 AS           = '$(MCCPATH)/mpasm/mpasm'
 MD           = gcc
 
-SOURCE += $(ARCH)/c018iz_mcc18.c
+SOURCE += $(ARCH)/c018iz_mcc18.c \
+	  $(ARCH)/ifi_util_mcc18.asm
 
 MCCPATH      = /opt/mcc18
 WINPATH      = $(srcdir)/$(ARCH)/winpath.sh
@@ -19,7 +20,7 @@ WLIBPATH    := '$(shell $(WINPATH) $(LIBPATH))'
 ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -I=$(srcdir) -I=$(WIAPATH)   \
                -p=18F8520 /DARCH_PIC
 ARCH_ASFLAGS = /p18f8520
-ARCH_LDFLAGS = $(ARCH)/18f8520user.lkr /l $(WLIBPATH) /a INHX32
+ARCH_LDFLAGS = $(ARCH)/18f8520user_mcc18.lkr /l $(WLIBPATH) /a INHX32
 
 OBJECTS     += $(SOURCE:=.o)
 TRASH       += $(TARGET:.hex=.cod) \

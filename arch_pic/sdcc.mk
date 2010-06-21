@@ -3,8 +3,9 @@ CC = sdcc
 AS = gpasm
 LD = sdcc
 
-SOURCE += $(ARCH)/crt0iz_sdcc.c
-SOURCE += $(ARCH)/spi_open.c
+SOURCE += $(srcdir)/$(ARCH)/crt0iz_sdcc.c
+SOURCE += $(srcdir)/$(ARCH)/spi_open.c
+SOURCE += $(srcdir)/$(ARCH)/ifi_util_sdcc.asm
 
 ARCH_CFLAGS = -mpic16 -p18f8520
 ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
@@ -14,10 +15,10 @@ ARCH_CFLAGS += --optimize-cmp
 ARCH_CFLAGS += --optimize-df
 #ARCH_CFLAGS += --pstack-model=large
 
-ARCH_LDFLAGS = -Wl,-s,18f8520user.lkr
+ARCH_LDFLAGS = -Wl,-s,$(srcdir)/$(ARCH)/18f8520user_sdcc.lkr $(ARCH_CFLAGS)
 ARCH_ASFLAGS = -p18f8520
 
-OBJECTS     += $(SOURCE:=.o)
+OBJECTS = $(SOURCE:=.o)
 #TRASH       += 
 
 .PHONY: clean

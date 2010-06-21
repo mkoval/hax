@@ -1,6 +1,5 @@
 SOURCE  += $(ARCH)/hax.c        \
-           $(ARCH)/ifi_lib.c    \
-           $(ARCH)/ifi_util.asm
+           $(ARCH)/ifi_lib.c
 HEADERS += $(ARCH)/master.h     \
            $(ARCH)/ifi_lib.h
 
