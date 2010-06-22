@@ -8,8 +8,12 @@ typedef unsigned char bool;
 #define true 1
 #define false 0
 
+#elif defined(SDCC)
+typedef unsigned char bool;
+#define true 1
+#define false 0
 #else
-#error "MCC18 STDBOOL failed"
+#error "Alternate STDBOOL failed"
 #endif
 
 

@@ -1,7 +1,7 @@
 CC = sdcc
 #LD = gplink
 AS = gpasm
-LD = sdcc
+LD = $(CC)
 
 SOURCE += $(srcdir)/$(ARCH)/crt0iz_sdcc.c
 SOURCE += $(srcdir)/$(ARCH)/spi_open.c
@@ -9,7 +9,7 @@ SOURCE += $(srcdir)/$(ARCH)/ifi_util_sdcc.asm
 
 ARCH_CFLAGS = -mpic16 -p18f8520
 ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
-ARCH_CLFAGS += -I$(srcdir)/$(ARCH)/include
+ARCH_CFLAGS += -I$(srcdir)/$(ARCH)/h
 ARCH_CFLAGS += --ivt-loc=0x800 --no-crt
 ARCH_CFLAGS += --optimize-cmp
 ARCH_CFLAGS += --optimize-df
