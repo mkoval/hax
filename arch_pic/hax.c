@@ -387,9 +387,9 @@ void interrupt_reg_isr(index_t index, isr_t isr)
 
 #if   defined(MCC18)
   #if MCC18 >= 300
-    #pragma interruptlow interrupt_handler nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
+    #pragma interruptlow isr_low nosave=TBLPTRU,TBLPTRH,TBLPTRL,TABLAT
   #else
-    #pragma interruptlow interrupt_handler save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
+    #pragma interruptlow isr_low save=PROD,PCLATH,PCLATU,section("MATH_DATA"),section(".tmpdata")
   #endif
 #elif defined(SDCC)
   // nada.
@@ -397,7 +397,7 @@ void interrupt_reg_isr(index_t index, isr_t isr)
  #error "Bad compiler."
 #endif
 
-void interrupt_handler(void)
+void isr_low(void)
 {
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
@@ -449,18 +449,18 @@ void interrupt_handler(void)
 }
 
 #if defined(SDCC)
-void interrupt_vector(void) __naked __interrupt 2
+void ivt_low(void) __naked __interrupt 2
 {
 	__asm
-	goto _interrupt_handler
+	GOTO _isr_low
 	__endasm;
 }
 #elif defined(MCC18)
-#pragma code interrupt_vector=0x818
-void interrupt_vector(void)
+#pragma code ivt_low=0x818
+void ivt_low(void)
 {
 	_asm
-	goto interrupt_handler
+	GOTO isr_low
 	_endasm
 }
 #pragma code
