@@ -1,4 +1,4 @@
-
+#include <compilers.h>
 #if defined(MCC18)
 #include <p18cxxx.h>
 #include <delays.h>
@@ -91,7 +91,7 @@ void ivt_high(void) __naked __interrupt 1 {
 	__endasm;
 }
 #endif				/* defined(SDCC) */
-//#pragma code
+#pragma code
 /*******************************************************************************
 * FUNCTION NAME: Setup_Spi_Slave
 * PURPOSE:       
@@ -99,7 +99,7 @@ void ivt_high(void) __naked __interrupt 1 {
 * ARGUMENTS:     none
 * RETURNS:       void
 *******************************************************************************/
-    void Setup_Spi_Slave(void)
+void Setup_Spi_Slave(void)
 {
 	spi_open(SLV_SSOFF, MODE_01, SMPMID);
 }
