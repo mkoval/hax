@@ -36,7 +36,7 @@ clean :
 
 %.hex : $(OBJECTS)
 	@echo "LD $(@F)"
-	@$(LD) $(ALL_LDFLAGS) $^ /o$@
+	@$(LD) $(ALL_LDFLAGS) $^ /o$@ /m$(@:.hex=.map)
 
 #-include $(OBJECTS:.o=.d)
 
