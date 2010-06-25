@@ -6,10 +6,7 @@
  */
 #if defined(__18CXX)
   //FIXME: need to actually detect version.
-  #define MCC18 240
-
-  //XXX: Depricated. Version comes from value of MCC18 macro.
-  #define MCC18_24 1
+  #define MCC18 300
 
   #define __noreturn 
   #define __rom	rom
