@@ -41,8 +41,7 @@ StatusFlags statusflag;
  * through 6 are called.
  */
 
-typedef enum
-{
+typedef enum {
   kBaud19 = 128,
   kBaud38 = 64,
   kBaud56 = 42,
@@ -123,9 +122,11 @@ void spin(void) {
 
 uint8_t battery_get(void) {
 	uint8_t tmp;
+	uint8_t lvdcon;
 	/* 0b1110 is the highest detectable voltage level */
 	LVDCON = 0xE; // 0b1110
 	for(;;) {
+		lvdcon = LVDCON;
 		PIE2bits.LVDIE = 0;
 		LVDCONbits.LVDEN = 1;
 #if defined(MCC18)
@@ -137,16 +138,21 @@ uint8_t battery_get(void) {
 #endif
 		PIR2bits.LVDIF = 0;
 	
-		tmp = LVDCON & 0xF;
+
+		tmp = lvdcon & 0xF;
 		if (!(PIR2bits.LVDIF)||!tmp) {
 			LVDCON = 0;
 			return tmp + 1;
 		}
 
 		LVDCONbits.LVDEN = 0;
-		LVDCON --;
+
+		lvdcon --;
+		if ((tmp - 1) == 0) {
+			LVDCON = 0;
+			return 0
+		}
 	}
-	LVDCON = 0;
 }
 
 void loop_1(void) {
@@ -166,8 +172,7 @@ void loop_1(void) {
 		printf((char*)"%i, ",rxdata.reserved_1[i]);
 	}
 
-	_puts( ";"
-		   "  reserved_2[0..8] : ");
+	_puts( "; reserved_2[0..8] : ");
 	for(i = 0; i < 8; i++) {
 		printf((char*)"%i, ",rxdata.reserved_2[i]);
 	}
@@ -467,6 +472,12 @@ void ivt_low(void)
 #else
 #error "Bad Compiler."
 #endif
+
+
+bool interrupt_get(index_t interrupt_index)
+{
+	return digital_get(interrupt_index + 16);
+}
 
 
 /* TODO: Implement interrupt_disable(). */
