@@ -150,7 +150,7 @@ uint8_t battery_get(void) {
 		lvdcon --;
 		if ((tmp - 1) == 0) {
 			LVDCON = 0;
-			return 0
+			return 0;
 		}
 	}
 }
