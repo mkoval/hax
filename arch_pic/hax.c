@@ -42,10 +42,10 @@ StatusFlags statusflag;
  */
 
 typedef enum {
-  kBaud19 = 128,
-  kBaud38 = 64,
-  kBaud56 = 42,
-  kBaud115 = 21
+	kBaud19 = 128,
+	kBaud38 = 64,
+	kBaud56 = 42,
+	kBaud115 = 21
 } SerialSpeed;
 
 static state_t mode_s = MODE_AUTON;
@@ -53,7 +53,8 @@ static state_t mode_s = MODE_AUTON;
 /*
  * INITIALIZATION AND MISC
  */
-void setup_1(void) {
+void setup_1(void)
+{
 	uint8_t i;
 
 	IFI_Initialization();
@@ -92,35 +93,36 @@ void setup_1(void) {
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
 		 */
-		#if defined(MCC18)
+#if defined(MCC18)
 		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & 
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 		       		           ADC_VREFMINUS_VSS );
-		#elif defined(SDCC)
+#elif defined(SDCC)
 		adc_open(
 			ADC_CHN_0,
 			ADC_FOSC_64,
 			ADC_CFG_16A,
 			ADC_FRM_RJUST | ADC_INT_OFF | ADC_VCFG_VDD_VSS );
-		#else
-		#error "Bad Comp"
-		#endif
+#else
+#error "Bad Comp"
+#endif
 	} else { 
 		/* TODO: Handle the error. */
 		puts("ADC is disabled");
 	}
-
 }
 
-void setup_2(void) {
+void setup_2(void)
+{
 	User_Proc_Is_Ready();
 }
 
-void spin(void) {
-}
+void spin(void)
+{}
 
-uint8_t battery_get(void) {
+uint8_t battery_get(void)
+{
 	uint8_t tmp;
 	uint8_t lvdcon;
 	/* 0b1110 is the highest detectable voltage level */
@@ -155,43 +157,46 @@ uint8_t battery_get(void) {
 	}
 }
 
-void loop_1(void) {
+void loop_1(void)
+{
 	Getdata(&rxdata);
-	#ifdef DEBUG
+
+#ifdef DEBUG
 	{
-	uint8_t i;
-	printf((char*)
-		   "rxdata:\n"
-		   "  packet_num rcmode rcstatusflag: %i %i %i\n"
-		   , rxdata.packet_num
-		   , rxdata.rcmode.allbits
-		   , rxdata.rcstatusflag.allbits);
-		
-	_puts( "  reserved_1[0..2] : ");
-	for(i = 0; i < 3; i++) {
-		printf((char*)"%i, ",rxdata.reserved_1[i]);
-	}
+		uint8_t i;
+		printf((char*)
+			   "rxdata:\n"
+			   "  packet_num rcmode rcstatusflag: %i %i %i\n"
+			   , rxdata.packet_num
+			   , rxdata.rcmode.allbits
+			   , rxdata.rcstatusflag.allbits);
+			
+		_puts( "  reserved_1[0..2] : ");
+		for(i = 0; i < 3; i++) {
+			printf((char*)"%i, ",rxdata.reserved_1[i]);
+		}
 
-	_puts( "; reserved_2[0..8] : ");
-	for(i = 0; i < 8; i++) {
-		printf((char*)"%i, ",rxdata.reserved_2[i]);
-	}
+		_puts( "; reserved_2[0..8] : ");
+		for(i = 0; i < 8; i++) {
+			printf((char*)"%i, ",rxdata.reserved_2[i]);
+		}
 
-	printf((char*) "\n"
-		   "  master_version : %i\n", rxdata.master_version);
+		printf((char*) "\n"
+			   "  master_version : %i\n", rxdata.master_version);
 
-	printf((char*)
-		    "statusflag: 0x%02x\n"
-			"  ",statusflag.a);
-	for(i = 0; i < 8; i++) {
-		printf((char*)"%i, ", (statusflag.a & (1<<i) ) >> i);
+		printf((char*)
+			    "statusflag: 0x%02x\n"
+				"  ",statusflag.a);
+		for(i = 0; i < 8; i++) {
+			printf((char*)"%i, ", (statusflag.a & (1<<i) ) >> i);
+		}
+		_putc('\n');
 	}
-	_putc('\n');
-	}
-	#endif
+#endif
 }
 
-void loop_2(void) {
+void loop_2(void)
+{
 	Putdata(&txdata);
 }
 
@@ -234,7 +239,8 @@ state_t mode_get(void)
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void pin_set_io(index_t i, bool bit) {
+void pin_set_io(index_t i, bool bit)
+{
 	switch (i) {
 	case 1:
 	case 2:
@@ -283,7 +289,8 @@ void pin_set_io(index_t i, bool bit) {
 
 #define BIT_GET(_reg_,_index_) ( ( _reg_ & 1 << _index_ ) >> _index_ )
 
-bool digital_get(index_t i) {
+bool digital_get(index_t i)
+{
 	switch (i) {
 	case 1:
 	case 2:
@@ -330,7 +337,8 @@ bool digital_get(index_t i) {
 	}
 }
 
-uint16_t analog_adc_get(index_t index) {
+uint16_t analog_adc_get(index_t index)
+{
 	if (1 <= index && index <= kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)) {
 		/* Read ADC (0b10000111 = 0x87). */
 		uint8_t chan = 0x87 | (index-1) << 3;
@@ -345,7 +353,8 @@ uint16_t analog_adc_get(index_t index) {
 	}
 }
 
-int8_t analog_oi_get(index_t index) {
+int8_t analog_oi_get(index_t index)
+{
 	if (1 <= index && index <= kVPNumOIInputs) {
 		int8_t v = rxdata.oi_analog[index - 1] - 128;
 		return (v < 0) ? v + 1 : v;
@@ -355,11 +364,29 @@ int8_t analog_oi_get(index_t index) {
 	}
 }
 
-bool digital_io_get(index_t index) {
-	/* All ports on the old transmitter are analog, including the
-	 * buttons.
-	 * FIXME: the buttons aren't reallly.
+bool digital_io_get(index_t index)
+{
+	/* FIXME: for each index we get "2" digitals.
+	 * handle?
 	 */
+	if (1 <= index && index <= kVPNumOIInputs) {
+		uint8_t level = rxdata.oi_analog[index - 1];
+
+		/* divide the analog range (0 to 255 || 0xFF) into 3 equal sections
+		 * of size 85 (0x55).
+		 * 0 to 0x55 = down
+		 * 0x55 to 0xaa (170) = none
+		 * 0xaa to 0xFF = up
+		 */
+		if (level < 0x55) {
+			// down
+		} else if (level < 0xaa) {
+			// none
+		} else /* (level < 0xFF) */ { 
+			// up
+		}
+	}
+
 	ERROR();
 	return false;
 }
@@ -399,7 +426,7 @@ void interrupt_reg_isr(index_t index, isr_t isr)
 #elif defined(SDCC)
   // nada.
 #else
- #error "Bad compiler."
+  #error "Bad compiler."
 #endif
 
 void isr_low(void)
