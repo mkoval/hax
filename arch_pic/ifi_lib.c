@@ -84,6 +84,7 @@ void InterruptVectorHigh(void)
 		GOTO isr_high 
 	_endasm
 }
+#pragma code
 #elif defined(SDCC)
 void ivt_high(void) __naked __interrupt 1 {
 	__asm
@@ -91,7 +92,6 @@ void ivt_high(void) __naked __interrupt 1 {
 	__endasm;
 }
 #endif				/* defined(SDCC) */
-#pragma code
 /*******************************************************************************
 * FUNCTION NAME: Setup_Spi_Slave
 * PURPOSE:       
