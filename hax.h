@@ -5,10 +5,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* Define an empty error handler for the user to override. */
-#ifndef ERROR
-#define ERROR(_file_, _line_)
+#if !defined(bool)
+#define bool uint8_t
 #endif
+
+
+/* Define an empty error handler for the user to override. */
+#ifndef ERROR_HANDLER
+#define ERROR_HANDLER(_file_, _line_)
+#endif
+
+#define ERROR() ERROR_HANDLER(__FILE__,__LINE__)
 
 /*
  * The Main function

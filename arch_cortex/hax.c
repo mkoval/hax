@@ -103,7 +103,7 @@ int8_t analog_oi_get(index_t button) {
 		sp = joystick->axis_1;
 		break;
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return 0;
 	}
 
@@ -145,7 +145,7 @@ bool digital_oi_get(index_t index) {
 	case 16: /* Right Trigger, Down */
 		return joystick->g6_d;
 	default:
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 		return false;
 	}
 }
@@ -166,7 +166,7 @@ void analog_set(index_t index, int8_t sp) {
 
 		u2m.u2m.motors[index] = val;
 	} else {
-		ERROR(__FILE__, __LINE__);
+		ERROR();
 	}
 }
 

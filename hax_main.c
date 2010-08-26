@@ -1,7 +1,7 @@
 #include "hax.h"
 #include "compilers.h"
 
-void main(void) {
+__noreturn void main(void) {
 	static state_t mode;
 	
 	setup_1();

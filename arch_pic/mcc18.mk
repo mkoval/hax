@@ -3,8 +3,10 @@ LD           = '$(MCCPATH)/bin/mplink'
 AS           = '$(MCCPATH)/mpasm/mpasm'
 MD           = gcc
 
+SOURCE += $(ARCH)/c018iz_mcc18.c
+
 MCCPATH      = /opt/mcc18
-WINPATH      = $(srcdir)/vex_pic/winpath.sh
+WINPATH      = $(srcdir)/$(ARCH)/winpath.sh
 IPATH        = '$(MCCPATH)/h'
 ICPATH       = '$(srcdir)/$(ARCH)/include'
 IAPATH       = '$(srcdir)/$(ARCH)'
@@ -50,4 +52,4 @@ $(TARGET) : $(OBJECTS)
 	@echo "AS $(@F)"
 	@$(AS) /q $(ALL_ASFLAGS) $< /o$@
 
-.PHONY : clean install rebuild
+.PHONY : all clean install rebuild
