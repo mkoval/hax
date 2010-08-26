@@ -29,9 +29,9 @@ spi_packet_vex m2u;
 spi_packet_vex u2m;
 
 /*
- * INITIALIZATION AND MISC
+ * INTERNAL FUNCTIONS
  */
-void setup_1(void) {
+void hw_setup1(void) {
 	rcc_init();
 	gpio_init();
 	usart_init();
@@ -41,8 +41,8 @@ void setup_1(void) {
 	adc_init();
 	exti_init();
 	
-	memset(&u2m,0,sizeof(u2m));
-	memset(&m2u,0,sizeof(m2u));
+	memset(&u2m, 0, sizeof u2m);
+	memset(&m2u, 0, sizeof m2u);
 
 	spi_packet_init_u2m(&u2m);
 	spi_packet_init_m2u(&m2u);
@@ -50,26 +50,29 @@ void setup_1(void) {
 	printf("[ INIT DONE ]\n");
 }
 
-void setup_2(void) {	
+void hw_setup2(void) {	
 	while(!is_master_ready());
 }
 
-void spin(void) {
+void hw_spin(void) {
 }
 
-void loop_1(void) {
+void hw_loop1(void) {
 	vex_spi_xfer(&m2u, &u2m);
 	spi_transfer_flag = false;
 }
 
-void loop_2(void) {
+void hw_loop2(void) {
 }
 
-bool new_data_received(void) {
+bool hw_ready(void) {
 	return spi_transfer_flag;
 }
 
-state_t mode_get(void) {
+/*
+ * EXTERNAL API
+ */
+mode_t mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return MODE_AUTON;
 	} else if (m2u.m2u.sys_flags.b.disable) {
