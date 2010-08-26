@@ -116,7 +116,7 @@ uint16_t analog_get(index_t id) {
 	}
 }
 
-bool digital_oi_get(index_t index) {
+bool digital_get(index_t index) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 
 	switch (index) {
@@ -165,21 +165,35 @@ bool digital_oi_get(index_t index) {
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-void analog_set(index_t index, int8_t sp) {
-	/* Two-wire motors. */
-	if (index == 1 || index == 10) {
-		/* TODO Two wire motor support. */
-	}
-	/* Three-wire servo or servomotor */
-	else if (2 <= index && index <= 9) {
-		uint8_t val;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		val = sp + 128;
+void analog_set(index_t index, int8_t value) {
+        uint8_t value2;
 
-		u2m.u2m.motors[index] = val;
-	} else {
-		ERROR();
-	}
+        /* Convert the motor speed to an unsigned value. */
+        value  = (value < 0 && value != -128) ? value - 1 : value;
+        value2 = value + 128;
+
+        switch (index) {
+        /* Three-wire Motor/Servo*/
+        case PIN_MOTOR(2):
+        case PIN_MOTOR(3):
+        case PIN_MOTOR(4):
+        case PIN_MOTOR(5):
+        case PIN_MOTOR(6):
+        case PIN_MOTOR(7):
+        case PIN_MOTOR(8):
+        case PIN_MOTOR(9):
+            u2m.u2m.motors[index] = val;
+            break;
+
+        /* Two-wire Motor */
+        case PIN_MOTOR(1):
+        case PIN_MOTOR(10):
+            ERROR();
+            break;
+
+        default:
+            ERROR();
+        }
 }
 
 /*
