@@ -82,38 +82,38 @@ mode_t mode_get(void) {
 	}
 }
 
-/*
- * ANALOG AND DIGITAL INPUTS
- */
-int8_t analog_oi_get(index_t button) {
+uint16_t analog_get(index_t id) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
-	uint16_t sp = 0;
 
-	switch (button) {
-	case 1: /* Left Stick, X */
-		sp = joystick->axis_4;
-		break;
-	case 2: /* Left Stick, Y */
-		sp = joystick->axis_3;
-		break;
-	case 3: /* Right Stick, X */
-		sp = joystick->axis_2;
-		break;
-	case 4: /* Right Stick, Y */
-		sp = joystick->axis_1;
-		break;
-	default:
+	switch (id) {
+        /* VEXNet Joystick */
+        case PIN_OI(1): /* Right Stick, X */
+		return joystick->axis_2;
+
+	case PIN_OI(2): /* Right Stick, Y */
+		return joystick->axis_1;
+
+	case PIN_OI(4): /* Left Stick, X */
+		return joystick->axis_4;
+
+	case PIN_OI(3): /* Left Stick, Y */
+		return joystick->axis_3;
+
+        /* ADCs */
+	case PIN_DIGITAL(1):
+        case PIN_DIGITAL(2):
+        case PIN_DIGITAL(3):
+        case PIN_DIGITAL(4):
+        case PIN_DIGITAL(5):
+        case PIN_DIGITAL(6):
+        case PIN_DIGITAL(7):
+        case PIN_DIGITAL(8):
+	 	return adc_buffer[index - 1] >> 2;
+
+    	default:
 		ERROR();
 		return 0;
 	}
-
-	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-	return sp + 128;
-}
-
-uint16_t analog_adc_get(index_t index) {
-	/* Pretend the Cortex has the same precision as the PIC. */
-	return adc_buffer[index - 1] >> 2;
 }
 
 bool digital_oi_get(index_t index) {
