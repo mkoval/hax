@@ -120,33 +120,45 @@ bool digital_oi_get(index_t index) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 
 	switch (index) {
-	case 5: /* Left Buttons, Up */
-		return joystick->g8_u;
-	case 6: /* Left Buttons, Down */
-		return joystick->g8_d;
-	case 7: /* Left Buttons, Left */
-		return joystick->g8_l;
-	case 8: /* Left Buttons, Right */
-		return joystick->g8_r;
-	case 9: /* Right Buttons, Up */
-		return joystick->g7_u;
-	case 10: /* Right Buttons, Down */
-		return joystick->g7_d;
-	case 11: /* Right Buttons, Left */
-		return joystick->g7_l;
-	case 12: /* Right Buttons, Right */
-		return joystick->g7_r;
-	case 13: /* Left Trigger, Up */
-		return joystick->g5_u;
-	case 14: /* Left Trigger, Down */
-		return joystick->g5_d;
-	case 15: /* Right Trigger, Up */
-		return joystick->g6_u;
-	case 16: /* Right Trigger, Down */
-		return joystick->g6_d;
+        /* VEXNet Joystick */
+	case PIN_OI(5): /* Left trigger */
+		return (joystick->g5_u << 0)
+		     | (joystick->g5_d << 1);
+
+	case PIN_OI(6): /* Right trigger */
+		return (joystick->g6_u << 0)
+		     | (joystick->g6_d << 1);
+
+	case PIN_OI(7): /* Left Buttons */
+		return (joystick->g7_u << 0)
+		     | (joystick->g7_d << 1)
+		     | (joystick->g7_l << 2)
+		     | (joystick->g7_r << 3);
+
+	case PIN_OI(8): /* Right Buttons */
+		return (joystick->g8_u << 0)
+		     | (joystick->g8_d << 1)
+		     | (joystick->g8_l << 2)
+		     | (joystick->g8_r << 3);
+
+        /* Exposed Pins */
+	case PIN_DIGITAL(1):
+        case PIN_DIGITAL(2):
+        case PIN_DIGITAL(3):
+        case PIN_DIGITAL(4):
+        case PIN_DIGITAL(5):
+        case PIN_DIGITAL(6):
+        case PIN_DIGITAL(7):
+        case PIN_DIGITAL(8):
+        case PIN_DIGITAL(9):
+        case PIN_DIGITAL(10):
+        case PIN_DIGITAL(11):
+        case PIN_DIGITAL(12):
+                return ifipin_to_port[index - 1];
+
 	default:
 		ERROR();
-		return false;
+		return 0;
 	}
 }
 
