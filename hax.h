@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <arch.h>
 
 typedef uint8_t index_t;     /* internal pin index */
 typedef void (*isr_t)(void); /* interrupt callback */
