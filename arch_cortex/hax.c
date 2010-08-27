@@ -25,16 +25,13 @@
 #include "spi.h"
 #include "exti.h"
 
-/* Derived from TIM1 */
-uint16_t const kSlowSpeed = 18200;
-
 spi_packet_vex m2u;
 spi_packet_vex u2m;
 
 /*
- * INITIALIZATION AND MISC
+ * INTERNAL FUNCTIONS
  */
-void setup_1(void) {
+void hw_setup1(void) {
 	rcc_init();
 	gpio_init();
 	usart_init();
@@ -44,8 +41,8 @@ void setup_1(void) {
 	adc_init();
 	exti_init();
 	
-	memset(&u2m,0,sizeof(u2m));
-	memset(&m2u,0,sizeof(m2u));
+	memset(&u2m, 0, sizeof u2m);
+	memset(&m2u, 0, sizeof m2u);
 
 	spi_packet_init_u2m(&u2m);
 	spi_packet_init_m2u(&m2u);
@@ -53,26 +50,29 @@ void setup_1(void) {
 	printf("[ INIT DONE ]\n");
 }
 
-void setup_2(void) {	
+void hw_setup2(void) {	
 	while(!is_master_ready());
 }
 
-void spin(void) {
+void hw_spin(void) {
 }
 
-void loop_1(void) {
+void hw_loop1(void) {
 	vex_spi_xfer(&m2u, &u2m);
 	spi_transfer_flag = false;
 }
 
-void loop_2(void) {
+void hw_loop2(void) {
 }
 
-bool new_data_received(void) {
+bool hw_ready(void) {
 	return spi_transfer_flag;
 }
 
-state_t mode_get(void) {
+/*
+ * EXTERNAL API
+ */
+mode_t mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return MODE_AUTON;
 	} else if (m2u.m2u.sys_flags.b.disable) {
@@ -82,92 +82,118 @@ state_t mode_get(void) {
 	}
 }
 
-/*
- * ANALOG AND DIGITAL INPUTS
- */
-int8_t analog_oi_get(index_t button) {
+uint16_t analog_get(index_t id) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
-	uint16_t sp = 0;
 
-	switch (button) {
-	case 1: /* Left Stick, X */
-		sp = joystick->axis_4;
-		break;
-	case 2: /* Left Stick, Y */
-		sp = joystick->axis_3;
-		break;
-	case 3: /* Right Stick, X */
-		sp = joystick->axis_2;
-		break;
-	case 4: /* Right Stick, Y */
-		sp = joystick->axis_1;
-		break;
-	default:
+	switch (id) {
+        /* VEXNet Joystick */
+        case PIN_OI(1): /* Right Stick, X */
+		return joystick->axis_2;
+
+	case PIN_OI(2): /* Right Stick, Y */
+		return joystick->axis_1;
+
+	case PIN_OI(4): /* Left Stick, X */
+		return joystick->axis_4;
+
+	case PIN_OI(3): /* Left Stick, Y */
+		return joystick->axis_3;
+
+        /* ADCs */
+	case PIN_DIGITAL(1):
+        case PIN_DIGITAL(2):
+        case PIN_DIGITAL(3):
+        case PIN_DIGITAL(4):
+        case PIN_DIGITAL(5):
+        case PIN_DIGITAL(6):
+        case PIN_DIGITAL(7):
+        case PIN_DIGITAL(8):
+	 	return adc_buffer[index - 1] >> 2;
+
+    	default:
 		ERROR();
 		return 0;
 	}
-
-	sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-	return sp + 128;
 }
 
-uint16_t analog_adc_get(index_t index) {
-	/* Pretend the Cortex has the same precision as the PIC. */
-	return adc_buffer[index - 1] >> 2;
-}
-
-bool digital_oi_get(index_t index) {
+bool digital_get(index_t index) {
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 
 	switch (index) {
-	case 5: /* Left Buttons, Up */
-		return joystick->g8_u;
-	case 6: /* Left Buttons, Down */
-		return joystick->g8_d;
-	case 7: /* Left Buttons, Left */
-		return joystick->g8_l;
-	case 8: /* Left Buttons, Right */
-		return joystick->g8_r;
-	case 9: /* Right Buttons, Up */
-		return joystick->g7_u;
-	case 10: /* Right Buttons, Down */
-		return joystick->g7_d;
-	case 11: /* Right Buttons, Left */
-		return joystick->g7_l;
-	case 12: /* Right Buttons, Right */
-		return joystick->g7_r;
-	case 13: /* Left Trigger, Up */
-		return joystick->g5_u;
-	case 14: /* Left Trigger, Down */
-		return joystick->g5_d;
-	case 15: /* Right Trigger, Up */
-		return joystick->g6_u;
-	case 16: /* Right Trigger, Down */
-		return joystick->g6_d;
+        /* VEXNet Joystick */
+	case PIN_OI(5): /* Left trigger */
+		return (joystick->g5_u << 0)
+		     | (joystick->g5_d << 1);
+
+	case PIN_OI(6): /* Right trigger */
+		return (joystick->g6_u << 0)
+		     | (joystick->g6_d << 1);
+
+	case PIN_OI(7): /* Left Buttons */
+		return (joystick->g7_u << 0)
+		     | (joystick->g7_d << 1)
+		     | (joystick->g7_l << 2)
+		     | (joystick->g7_r << 3);
+
+	case PIN_OI(8): /* Right Buttons */
+		return (joystick->g8_u << 0)
+		     | (joystick->g8_d << 1)
+		     | (joystick->g8_l << 2)
+		     | (joystick->g8_r << 3);
+
+        /* Exposed Pins */
+	case PIN_DIGITAL(1):
+        case PIN_DIGITAL(2):
+        case PIN_DIGITAL(3):
+        case PIN_DIGITAL(4):
+        case PIN_DIGITAL(5):
+        case PIN_DIGITAL(6):
+        case PIN_DIGITAL(7):
+        case PIN_DIGITAL(8):
+        case PIN_DIGITAL(9):
+        case PIN_DIGITAL(10):
+        case PIN_DIGITAL(11):
+        case PIN_DIGITAL(12):
+                return ifipin_to_port[index - 1];
+
 	default:
 		ERROR();
-		return false;
+		return 0;
 	}
 }
 
 /*
  * MOTOR AND SERVO OUTPUTS
  */
-void analog_set(index_t index, int8_t sp) {
-	/* Two-wire motors. */
-	if (index == 1 || index == 10) {
-		/* TODO Two wire motor support. */
-	}
-	/* Three-wire servo or servomotor */
-	else if (2 <= index && index <= 9) {
-		uint8_t val;
-		sp = (sp < 0 && sp != -128) ? sp - 1 : sp;
-		val = sp + 128;
+void analog_set(index_t index, int8_t value) {
+        uint8_t value2;
 
-		u2m.u2m.motors[index] = val;
-	} else {
-		ERROR();
-	}
+        /* Convert the motor speed to an unsigned value. */
+        value  = (value < 0 && value != -128) ? value - 1 : value;
+        value2 = value + 128;
+
+        switch (index) {
+        /* Three-wire Motor/Servo*/
+        case PIN_MOTOR(2):
+        case PIN_MOTOR(3):
+        case PIN_MOTOR(4):
+        case PIN_MOTOR(5):
+        case PIN_MOTOR(6):
+        case PIN_MOTOR(7):
+        case PIN_MOTOR(8):
+        case PIN_MOTOR(9):
+            u2m.u2m.motors[index] = val;
+            break;
+
+        /* Two-wire Motor */
+        case PIN_MOTOR(1):
+        case PIN_MOTOR(10):
+            ERROR();
+            break;
+
+        default:
+            ERROR();
+        }
 }
 
 /*
