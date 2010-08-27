@@ -77,7 +77,7 @@ packet num (in the slave packet) is incremented following each transfer.
 */
 
 #define SYNC_MAGIC 0xC917
-#define SPI_PACKET_LEN 16 // 32, 16bit transfers.
+#define SPI_PACKET_LEN 16 // 32 bytes, 16bit transfers.
 #define MOTOR_CT 8
 
 enum state_enum {
@@ -158,15 +158,14 @@ typedef union {
 
 } spi_packet_vex;
 
-/** GPIO INITS 
- ** Things starting with "Claim" reverence
- ** Vex/IFI comments in orig. code. 
- ** For comedic value
+/** GPIO INITS:
+ ** The tag 'ORIG' notes comments in the original code when the comments
+ ** and the code were inconsistent.
  **/
 
 /* Uses SPI1: 
  * SCK, MISO, MOSI : PA{5,6,7} 
- * XXX: Vex makes them all ouputs
+ * XXX: IFI makes them all ouputs
  */
 
 /* "RTS" : PA11 (set as input) */
@@ -181,12 +180,11 @@ typedef union {
 
 /* "Smart Motor" Setup :
  * Call "SetMotorControl_To_Neutral"  
- * Claim to set PD{0,1} to ouput pp. (Don't)
+ * ORIG: "set PD{0,1} to ouput pp." [Don't]
  * PD{3,4,7,8} = output pp.
- * Then do this nice thing:
- *  GPIOD->CRH = (9 << 16) | (9 << 20) 
+ * Then:
+ * GPIOD->CRH = (9 << 16) | (9 << 20) 
  *	  | (9 << 24) | ( 9 << 28) | 1;
- * Thanks VEX.
  */
  
 /* PD{0,1} = input */
@@ -202,40 +200,40 @@ typedef union {
 /** END GPIO INITS **/
  
 /* SPI1:
-	Master Mode, bidirectional,
-	16b data size, CPOL_Low,
-	CPHA_2Edge, NSS_Soft,
-	Prescale = 32 (Note: "highest = 16"),
-	MSB First. CRC Poly = 7.
-*/
+ * Master Mode, bidirectional,
+ * 16b data size, CPOL_Low,
+ * CPHA_2Edge, NSS_Soft,
+ * Prescale = 32 (Note: "highest = 16"),
+ * MSB First. CRC Poly = 7.
+ */
 
 /* ADC1:
-Channels : {0,1,2,3,12,13,10,11}
-Set to scan mode
-*/
+ * Channels : {0,1,2,3,12,13,10,11}
+ * Set to scan mode
+ */
 
 /* Interrupts used:
-TIM1, TIM2, TIM3, TIM4, EXTI9_5
-*/
+ * TIM1, TIM2, TIM3, TIM4, EXTI9_5
+ */
  
 /* Crystal Detection
-PB10: low when RX1 is connected.
-PC8 : low when RX2 is connected.
-*/
+ * PB10: low when RX1 is connected.
+ * PC8 : low when RX2 is connected.
+ */
 
 /* USART:git://github.com/jmesmon/vex-cortex.git
-USART1 is debug usart.
-USART{2,3} expected to be connected to
-pins labeled "USART{1,2}"
-Baud = 115200, word = 8b, 1 stopbit,
-no parity, no harware flow ctrl.
-*/
+ * USART1 is debug usart.
+ * USART{2,3} expected to be connected to
+ * pins labeled "USART{1,2}"
+ * Baud = 115200, word = 8b, 1 stopbit,
+ * no parity, no harware flow ctrl.
+ */
 
 /* SysTick
-VeX/IFI appears to use this for a msdelay.
-"reload" set to 9000, interupt enabled.
-Claim the 9000 value gives a 1ms tick.
-*/
+ * IFI appears to use this for a msdelay.
+ * "reload" set to 9000, interupt enabled.
+ * ORIG: the 9000 value gives a 1ms tick.
+ */
 
 /* TIM1 used to trigger an update of the
  * master processor
@@ -244,7 +242,7 @@ Claim the 9000 value gives a 1ms tick.
 /* TIM{2,3} is using capture #3 and
  * filling the pwm{1,2} array.
  * For crystal input.
-*/
+ */
 
 /* TIM4 interupt ignored (flags mucked) */
 
@@ -254,37 +252,37 @@ Claim the 9000 value gives a 1ms tick.
 
 /* There are constant references to the
  * following things. No idea what they mean:
-TARGET_BOARD
-KEY_BUTTON
+ * TARGET_BOARD
+ * KEY_BUTTON
  */ 
 
 /* Control Pins for Motors 1 & 10. Connected directly to the STM.
 // See Set_MotorControl_Sw{1,2} for details.
 // (These use timer4 in the default code)
 // Active low. Names taken from original comments.
-PD3 : AH1 // gpio
-PD4 : BH1 // gpio
-PD7 : AH2 // gpio
-PD8 : BH2 // gpio
-PD12: AL1
-PD13: BL1
-PD14: AL2 
-PD15: BL2
-*/
+ * PD3 : AH1 // gpio
+ * PD4 : BH1 // gpio
+ * PD7 : AH2 // gpio
+ * PD8 : BH2 // gpio
+ * PD12: AL1
+ * PD13: BL1
+ * PD14: AL2 
+ * PD15: BL2
+ */
 
 /* Digital IO
-PE9 : 1
-PE11: 2
-PC6 : 3
-PC7 : 4
-PE13: 5
-PE14: 6
-PE8 : 7
-PE10: 8
-PE12: 9
-PE7 : 10
-PD0 : 11
-PD1 : 12
-*/
+ * PE9 : 1
+ * PE11: 2
+ * PC6 : 3
+ * PC7 : 4
+ * PE13: 5
+ * PE14: 6
+ * PE8 : 7
+ * PE10: 8
+ * PE12: 9
+ * PE7 : 10
+ * PD0 : 11
+ * PD1 : 12
+ */
 
 #endif
