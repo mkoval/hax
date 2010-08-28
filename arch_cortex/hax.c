@@ -69,9 +69,6 @@ bool hw_ready(void) {
 	return spi_transfer_flag;
 }
 
-/*
- * EXTERNAL API
- */
 mode_t mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return MODE_AUTON;
@@ -82,38 +79,10 @@ mode_t mode_get(void) {
 	}
 }
 
-uint16_t analog_get(index_t id) {
-	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
-
-	switch (id) {
-        /* VEXNet Joystick */
-        case PIN_OI(1): /* Right Stick, X */
-		return joystick->axis_2;
-
-	case PIN_OI(2): /* Right Stick, Y */
-		return joystick->axis_1;
-
-	case PIN_OI(4): /* Left Stick, X */
-		return joystick->axis_4;
-
-	case PIN_OI(3): /* Left Stick, Y */
-		return joystick->axis_3;
-
-        /* ADCs */
-	case PIN_DIGITAL(1):
-        case PIN_DIGITAL(2):
-        case PIN_DIGITAL(3):
-        case PIN_DIGITAL(4):
-        case PIN_DIGITAL(5):
-        case PIN_DIGITAL(6):
-        case PIN_DIGITAL(7):
-        case PIN_DIGITAL(8):
-	 	return adc_buffer[index - 1] >> 2;
-
-    	default:
-		ERROR();
-		return 0;
-	}
+/*
+ * DIGITAL IO
+ */
+void digital_init(index_t pin, bool output) {
 }
 
 bool digital_get(index_t index) {
@@ -163,7 +132,7 @@ bool digital_get(index_t index) {
 }
 
 /*
- * MOTOR AND SERVO OUTPUTS
+ * ANALOG IO
  */
 void analog_set(index_t index, int8_t value) {
         uint8_t value2;
@@ -196,9 +165,46 @@ void analog_set(index_t index, int8_t value) {
         }
 }
 
+
+int16_t analog_get(index_t id) {
+	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
+
+	switch (id) {
+        /* VEXNet Joystick */
+        case PIN_OI(1): /* Right Stick, X */
+		return joystick->axis_2;
+
+	case PIN_OI(2): /* Right Stick, Y */
+		return joystick->axis_1;
+
+	case PIN_OI(4): /* Left Stick, X */
+		return joystick->axis_4;
+
+	case PIN_OI(3): /* Left Stick, Y */
+		return joystick->axis_3;
+
+        /* ADCs */
+	case PIN_DIGITAL(1):
+        case PIN_DIGITAL(2):
+        case PIN_DIGITAL(3):
+        case PIN_DIGITAL(4):
+        case PIN_DIGITAL(5):
+        case PIN_DIGITAL(6):
+        case PIN_DIGITAL(7):
+        case PIN_DIGITAL(8):
+	 	return adc_buffer[index - 1] >> 2;
+
+    	default:
+		ERROR();
+		return 0;
+	}
+}
+
 /*
- * SERIAL IO
+ * INTERRUPTS
  */
-void _putc(char c) {
-	putchar(c);
+void interrupt_init(index_t pin, isr_t isr) {
+}
+
+void interrupt_set(index_t pin, bool enable) {
 }
