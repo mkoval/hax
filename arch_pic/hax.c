@@ -22,8 +22,6 @@
 #include "master.h"
 #include "ifi_lib.h"
 
-/* Slow loop of 18.5 milliseconds (converted to microseconds). */
-uint16_t const kSlowSpeed = 18500;
 
 /* Checks if the kNumAnalog is valid */
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
@@ -87,17 +85,17 @@ void setup_1(void)
 	 */
 	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
-		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the 
+		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the
 		 * FOSC is 40Mhz.
 		 * Also according to the doc, section 19.2, the
 		 * ADC Freq needs to be at least 1.6us or 0.625MHz. 40/0.625=64
 		 * (Also, see table 19-1 in the chip doc)
 		 */
 #if defined(MCC18)
-		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST & 
+		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST &
 		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
-		       		           ADC_VREFMINUS_VSS );
+				           ADC_VREFMINUS_VSS );
 #elif defined(SDCC)
 		adc_open(
 			ADC_CHN_0,
@@ -107,7 +105,7 @@ void setup_1(void)
 #else
 #error "Bad Comp"
 #endif
-	} else { 
+	} else {
 		/* TODO: Handle the error. */
 		puts("ADC is disabled");
 	}
@@ -139,7 +137,7 @@ uint8_t battery_get(void)
 #error "bad compiler"
 #endif
 		PIR2bits.LVDIF = 0;
-	
+
 
 		tmp = lvdcon & 0xF;
 		if (!(PIR2bits.LVDIF)||!tmp) {
@@ -170,7 +168,7 @@ void loop_1(void)
 			   , rxdata.packet_num
 			   , rxdata.rcmode.allbits
 			   , rxdata.rcstatusflag.allbits);
-			
+
 		_puts( "  reserved_1[0..2] : ");
 		for(i = 0; i < 3; i++) {
 			printf((char*)"%i, ",rxdata.reserved_1[i]);
@@ -275,7 +273,7 @@ void pin_set_io(index_t i, bool bit)
 	case 16:
 		BIT_SET(TRISH, (i - 12) + 4 - 1, bit);
 		break;
-	
+
 	/* Access the interrupt pins */
 	case 17:
 	case 18:
@@ -321,7 +319,7 @@ bool digital_get(index_t i)
 	case 15:
 	case 16:
 		return BIT_GET(PORTH, (i - 12) + 4 - 1);
-	
+
 	/* access the interrupt pins */
 	case 17:
 	case 18:
@@ -382,7 +380,7 @@ bool digital_io_get(index_t index)
 			// down
 		} else if (level < 0xaa) {
 			// none
-		} else /* (level < 0xFF) */ { 
+		} else /* (level < 0xFF) */ {
 			// up
 		}
 	}
@@ -433,31 +431,29 @@ void isr_low(void)
 {
 	static uint8_t delta, portb_old = 0xFF, portb = 0xFF;
 
-	/* Interrupt 1 */
-	if (INTCON3bits.INT2IF && INTCON3bits.INT2IE) { 
+	if (INTCON3bits.INT2IF && INTCON3bits.INT2IE) {
+		/* Interrupt 1 */
 		INTCON3bits.INT2IF = 0;
 
 		if (isr_callbacks[0]) {
 			isr_callbacks[0](INTCON2bits.INTEDG2);
 			INTCON2bits.INTEDG2 ^= 1;
 		}
-	}
-	/* Interrupt 2 */
-	else if (INTCON3bits.INT3IF && INTCON3bits.INT3IE) {
+	} else if (INTCON3bits.INT3IF && INTCON3bits.INT3IE) {
+		/* Interrupt 2 */
 		INTCON3bits.INT3IF = 0;
 
 		if (isr_callbacks[1]) {
 			isr_callbacks[1](INTCON2bits.INTEDG3);
 			INTCON2bits.INTEDG3 ^= 1;
 		}
-	}
-	else if (INTCONbits.RBIF && INTCONbits.RBIE) {
+	} else if (INTCONbits.RBIF && INTCONbits.RBIE) {
 		/* Remove the "mismatch condition" by reading port b. */
 		portb           = PORTB;
 		INTCONbits.RBIF = 0;
 		delta           = portb ^ portb_old;
 		portb_old       = portb;
-	 
+
 		/* Interrupt 3 */
 		if((delta & 0x10) && isr_callbacks[2]) {
 			isr_callbacks[2]((portb & (1<<4)) >> 4);
