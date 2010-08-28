@@ -14,9 +14,16 @@
 #define JOY2_R_X PIN_OI(10)
 #define JOY2_R_Y PIN_OI(11)
 
-#define PIN_DIGITAL(_x_)   ((_x_) + 0)  /*  1 - 16 */
-#define PIN_INTERRUPT(_x_) ((_x_) + 16) /* 17 - 23 */
-#define PIN_MOTOR(_x_)     ((_x_) + 22) /* 24 - 32 */
-#define PIN_OI(_x_)        ((_x_) + 41) /* 33 - 41 */
+/* Offset for each block of contiguous pins. */
+#define OFFSET_DIGITAL      0
+#define OFFSET_INTERRUPT   16
+#define OFFSET_MOTOR       22
+#define OFFSET_OI          41
+
+/* Utility macros for generating internal pin indexes. */
+#define PIN_DIGITAL(_x_)   ((_x_) + OFFSET_DIGITAL)
+#define PIN_INTERRUPT(_x_) ((_x_) + OFFSET_INTERRUPT)
+#define PIN_MOTOR(_x_)     ((_x_) + OFFSET_MOTOR)
+#define PIN_OI(_x_)        ((_x_) + OFFSET_OI)
 
 #endif
