@@ -31,7 +31,8 @@ spi_packet_vex u2m;
 /*
  * INTERNAL FUNCTIONS
  */
-void hw_setup1(void) {
+void hw_setup1(void)
+{
 	rcc_init();
 	gpio_init();
 	usart_init();
@@ -40,36 +41,42 @@ void hw_setup1(void) {
 	tim1_init();
 	adc_init();
 	exti_init();
-	
+
 	memset(&u2m, 0, sizeof u2m);
 	memset(&m2u, 0, sizeof m2u);
 
 	spi_packet_init_u2m(&u2m);
 	spi_packet_init_m2u(&m2u);
-	
+
 	printf("[ INIT DONE ]\n");
 }
 
-void hw_setup2(void) {	
+void hw_setup2(void)
+{
 	while(!is_master_ready());
 }
 
-void hw_spin(void) {
+void hw_spin(void)
+{
 }
 
-void hw_loop1(void) {
+void hw_loop1(void)
+{
 	vex_spi_xfer(&m2u, &u2m);
 	spi_transfer_flag = false;
 }
 
-void hw_loop2(void) {
+void hw_loop2(void)
+{
 }
 
-bool hw_ready(void) {
+bool hw_ready(void)
+{
 	return spi_transfer_flag;
 }
 
-mode_t mode_get(void) {
+mode_t mode_get(void)
+{
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return MODE_AUTON;
 	} else if (m2u.m2u.sys_flags.b.disable) {
@@ -82,10 +89,12 @@ mode_t mode_get(void) {
 /*
  * DIGITAL IO
  */
-void digital_init(index_t pin, bool output) {
+void digital_init(index_t pin, bool output)
+{
 }
 
-bool digital_get(index_t index) {
+bool digital_get(index_t index)
+{
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 
 	switch (index) {
@@ -134,7 +143,8 @@ bool digital_get(index_t index) {
 /*
  * ANALOG IO
  */
-void analog_set(index_t index, int8_t value) {
+void analog_set(index_t index, int8_t value)
+{
         uint8_t value2;
 
         /* Convert the motor speed to an unsigned value. */
@@ -166,7 +176,8 @@ void analog_set(index_t index, int8_t value) {
 }
 
 
-int16_t analog_get(index_t id) {
+int16_t analog_get(index_t id)
+{
 	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
 
 	switch (id) {
@@ -192,7 +203,7 @@ int16_t analog_get(index_t id) {
         case PIN_DIGITAL(6):
         case PIN_DIGITAL(7):
         case PIN_DIGITAL(8):
-	 	return adc_buffer[index - 1] >> 2;
+		return adc_buffer[index - 1];
 
     	default:
 		ERROR();
@@ -203,8 +214,10 @@ int16_t analog_get(index_t id) {
 /*
  * INTERRUPTS
  */
-void interrupt_init(index_t pin, isr_t isr) {
+void interrupt_init(index_t pin, isr_t isr)
+{
 }
 
-void interrupt_set(index_t pin, bool enable) {
+void interrupt_set(index_t pin, bool enable)
+{
 }
