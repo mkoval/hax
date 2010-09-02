@@ -12,7 +12,7 @@ RM            = rm -f
 GREP          = grep
 
 # External libraries.
-CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib
+CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib -I$(ARCH)
 LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
 
 LD_SCRIPT = STM32F103_384K_64K_FLASH.ld
