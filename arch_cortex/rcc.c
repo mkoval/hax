@@ -1,4 +1,4 @@
-/* From system_stm32f10x.c, 
+/* From system_stm32f10x.c,
  * STD PERIPH LIB 3.2.0
  */
 
@@ -7,8 +7,8 @@
 static void rcc_reset(void)
 {
 	/* Reset the RCC clock
-	 * configuration to the 
-	 * default reset state 
+	 * configuration to the
+	 * default reset state
 	 */
 	/* Set HSION bit */
 	RCC->CR |= RCC_CR_HSION;
@@ -18,11 +18,11 @@ static void rcc_reset(void)
 	RCC->CFGR &= (uint32_t)0xF8FF0000;
 #else
 	RCC->CFGR &= (uint32_t)0xF0FF0000;
-#endif /* STM32F10X_CL */   
+#endif /* STM32F10X_CL */
 
 	/* Reset HSEON, CSSON and PLLON bits */
-	RCC->CR &= ~(RCC_CR_HSEON 
-		| RCC_CR_CSSON 
+	RCC->CR &= ~(RCC_CR_HSEON
+		| RCC_CR_CSSON
 		| RCC_CR_PLLON);
 
 	/* Reset HSEBYP bit */
@@ -45,12 +45,12 @@ static void rcc_reset(void)
 
 	/* Reset CFGR2 register */
 	RCC->CFGR2 = 0x00000000;
-#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL) 
+#elif defined (STM32F10X_LD_VL) || defined (STM32F10X_MD_VL)
 	/* Disable all interrupts and clear pending bits  */
 	RCC->CIR = 0x009F0000;
 
 	/* Reset CFGR2 register */
-	RCC->CFGR2 = 0x00000000;      
+	RCC->CFGR2 = 0x00000000;
 #else
 	/* Disable all interrupts and clear pending bits  */
 	RCC->CIR = 0x009F0000;
@@ -59,27 +59,27 @@ static void rcc_reset(void)
 }
 
 static void rcc_setup(void)
-{	
-	/** SYSCLK, HCLK, PCLK2 and PCLK1 configuration **/    
-	/* Enable HSE */    
+{
+	/** SYSCLK, HCLK, PCLK2 and PCLK1 configuration **/
+	/* Enable HSE */
 	RCC->CR |= RCC_CR_HSEON;
 
 	/* Wait till HSE is ready and if Time out is reached exit */
 	{
 		uint32_t i = 0;
 		do {
-			i++;  
+			i++;
 		} while (
 			( (RCC->CR & RCC_CR_HSERDY) == 0 )
 			 && (i != HSEStartUp_TimeOut));
 	}
-		
+
 	/* Enable Prefetch Buffer */
 	FLASH->ACR |= FLASH_ACR_PRFTBE;
 
 	/* Flash 2 wait state */
 	FLASH->ACR &= ~FLASH_ACR_LATENCY;
-	FLASH->ACR |= FLASH_ACR_LATENCY_2;    
+	FLASH->ACR |= FLASH_ACR_LATENCY_2;
 
 	/* HCLK = SYSCLK */
 	RCC->CFGR &= ~RCC_CFGR_HPRE;
@@ -94,7 +94,7 @@ static void rcc_setup(void)
 	RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
 
 	/* PLL Config */
-	RCC->CFGR &= ~(RCC_CFGR_PLLSRC 
+	RCC->CFGR &= ~(RCC_CFGR_PLLSRC
 		| RCC_CFGR_PLLXTPRE
 		| RCC_CFGR_PLLMULL);
 
@@ -107,7 +107,7 @@ static void rcc_setup(void)
 		RCC->CFGR |= RCC_CFGR_PLLSRC_HSI_Div2
 			| RCC_CFGR_PLLMULL16;
 	}
-		
+
 	/* Enable PLL */
 	RCC->CR |= RCC_CR_PLLON;
 
@@ -116,7 +116,7 @@ static void rcc_setup(void)
 
 	/* Select PLL as system clock source */
 	RCC->CFGR &= ~(RCC_CFGR_SW);
-	RCC->CFGR |= RCC_CFGR_SW_PLL;    
+	RCC->CFGR |= RCC_CFGR_SW_PLL;
 
 	/* Wait till PLL is used as system clock source */
 	while ((RCC->CFGR & RCC_CFGR_SWS)
@@ -134,43 +134,43 @@ static void rcc_setup(void) {
 	RCC->CR |= RCC_CR_HSION;
 	// wait for HSE startup (fwlib times out after 0x500 reads).
 	while(!( RCC->CR & RCC_CR_HSIRDY));
-	
-	// FLASH: Enable Prefetch Buffer 
+
+	// FLASH: Enable Prefetch Buffer
 	//  (note: should only be done when running off of 8Mhz HSI.)
 	FLASH->ACR |= FLASH_ACR_PRFTBE;
-	
+
 	// FLASH: Set latency to 2
 	FLASH->ACR |= FLASH_ACR_LATENCY_1;
 	FLASH->ACR &= ~( FLASH_ACR_LATENCY_0
 		| FLASH_ACR_LATENCY_2 );
-	
-	// HCLK: AHB (Max 72Mhz) 
+
+	// HCLK: AHB (Max 72Mhz)
 	//  = SYSCLK = 72Mhz
 	// 0xxx: SYSCLK not divided
 	RCC->CFGR &= ~RCC_CFGR_HPRE_3;
-	
+
 	// PCLK2: APB2 (APB high speed, Max 72Mhz)
 	//	= HCLK = 72MHz
 	// 0xx: HCLK not divided
 	RCC->CFGR &= ~RCC_CFGR_PPRE2_2;
-	
+
 	// PCLK1: APB1 (APB low speed, Max 36Mhz)
 	//	= HCLK/2 = 36MHz
 	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1)
 		| RCC_CFG_PPRE1_DIV2;
-		
+
 	// PLLCLK = 8MHz * 9 = 72 MHz
 	RCC->CFGR2 = (RCC->CFGR2 & ~RCC_CFGR2_PREDIV1)
 		| RCC_CFGR2_PREDIV1_DIV1;
-    
-	RCC->CFGR &= ~(RCC_CFGR_PLLSRC 
+
+	RCC->CFGR &= ~(RCC_CFGR_PLLSRC
 		| RCC_CFGR_PLLXTPRE
 		| RCC_CFGR_PLLMULL);
 	RCC->CFGR |= RCC_CFGR_PLLSRC_HSE
 		| RCC_CFGR_PLLMULL9;
 
 
-	// Enable PLL 
+	// Enable PLL
 	RCC->CR |= RCC_CR_PLLON;
 
 	// Wait till PLL is ready (no timeout here...)
@@ -179,7 +179,7 @@ static void rcc_setup(void) {
 	// Select PLL as system clock source
 	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW)
 		| RCC_CFGR_SW_PLL;
-	
+
 	// Wait untill PLL is used as system clock source
 	while((RCC->CFGR & RCC_CFGR_SWS)
 		!= RCC_CFGR_SWS_PLL);
