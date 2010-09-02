@@ -18,49 +18,54 @@ bool digital_get(index_t index) {
         struct oi_data *oi2 = &m2u.m2u.joysticks[1].b;
 
         switch (index) {
-        case: /* OI1, Left Trigger, Up */
+        /* Left Trigger */
+        case PIN_OI_BUTTON(1, 5, OI_B_UP):
             return oi1->g5_u;
-        case: /* OI1, Left Trigger, Down */
+        case PIN_OI_BUTTON(1, 5, OI_B_DN):
             return oi1->g5_d;
-        case: /* OI1, Right Trigger, Up */
-            return oi1->g6_u;
-        case: /* OI1, Right Trigger, Down */
-            return oi1->g6_d;
-        case: /* OI1, Left D-Pad, Up */
-            return oi1->g7_u;
-        case: /* OI1, Left D-Pad, Down */
-            return oi1->g7_d;
-        case: /* OI1, Left D-Pad, Left */
-            return oi1->g7_l;
-        case: /* OI1, Left D-Pad, Right */
-            return oi1->g7_r;
-        case: /* OI2, Left Trigger, Up */
+        case PIN_OI_BUTTON(2, 5, OI_B_UP):
             return oi2->g5_u;
-        case: /* OI2, Left Trigger, Down */
+        case PIN_OI_BUTTON(2, 5, OI_B_DN):
             return oi2->g5_d;
-        case: /* OI2, Right Trigger, Up */
+
+        /* Right Trigger */
+        case PIN_OI_BUTTON(1, 6, OI_B_UP):
+            return oi1->g6_u;
+        case PIN_OI_BUTTON(1, 6, OI_B_DN):
+            return oi1->g6_d;
+        case PIN_OI_BUTTON(2, 6, OI_B_UP):
             return oi2->g6_u;
-        case: /* OI2, Right Trigger, Down */
+        case PIN_OI_BUTTON(2, 6, OI_B_DN):
             return oi2->g6_d;
-        case: /* OI2, Left D-Pad, Up */
+
+        /* Left D-Pad */
+        case PIN_OI_BUTTON(1, 7, OI_B_UP):
+            return oi1->g7_u;
+        case PIN_OI_BUTTON(1, 7, OI_B_DN):
+            return oi1->g7_d;
+        case PIN_OI_BUTTON(1, 7, OI_B_LT):
+            return oi1->g7_l;
+        case PIN_OI_BUTTON(1, 7, OI_B_RT):
+            return oi1->g7_r;
+        case PIN_OI_BUTTON(2, 7, OI_B_UP):
             return oi2->g7_u;
-        case: /* OI2, Left D-Pad, Down */
+        case PIN_OI_BUTTON(2, 7, OI_B_DN):
             return oi2->g7_d;
-        case: /* OI2, Left D-Pad, Left */
+        case PIN_OI_BUTTON(2, 7, OI_B_LT):
             return oi2->g7_l;
-        case: /* OI2, Left D-Pad, Right */
+        case PIN_OI_BUTTON(2, 7, OI_B_RT):
             return oi2->g7_r;
-        case: /* Exposed Digital Pins */ {
+
+        /* Exposed Digital Pins */
+        case OFFSET_DIGITAL ... (OFFSET_DIGITAL + COUNT_DIGITAL - 1):
             GPIO_TypeDef *port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
             index_t       pin  = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
             return !!(port->IDR & (1 << pin));
-        }
+
         default:
             ERROR();
             return 0;
         }
-#if 0
-#endif
 }
 
 void digital_set(index_t index, bool output) {
