@@ -10,17 +10,17 @@ void hw_setup1(void) {
 	tim1_init();
 	adc_init();
 	exti_init();
-	
+
 	memset(&u2m, 0, sizeof u2m);
 	memset(&m2u, 0, sizeof m2u);
 
 	spi_packet_init_u2m(&u2m);
 	spi_packet_init_m2u(&m2u);
-	
+
 	printf("[ INIT DONE ]\n");
 }
 
-void hw_setup2(void) {	
+void hw_setup2(void) {
 	while(!is_master_ready());
 }
 

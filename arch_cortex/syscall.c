@@ -69,7 +69,7 @@ int _read(int fd, char *ptr, int len)
 int _write(int fd, char *ptr, size_t len)
 {
 	size_t todo;
-	
+
 	for (todo = 0; todo < len; todo++) {
 		if (fd == 0) {
 			usart1_putc(*ptr);
