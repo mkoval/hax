@@ -4,29 +4,42 @@
 /* Period of the slow loop, in microseconds. */
 #define SLOW_US 18200
 
-/* Offset for each block of contiguous pins. */
-#define OFFSET_ANALOG     0
-#define OFFSET_DIGITAL    8
-#define OFFSET_MOTOR     20
-#define OFFSET_OI        32
-#define OFFSET_OI_BUTTON 40
+/* Counts for IO 'things' */
+#define CT_ANALOG      8
+#define CT_DIGITAL    12
+#define CT_MOTOR      10
+#define CT_OIx         8 /* groups per OI */
+#define CT_OI_GROUP_SZ 4 /* Max number of buttons per group */
+#define CT_OI         (2 * CT_OIx)
+#define CT_OIx_BUTTON (CT_OI_GROUP_SZ * CT_OIx)
+#define CT_OI_BUTTON  (2 * CT_OIx_BUTTON)
 
+/* PIN_OI_BUTTON dir arguments */
 #define OI_B_UP 0
 #define OI_B_LT 1
 #define OI_B_DN 2
 #define OI_B_RT 3
 
-/* Utility macros for generating internal pin indexes. */
-#define PIN_ANALOG(_x_)  ((_x_) + OFFSET_ANALOG)
-#define PIN_DIGITAL(_x_) ((_x_) + OFFSET_DIGITAL)
-#define PIN_MOTOR(_x_)   ((_x_) + OFFSET_MOTOR)
-#define PIN_OI(_x_)      ((_x_) + OFFSET_OI)
-#define PIN_OI_BUTTON(n, dir) (OFFSET_OI_BUTTON + ((n)*4) + (dir))
+/* Offset for each block of contiguous pins. */
+#define OFFSET_ANALOG     0
+#define OFFSET_DIGITAL   (OFFSET_ANALOG + CT_ANALOG)
+#define OFFSET_MOTOR     (OFFSET_DIGITAL + CT_DIGITAL)
+#define OFFSET_OI        (OFFSET_MOTOR + CT_MOTOR)
+#define OFFSET_OI_BUTTON (OFFSET_OI + CT_OI)
 
-/* Check a single button press on one of the VEXNet joystick's button pads. */
-#define BUT_UP(_x_)      ((_x_) & 1 != 0)
-#define BUT_DOWN(_x_)    ((_x_) & 2 != 0)
-#define BUT_LEFT(_x_)    ((_x_) & 4 != 0)
-#define BUT_RIGHT(_x_)   ((_x_) & 8 != 0)
+/* Utility macros for generating internal pin indexes. */
+#define PIN_ANALOG(pin)   (OFFSET_ANALOG + (pin))
+#define PIN_DIGITAL(pin)  (OFFSET_DIGITAL + (pin))
+#define PIN_MOTOR(n)      (OFFSET_MOTOR + (n))
+#define PIN_OI(oi, group) (OFFSET_OI + ((oi) * CT_IOx) + (group))
+#define PIN_OI_BUTTON(oi, group, dir) \
+	(OFFSET_OI_BUTTON + ((oi) * CT_OIx_BUTTON) + \
+	 ((group) * CT_OI_GROUP_SZ) + (dir))
+
+/* Joysticks */
+#define JOY_L_X(oi) PIN_OI(oi, 0)
+#define JOY_L_Y(oi) PIN_OI(oi, 1)
+#define JOY_R_X(oi) PIN_OI(oi, 2)
+#define JOY_R_Y(oi) PIN_OI(oi, 3)
 
 #endif
