@@ -77,5 +77,14 @@ bool digital_get(index_t index)
 
 void digital_set(index_t index, bool output)
 {
+	index_t pin = index - OFFSET_DIGITAL;
 
+	// Only external digital pins can be used as output.
+	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
+		ERROR();
+	} else if (output) {
+		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[pin];
+	} else {
+		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[pin];
+	}
 }
