@@ -13,7 +13,7 @@
  * PE7(9)
  */
 static const uint8_t pin_to_ifipin [16] =
-	/* 0   1    2    3    4    5  6    7 */   
+	/* 0   1    2    3    4    5  6    7 */
 	{ 10, 11, 255, 255, 255, 255, 2,   3,
 	/* 8   9   10   11   12   13 14   15 */
 	   6,  0,   7,   1,   8,   4, 5, 255};
@@ -27,13 +27,13 @@ static isr_t isr_callback[12];
 #define __isr __attribute__((interrupt))
 
 #define CALL_ISR(_i_)                                          \
-        if (EXTI->PR & (1<<(_i_))) {                           \
-                EXTI->PR = 1<<(_i_);                           \
-                uint8_t ri = pin_to_ifipin[_i_];	       \
-                if (isr_callback[ri]) {                    \
-                        isr_callback[ri](digital_get(ri)); \
-                }                                          \
-        }
+	if (EXTI->PR & (1<<(_i_))) {                           \
+		EXTI->PR = 1<<(_i_);                           \
+		uint8_t ri = pin_to_ifipin[_i_];	       \
+		if (isr_callback[ri]) {                        \
+			isr_callback[ri](digital_get(ri));     \
+		}                                              \
+	}
 
 __isr void EXTI0_IRQHandler(void) {
 	CALL_ISR(0);
@@ -61,8 +61,8 @@ __isr void EXTI15_10_IRQHandler(void) {
 }
 
 
-    /* PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
-static GPIO_TypeDef *const ifipin_to_port[12] = 
+/*     PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
+static GPIO_TypeDef *const ifipin_to_port[12] =
     {GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
 
 static const int8_t ifipin_to_pin[12] =
@@ -94,7 +94,7 @@ void digital_set(index_t index, bool pull_high) {
 	}
 }
 
-void pin_set_io(index_t index, bool set_output ) {	
+void pin_set_io(index_t index, bool set_output ) {
 	GPIO_InitTypeDef GPIO_param;
 
 	/* TODO Enable support for using analog pins as digital IOs. */
@@ -102,16 +102,16 @@ void pin_set_io(index_t index, bool set_output ) {
 		ERROR();
 		return;
 	}
-	
+
 	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
-	
+
 	if (!set_output) {
 		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
 	} else {
 		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
 	}
-	
+
 	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &GPIO_param);
 }
 
@@ -135,13 +135,13 @@ void interrupt_enable(index_t index) {
 	ri = ifipin_to_pin[index - 1];
 
 	pin_set_io(index, false);
-	
+
 	// unmask the interrupt.
 	EXTI->IMR |= (1 << ri);
 
 	// mask the event reqest.
 	EXTI->EMR &= ~(1 << ri);
-	
+
 	// enable rising trigger and falling trigger.
 	EXTI->RTSR |= (1 << ri);
 	EXTI->FTSR |= (1 << ri);
@@ -162,38 +162,38 @@ void exti_init(void) {
 	/* PE9(0),PE11(1),PC6(2),PC7(3),PE13(4),PE14(5),
 	 * PE8(6),PE10(7),PE12(8),PE7(9),PD0(10),PD1(11)
 	 */
-	AFIO->EXTICR[0] = 
+	AFIO->EXTICR[0] =
 		( AFIO_EXTICR1_EXTI0_PD // PD0 (10)
 		| AFIO_EXTICR1_EXTI1_PD // PD1 (11)
 		/* | AFIO_EXTCR1_EXTI2_Px */
 		/* | AFIO_EXTCR1_EXTI3_Px */
 		);
-		
+
 	/* Note: PE7(9) is not connected to
 	 * EXTI interrupt due to hardware
 	 * design limitations
 	 */
-	AFIO->EXTICR[1] = 
+	AFIO->EXTICR[1] =
 		( /* AFIO_EXTICR2_EXTI4_Px */
 		/* | AFIO_EXTICR2_EXTI5_Px */
 		  AFIO_EXTICR2_EXTI6_PC // PC6 (2)
 		| AFIO_EXTICR2_EXTI7_PC // PC7 (3)
 		);
-		
+
 	AFIO->EXTICR[2] =
 		( AFIO_EXTICR3_EXTI8_PE // PE8 (6)
 		| AFIO_EXTICR3_EXTI9_PE // PE9 (0)
 		| AFIO_EXTICR3_EXTI10_PE // PE10 (7)
 		| AFIO_EXTICR3_EXTI11_PE // PE11 (1)
 		);
-	
-	AFIO->EXTICR[3] = 
+
+	AFIO->EXTICR[3] =
 		( AFIO_EXTICR4_EXTI12_PE // PE12 (8)
 		| AFIO_EXTICR4_EXTI13_PE // PE13 (4)
 		| AFIO_EXTICR4_EXTI14_PE // PE14 (5)
 		/*| AFIO_EXTICR4_EXTI15_Px */
 		);
-	
+
 	EXTI->IMR =
 		( EXTI_IMR_MR0
 		| EXTI_IMR_MR1
@@ -207,7 +207,7 @@ void exti_init(void) {
 		| EXTI_IMR_MR13
 		| EXTI_IMR_MR14
 		);
-	
+
 	/* Enable the EXTI0 Interrupt */
 	NVIC_param.NVIC_IRQChannel = EXTI0_IRQn;
 	NVIC_param.NVIC_IRQChannelPreemptionPriority = 2;
