@@ -3,53 +3,66 @@
  */
 void digital_init(index_t index, bool output) {
     GPIO_InitTypeDef GPIO_param;
+
+    GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
+
+    if (output) {
+        ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
+    } else {
+        ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
+    }
 }
 
 bool digital_get(index_t index) {
-	struct oi_data *joystick = &m2u.m2u.joysticks[0].b;
+	struct oi_data *oi1 = &m2u.m2u.joysticks[0].b;
+        struct oi_data *oi2 = &m2u.m2u.joysticks[1].b;
 
-	switch (index) {
-        /* VEXNet Joystick */
-	case PIN_OI(5): /* Left trigger */
-		return (joystick->g5_u << 0)
-		     | (joystick->g5_d << 1);
-
-	case PIN_OI(6): /* Right trigger */
-		return (joystick->g6_u << 0)
-		     | (joystick->g6_d << 1);
-
-	case PIN_OI(7): /* Left Buttons */
-		return (joystick->g7_u << 0)
-		     | (joystick->g7_d << 1)
-		     | (joystick->g7_l << 2)
-		     | (joystick->g7_r << 3);
-
-	case PIN_OI(8): /* Right Buttons */
-		return (joystick->g8_u << 0)
-		     | (joystick->g8_d << 1)
-		     | (joystick->g8_l << 2)
-		     | (joystick->g8_r << 3);
-
-        /* Exposed Pins */
-	case PIN_DIGITAL(1):
-        case PIN_DIGITAL(2):
-        case PIN_DIGITAL(3):
-        case PIN_DIGITAL(4):
-        case PIN_DIGITAL(5):
-        case PIN_DIGITAL(6):
-        case PIN_DIGITAL(7):
-        case PIN_DIGITAL(8):
-        case PIN_DIGITAL(9):
-        case PIN_DIGITAL(10):
-        case PIN_DIGITAL(11):
-        case PIN_DIGITAL(12): {
+        switch (index) {
+        case: /* OI1, Left Trigger, Up */
+            return oi1->g5_u;
+        case: /* OI1, Left Trigger, Down */
+            return oi1->g5_d;
+        case: /* OI1, Right Trigger, Up */
+            return oi1->g6_u;
+        case: /* OI1, Right Trigger, Down */
+            return oi1->g6_d;
+        case: /* OI1, Left D-Pad, Up */
+            return oi1->g7_u;
+        case: /* OI1, Left D-Pad, Down */
+            return oi1->g7_d;
+        case: /* OI1, Left D-Pad, Left */
+            return oi1->g7_l;
+        case: /* OI1, Left D-Pad, Right */
+            return oi1->g7_r;
+        case: /* OI2, Left Trigger, Up */
+            return oi2->g5_u;
+        case: /* OI2, Left Trigger, Down */
+            return oi2->g5_d;
+        case: /* OI2, Right Trigger, Up */
+            return oi2->g6_u;
+        case: /* OI2, Right Trigger, Down */
+            return oi2->g6_d;
+        case: /* OI2, Left D-Pad, Up */
+            return oi2->g7_u;
+        case: /* OI2, Left D-Pad, Down */
+            return oi2->g7_d;
+        case: /* OI2, Left D-Pad, Left */
+            return oi2->g7_l;
+        case: /* OI2, Left D-Pad, Right */
+            return oi2->g7_r;
+        case: /* Exposed Digital Pins */ {
             GPIO_TypeDef *port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
             index_t       pin  = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
             return !!(port->IDR & (1 << pin));
         }
+        default:
+            ERROR();
+            return 0;
+        }
+#if 0
+#endif
+}
 
-	default:
-		ERROR();
-		return 0;
-	}
+void digital_set(index_t index, bool output) {
+    
 }

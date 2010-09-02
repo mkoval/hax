@@ -3,12 +3,13 @@ LD           = '$(MCCPATH)/bin/mplink'
 AS           = '$(MCCPATH)/mpasm/mpasm'
 MD           = gcc
 
-SOURCE += $(ARCH)/c018iz_mcc18.c
+SOURCE += $(ARCH)/c018iz_mcc18.c \
+	  $(ARCH)/ifi_util_mcc18.asm
 
 MCCPATH      = /opt/mcc18
 WINPATH      = $(srcdir)/$(ARCH)/winpath.sh
 IPATH        = '$(MCCPATH)/h'
-ICPATH       = '$(srcdir)/$(ARCH)/include'
+ICPATH       = '$(srcdir)/$(ARCH)/h_mcc18'
 IAPATH       = '$(srcdir)/$(ARCH)'
 WIPATH      := '$(shell $(WINPATH) $(IPATH))'
 WICPATH     := '$(shell $(WINPATH) $(ICPATH))'
@@ -19,7 +20,7 @@ WLIBPATH    := '$(shell $(WINPATH) $(LIBPATH))'
 ARCH_CFLAGS  = -I=$(WICPATH) -I=$(WIPATH) -I=$(srcdir) -I=$(WIAPATH)   \
                -p=18F8520 /DARCH_PIC
 ARCH_ASFLAGS = /p18f8520
-ARCH_LDFLAGS = $(ARCH)/18f8520user.lkr /l $(WLIBPATH) /a INHX32
+ARCH_LDFLAGS = $(ARCH)/18f8520user_mcc18.lkr /l $(WLIBPATH) /a INHX32
 
 OBJECTS     += $(SOURCE:=.o)
 TRASH       += $(TARGET:.hex=.cod) \
@@ -27,22 +28,17 @@ TRASH       += $(TARGET:.hex=.cod) \
                $(OBJECTS:.o=.err)  \
                $(OBJECTS:.o=.d)
 
-.SUFFIXES:
+.PHONY : clean
 .SECONDARY:
-
-all : $(TARGET)
-
-rebuild : clean all
-
 clean :
 	@echo "CLEAN"
 	@$(RM) $(OBJECTS) $(TARGET) $(TRASH)
 
-$(TARGET) : $(OBJECTS)
+%.hex : $(OBJECTS)
 	@echo "LD $(@F)"
-	@$(LD) $(ALL_LDFLAGS) $^ /o$@
+	@$(LD) $(ALL_LDFLAGS) $^ /o$@ /m$(@:.hex=.map)
 
--include $(OBJECTS:.o=.d)
+#-include $(OBJECTS:.o=.d)
 
 %.c.o : %.c
 	@echo "CC $(@F)"
@@ -52,4 +48,3 @@ $(TARGET) : $(OBJECTS)
 	@echo "AS $(@F)"
 	@$(AS) /q $(ALL_ASFLAGS) $< /o$@
 
-.PHONY : all clean install rebuild

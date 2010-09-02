@@ -11,9 +11,14 @@
 #ifndef __ifi_default_h_
 #define __ifi_default_h_
 
-#include "ifi/picdefs.h"
-
-#ifdef UNCHANGEABLE_DEFINITION_AREA
+#include <compilers.h>
+#if defined(MCC18)
+#include <p18cxxx.h>
+#elif defined(SDCC)
+#include <pic18fregs.h>
+#else
+#error "Bad compiler"
+#endif
 
 /*******************************************************************************
                              ALIAS DEFINITIONS
@@ -127,9 +132,6 @@ extern tx_data_record txdata;
 extern rx_data_record rxdata;
 extern packed_struct statusflag;
 
-#else				/*  */
-#error  *** Error - Invalid Default File!
-#endif				/*  */
 
 /*******************************************************************************
                            FUNCTION PROTOTYPES

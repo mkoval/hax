@@ -5,8 +5,8 @@
 LIBPATH .
 
 //FILES c018i.o
-FILES clib.lib
-FILES p18f8520.lib
+//FILES clib.lib
+//FILES p18f8520.lib
 
 CODEPAGE   NAME=vectors    START=0x0            END=0x7ff          PROTECTED
 CODEPAGE   NAME=page       START=0x800          END=0x7FFF
@@ -29,4 +29,4 @@ ACCESSBANK NAME=accesssfr  START=0xF60          END=0xFFF          PROTECTED
 
 SECTION    NAME=CONFIG     ROM=config
 
-STACK SIZE=0x100 RAM=gpr6
+//STACK SIZE=0x100 RAM=gpr6

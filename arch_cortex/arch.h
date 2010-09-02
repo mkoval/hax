@@ -9,12 +9,19 @@
 #define OFFSET_DIGITAL    8
 #define OFFSET_MOTOR     20
 #define OFFSET_OI        32
+#define OFFSET_OI_BUTTON 40
+
+#define OI_B_UP 0
+#define OI_B_LT 1
+#define OI_B_DN 2
+#define OI_B_RT 3
 
 /* Utility macros for generating internal pin indexes. */
 #define PIN_ANALOG(_x_)  ((_x_) + OFFSET_ANALOG)
 #define PIN_DIGITAL(_x_) ((_x_) + OFFSET_DIGITAL)
 #define PIN_MOTOR(_x_)   ((_x_) + OFFSET_MOTOR)
 #define PIN_OI(_x_)      ((_x_) + OFFSET_OI)
+#define PIN_OI_BUTTON(n, dir) (OFFSET_OI_BUTTON + ((n)*4) + (dir))
 
 /* Check a single button press on one of the VEXNet joystick's button pads. */
 #define BUT_UP(_x_)      ((_x_) & 1 != 0)
