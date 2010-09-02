@@ -6,7 +6,7 @@
 /*
  * DIGITAL IO
  */
-void digital_init(index_t index, bool output)
+void digital_setup(index_t index, bool output)
 {
 	// Only external digital pins can be used as output.
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {

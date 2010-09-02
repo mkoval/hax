@@ -15,7 +15,7 @@ static isr_t g_isr[12];
 /*
  * INTERRUPTS
  */
-void interrupt_setup(void) {
+void interrupt_init(void) {
 	NVIC_InitTypeDef NVIC_param;
 
 	/* PE9(0),PE11(1),PC6(2),PC7(3),PE13(4),PE14(5),
@@ -96,7 +96,7 @@ void interrupt_setup(void) {
 	NVIC_Init(&NVIC_param);
 }
 
-void interrupt_init(index_t index, isr_t isr)
+void interrupt_setup(index_t index, isr_t isr)
 {
 	index_t pin = index - OFFSET_DIGITAL;
 	if (0 <= pin && pin <= 12 && pin != 9) {
