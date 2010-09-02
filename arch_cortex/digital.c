@@ -6,9 +6,31 @@
 /*
  * DIGITAL IO
  */
+void digital_init(void) {
+	/* Enable gpio clock (+ AFIO for good measure). */
+	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN
+	             | RCC_APB2ENR_IOPAEN
+	             | RCC_APB2ENR_IOPBEN
+	             | RCC_APB2ENR_IOPCEN
+	             | RCC_APB2ENR_IOPDEN
+	             | RCC_APB2ENR_IOPEEN
+	             | RCC_APB2ENR_IOPFEN
+	             | RCC_APB2ENR_IOPGEN;
+
+	/* Set all gpios to "analog", aka diabled */
+	GPIOA->CRL = GPIOB->CRL
+	           = GPIOC->CRL = GPIOD->CRL
+	           = GPIOE->CRL = GPIOF->CRL
+	           = GPIOG->CRL = 0;
+	GPIOA->CRH = GPIOB->CRH
+	           = GPIOC->CRH = GPIOD->CRH
+	           = GPIOE->CRH = GPIOF->CRH
+	           = GPIOG->CRH = 0;
+}
+
 void digital_setup(index_t index, bool output)
 {
-	// Only external digital pins can be used as output.
+	/* Only external digital pins can be used as output. */
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
 		ERROR();
 	} else {
