@@ -3,14 +3,18 @@
  */
 void digital_init(index_t index, bool output)
 {
-	GPIO_InitTypeDef GPIO_param;
-
-	GPIO_param.GPIO_Pin = (uint16_t) (1 << ifipin_to_pin[index - 1]);
-
-	if (output) {
-		ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
+	// Only external digital pins can be used as output.
+	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
+		ERROR();
 	} else {
-		ifipin_to_port[index - 1]->BRR = 1 << ifipin_to_pin[index - 1];
+		GPIO_InitTypeDef GPIO_param;
+		GPIO_param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
+		if (output) {
+			GPIO_param.GPIO_Mode  = GPIO_Mode_IPU;
+			GPIO_param.GPIO_Speed = GPIO_Speed_500MHz;
+		} else {
+			GPIO_param.GPIO_Mode  = GPIO_Mode_Out_PP;
+		}
 	}
 }
 
@@ -59,7 +63,7 @@ bool digital_get(index_t index)
 		return oi2->g7_r;
 
 	/* Exposed Digital Pins */
-	case OFFSET_DIGITAL...(OFFSET_DIGITAL + COUNT_DIGITAL - 1):
+	case OFFSET_DIGITAL ... (OFFSET_DIGITAL + CT_DIGITAL - 1):
 		GPIO_TypeDef * port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
 		index_t         pin = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
 		return !!(port->IDR & (1 << pin));
