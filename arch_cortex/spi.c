@@ -20,12 +20,12 @@ void spi_init(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 
 	/* GPIO */
-	/* 
+	/*
 	Alternate function SPI1_REMAP = 0 SPI1_REMAP = 1
 	SPI1_NSS             PA4           PA15
 	SPI1_SCK             PA5           PB3
 	SPI1_MISO            PA6           PB4
-	SPI1_MOSI            PA7           PB5 
+	SPI1_MOSI            PA7           PB5
 	*/
 
 	GPIO_InitTypeDef GPIO_param;
@@ -33,7 +33,7 @@ void spi_init(void)
 	GPIO_param.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
 	GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_param.GPIO_Mode = GPIO_Mode_AF_PP;
-	GPIO_Init(GPIOA, &GPIO_param);	
+	GPIO_Init(GPIOA, &GPIO_param);
 
 	GPIO_param.GPIO_Pin = GPIO_Pin_6;
 	GPIO_param.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -70,7 +70,7 @@ void spi_init(void)
 	GPIO_param.GPIO_Pin = GPIO_Pin_11;
 	GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_Init(GPIOA, &GPIO_param);	
+	GPIO_Init(GPIOA, &GPIO_param);
 
 	/* Master Connect Routines */
 	uint8_t i;
@@ -90,8 +90,7 @@ void spi_process_packets(spi_packet_vex *m2u, spi_packet_vex *u2m)
 	if (m2u->m2u.sync != SYNC_MAGIC) {
 		return;
 	}
-	
-		
+
 	if (m2u->m2u.state.b.config) {
 		// config state
 		static bool not_yet_iacked = 1;
@@ -103,14 +102,14 @@ void spi_process_packets(spi_packet_vex *m2u, spi_packet_vex *u2m)
 
 		printf("[MASTER config]");
 	}
-	
+
 	if (m2u->m2u.state.b.initializing) {
 		// not yet good data.
 		u2m->u2m.state.a = STATE_VALID; // we have data ready
 		m2u->m2u.packet_num = 1; //XXX: "to skip print"
 		printf("[MASTER init]");
 	}
-	
+
 	if (m2u->m2u.state.b.valid) {
 		u2m->u2m.state.a = STATE_VALID;
 		// TODO: Buffer the data.
@@ -123,15 +122,15 @@ void vex_spi_xfer(spi_packet_vex *m2u, spi_packet_vex *u2m)
 	uint8_t gap = 0;
 	volatile uint16_t d = 0;
 	uint8_t i = 0;
-	
+
 	u2m->u2m.packet_num = packet_num;
 
 	GPIO_SetBits(GPIOA, GPIO_Pin_11); // "RTS" high
 
-	for (i = 0; i < SPI_PACKET_LEN; i++) {                  
+	for (i = 0; i < SPI_PACKET_LEN; i++) {
 		GPIO_ResetBits(GPIOE, GPIO_Pin_0); // Slave Select
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-		SPI_I2S_SendData(SPI1, u2m->w[i]); 
+		SPI_I2S_SendData(SPI1, u2m->w[i]);
 
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
 		m2u->w[i] = SPI_I2S_ReceiveData(SPI1);
@@ -147,7 +146,7 @@ void vex_spi_xfer(spi_packet_vex *m2u, spi_packet_vex *u2m)
 		}
 	}
 	packet_num++;
-	
+
 	spi_process_packets(m2u,u2m);
 }
 
@@ -168,10 +167,10 @@ void spi_packet_init_u2m(spi_packet_vex *u2m)
 	u2m->u2m.sync = SYNC_MAGIC;
 	u2m->u2m.version = 1;
 	u2m->u2m.packet_num = 0;
-	
+
 	// First send needs to be "config"
 	u2m->u2m.state.a = STATE_CONFIG;
-	
+
 	uint8_t i;
 	for(i = 0; i < MOTOR_CT; i++) {
 		u2m->u2m.motors[i] = 127;
@@ -192,7 +191,7 @@ void print_oi(struct oi_data *oi)
 		,oi->accel_y
 		,oi->accel_z
 		);
-		
+
 	printf("g5( u:%x; d:%x); "
 		"g6( u:%x; d:%x); "
 		,oi->g5_u
@@ -237,6 +236,6 @@ void print_m2u(spi_packet_vex *m2u)
 	print_oi(&(m2u->m2u.joysticks[0].b));
 	print_oi(&(m2u->m2u.joysticks[1].b));
 #endif
-		
+
 }
 
