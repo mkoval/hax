@@ -7,14 +7,15 @@ void digital_init(index_t index, bool output)
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
 		ERROR();
 	} else {
-		GPIO_InitTypeDef GPIO_param;
-		GPIO_param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
+		GPIO_InitTypeDef param;
+		param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
 		if (output) {
-			GPIO_param.GPIO_Mode  = GPIO_Mode_IPU;
-			GPIO_param.GPIO_Speed = GPIO_Speed_500MHz;
+			param.GPIO_Mode  = GPIO_Mode_IPU;
+			param.GPIO_Speed = GPIO_Speed_500MHz;
 		} else {
-			GPIO_param.GPIO_Mode  = GPIO_Mode_Out_PP;
+			param.GPIO_Mode  = GPIO_Mode_Out_PP;
 		}
+		GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &param);
 	}
 }
 
