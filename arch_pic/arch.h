@@ -26,13 +26,13 @@
 #define OFFSET_OI_BUTTON   (OFFSET_OI + CT_OI)
 
 /* Utility macros for generating internal pin indexes. */
-#define PIN_DIGITAL(pin)      (OFFSET_DIGITAL + (pin))
-#define PIN_INTERRUPT(pin)    (OFFSET_INTERRUPT + (pin))
-#define PIN_MOTOR(n)          (OFFSET_MOTOR + (n))
-#define PIN_OI(oi, group)     (OFFSET_OI + ((oi) * CT_IOx) + (group))
+#define PIN_DIGITAL(pin)      (OFFSET_DIGITAL + (pin) - 1)
+#define PIN_INTERRUPT(pin)    (OFFSET_INTERRUPT + (pin) - 1)
+#define PIN_MOTOR(n)          (OFFSET_MOTOR + (n) - 1)
+#define PIN_OI(oi, group)     (OFFSET_OI + ((oi) * CT_IOx) + (group) - 1)
 #define PIN_OI_BUTTON(io, group, dir) \
 	(OFFSET_OI_BUTTON + ((oi) * CT_IOx_BUTTON) + \
-	 ((group) * CT_OI_GROUP_SZ) + (dir))
+	 (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
 
 /* Joysticks */
 #define JOY_L_X(oi) PIN_OI(oi, 0)
