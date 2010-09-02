@@ -24,7 +24,7 @@ mode_t mode_get(void); /* see mode_t for possible return values */
 /*
  * DIGITAL IO
  */
-void digital_init(index_t pin, bool output);  /* initialize prior to use */
+void digital_setup(index_t pin, bool output); /* initialize prior to use */
 void digital_set(index_t pin, bool value);    /* must be set as an output */
 bool digital_get(index_t pin);                /* must be set as an input */
 
@@ -37,7 +37,7 @@ uint16_t analog_get(index_t pin);             /* returns a 10-bit value */
 /*
  * INTERRUPTS
  */
-void interrupt_init(index_t pin, isr_t isr);  /* must also be enabled below */
+void interrupt_setup(index_t pin, isr_t isr); /* must also be enabled below */
 void interrupt_set(index_t pin, bool enable);
 
 #endif
