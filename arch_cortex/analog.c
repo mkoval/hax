@@ -113,7 +113,7 @@ int16_t analog_get(index_t id) {
 		return oi1->axis_4;
 
 	/* ADCs */
-	case OFFSET_DIGITAL ... (OFFSET_DIGITAL + CT_DIGITAL - 1):
+	case OFFSET_ANALOG ... (OFFSET_ANALOG + CT_ANALOG - 1):
 		return adc_buffer[index - 1] >> 2;
 
 	default:

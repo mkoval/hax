@@ -53,41 +53,41 @@ bool digital_get(index_t index)
 
 	switch (index) {
 	/* Left Trigger */
-	case PIN_OI_BUTTON(1, 5, OI_B_UP):
+	case IX_OI_BUTTON(1, 5, OI_B_UP):
 		return oi1->g5_u;
-	case PIN_OI_BUTTON(1, 5, OI_B_DN):
+	case IX_OI_BUTTON(1, 5, OI_B_DN):
 		return oi1->g5_d;
-	case PIN_OI_BUTTON(2, 5, OI_B_UP):
+	case IX_OI_BUTTON(2, 5, OI_B_UP):
 		return oi2->g5_u;
-	case PIN_OI_BUTTON(2, 5, OI_B_DN):
+	case IX_OI_BUTTON(2, 5, OI_B_DN):
 		return oi2->g5_d;
 
 	/* Right Trigger */
-	case PIN_OI_BUTTON(1, 6, OI_B_UP):
+	case IX_OI_BUTTON(1, 6, OI_B_UP):
 		return oi1->g6_u;
-	case PIN_OI_BUTTON(1, 6, OI_B_DN):
+	case IX_OI_BUTTON(1, 6, OI_B_DN):
 		return oi1->g6_d;
-	case PIN_OI_BUTTON(2, 6, OI_B_UP):
+	case IX_OI_BUTTON(2, 6, OI_B_UP):
 		return oi2->g6_u;
-	case PIN_OI_BUTTON(2, 6, OI_B_DN):
+	case IX_OI_BUTTON(2, 6, OI_B_DN):
 		return oi2->g6_d;
 
 	/* Left D-Pad */
-	case PIN_OI_BUTTON(1, 7, OI_B_UP):
+	case IX_OI_BUTTON(1, 7, OI_B_UP):
 		return oi1->g7_u;
-	case PIN_OI_BUTTON(1, 7, OI_B_DN):
+	case IX_OI_BUTTON(1, 7, OI_B_DN):
 		return oi1->g7_d;
-	case PIN_OI_BUTTON(1, 7, OI_B_LT):
+	case IX_OI_BUTTON(1, 7, OI_B_LT):
 		return oi1->g7_l;
-	case PIN_OI_BUTTON(1, 7, OI_B_RT):
+	case IX_OI_BUTTON(1, 7, OI_B_RT):
 		return oi1->g7_r;
-	case PIN_OI_BUTTON(2, 7, OI_B_UP):
+	case IX_OI_BUTTON(2, 7, OI_B_UP):
 		return oi2->g7_u;
-	case PIN_OI_BUTTON(2, 7, OI_B_DN):
+	case IX_OI_BUTTON(2, 7, OI_B_DN):
 		return oi2->g7_d;
-	case PIN_OI_BUTTON(2, 7, OI_B_LT):
+	case IX_OI_BUTTON(2, 7, OI_B_LT):
 		return oi2->g7_l;
-	case PIN_OI_BUTTON(2, 7, OI_B_RT):
+	case IX_OI_BUTTON(2, 7, OI_B_RT):
 		return oi2->g7_r;
 
 	/* Exposed Digital Pins */
