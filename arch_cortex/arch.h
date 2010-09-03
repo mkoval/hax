@@ -31,10 +31,11 @@
 #define PIN_ANALOG(pin)   (OFFSET_ANALOG + (pin) - 1)
 #define PIN_DIGITAL(pin)  (OFFSET_DIGITAL + (pin) - 1)
 #define PIN_MOTOR(n)      (OFFSET_MOTOR + (n) - 1)
-#define PIN_OI(oi, group) (OFFSET_OI + ((oi) * CT_IOx) + (group) - 1)
+#define PIN_OI(oi, group) (OFFSET_OI + (((oi) - 1) * CT_IOx) + (group) - 1)
 #define PIN_OI_BUTTON(oi, group, dir) \
-	(OFFSET_OI_BUTTON + ((oi) * CT_OIx_BUTTON) + \
+	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) + \
 	 (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
+#define PIN_INTERRUPT(pin) PIN_DIGITAL(pin)
 
 /* Joysticks */
 #define JOY_L_X(oi) PIN_OI(oi, 0)
