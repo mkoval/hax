@@ -290,44 +290,46 @@ void pin_set_io(index_t i, bool bit)
 bool digital_get(index_t i)
 {
 	switch (i) {
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-		return BIT_GET(PORTA, i - 1);
+	/* Inputs 1 to 4 are in A starting at bit 0 */
+	case IX_DIGITAL(1):
+	case IX_DIGITAL(2):
+	case IX_DIGITAL(3):
+	case IX_DIGITAL(4):
+		return BIT_GET(PORTA, i - IX_DIGITAL(1) + 0);
 
-	case 5:
+	case IX_DIGITAL(5):
 		return BIT_GET(PORTA, 5 - 1);
 
 	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
 	 * starting at bit zero.
 	 */
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-		return BIT_GET(PORTF, (i - 5) - 1);
+	case IX_DIGITAL(6):
+	case IX_DIGITAL(7):
+	case IX_DIGITAL(8):
+	case IX_DIGITAL(9):
+	case IX_DIGITAL(10):
+	case IX_DIGITAL(11):
+	case IX_DIGITAL(12):
+		return BIT_GET(PORTF, i - IX_DIGITAL(6) + 0);
 
 	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
 	 * the TRISH register.
 	 */
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-		return BIT_GET(PORTH, (i - 12) + 4 - 1);
+	case IX_DIGITAL(13):
+	case IX_DIGITAL(14):
+	case IX_DIGITAL(15):
+	case IX_DIGITAL(16):
+		return BIT_GET(PORTH, i - IX_DIGITAL(13) + 4);
 
-	/* access the interrupt pins */
-	case 17:
-	case 18:
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-		return BIT_GET(PORTB, (i - 16) + 2 - 1);
+	/* access the interrupt pins
+	 * PORTB, starting at bit 2 */
+	case IX_INTERRUPT(1):
+	case IX_INTERRUPT(2):
+	case IX_INTERRUPT(3):
+	case IX_INTERRUPT(4):
+	case IX_INTERRUPT(5):
+	case IX_INTERRUPT(6):
+		return BIT_GET(PORTB, i - IX_INTERRUPT(1) + 2);
 
 	default:
 		ERROR();
