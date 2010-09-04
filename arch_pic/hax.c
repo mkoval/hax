@@ -240,48 +240,46 @@ state_t mode_get(void)
 void pin_set_io(index_t i, bool bit)
 {
 	switch (i) {
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-		BIT_SET(TRISA, i - 1, bit);
+	/* Digitals 1...4, bits 0,1,2,3 in port A */
+	case IX_DIGITAL(1):
+	case IX_DIGITAL(2):
+	case IX_DIGITAL(3):
+	case IX_DIGITAL(4):
+		BIT_SET(TRISA, i - IX_DIGITAL(1), bit);
 		break;
 
-	case 5:
-		BIT_SET(TRISA, 5 - 1, bit);
+	/* Digital 5, bit 4 in port A */
+	case IX_DIGITAL(5):
+		BIT_SET(TRISA, 4, bit);
 		break;
 
-	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
-	 * starting at bit zero.
-	 */
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-	case 11:
-	case 12:
-		BIT_SET(TRISF, (i - 5) - 1 , bit);
+	/* Digitals 6...12, bits 0,1... in port F */
+	case IX_DIGITAL(6):
+	case IX_DIGITAL(7):
+	case IX_DIGITAL(8):
+	case IX_DIGITAL(9):
+	case IX_DIGITAL(10):
+	case IX_DIGITAL(11):
+	case IX_DIGITAL(12):
+		BIT_SET(TRISF, i - IX_DIGITAL(6) , bit);
 		break;
 
-	/* The reimaining inputs, 12 through 15, are stored starting at 
-	 * bit 4 in the TRISH register.
-	 */
-	case 13:
-	case 14:
-	case 15:
-	case 16:
-		BIT_SET(TRISH, (i - 12) + 4 - 1, bit);
+	/* Digitals 13...16, bits 4,5,6,7 in port H. */
+	case IX_DIGITAL(13):
+	case IX_DIGITAL(14):
+	case IX_DIGITAL(15):
+	case IX_DIGITAL(16):
+		BIT_SET(TRISH, i - IX_DIGITAL(13) + 4, bit);
 		break;
 
-	/* Access the interrupt pins */
-	case 17:
-	case 18:
-	case 19:
-	case 20:
-	case 21:
-	case 22:
-		BIT_SET(TRISB, (i - 16) + 2 - 1, bit);
+	/* Interrupts (all), bits 2,3,4,5,6,7 in port B */
+	case IX_INTERRUPT(1):
+	case IX_INTERRUPT(2):
+	case IX_INTERRUPT(3):
+	case IX_INTERRUPT(4):
+	case IX_INTERRUPT(5):
+	case IX_INTERRUPT(6):
+		BIT_SET(TRISB, i - IX_INTERRUPT(1) + 2, bit);
 	}
 }
 
@@ -290,19 +288,18 @@ void pin_set_io(index_t i, bool bit)
 bool digital_get(index_t i)
 {
 	switch (i) {
-	/* Inputs 1 to 4 are in A starting at bit 0 */
+	/* Digitals 1...4, bits 0,1,2,3 in port A */
 	case IX_DIGITAL(1):
 	case IX_DIGITAL(2):
 	case IX_DIGITAL(3):
 	case IX_DIGITAL(4):
 		return BIT_GET(PORTA, i - IX_DIGITAL(1) + 0);
 
+	/* Digital 5, bit 4 in port A */
 	case IX_DIGITAL(5):
-		return BIT_GET(PORTA, 5 - 1);
+		return BIT_GET(PORTA, 4);
 
-	/* Inputs 5 through 11 are stored consecutively in the TRISF register,
-	 * starting at bit zero.
-	 */
+	/* Digitals 6...12, bits 0,1... in port F */
 	case IX_DIGITAL(6):
 	case IX_DIGITAL(7):
 	case IX_DIGITAL(8):
@@ -312,17 +309,14 @@ bool digital_get(index_t i)
 	case IX_DIGITAL(12):
 		return BIT_GET(PORTF, i - IX_DIGITAL(6) + 0);
 
-	/* The reimaining inputs, 12 through 15, are stored starting at bit 4 in
-	 * the TRISH register.
-	 */
+	/* Digitals 13...16, bits 4,5,6,7 in port H. */
 	case IX_DIGITAL(13):
 	case IX_DIGITAL(14):
 	case IX_DIGITAL(15):
 	case IX_DIGITAL(16):
 		return BIT_GET(PORTH, i - IX_DIGITAL(13) + 4);
 
-	/* access the interrupt pins
-	 * PORTB, starting at bit 2 */
+	/* Interrupts (all), bits 2,3,4,5,6,7 in port B */
 	case IX_INTERRUPT(1):
 	case IX_INTERRUPT(2):
 	case IX_INTERRUPT(3):
