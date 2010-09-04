@@ -32,7 +32,8 @@ bool digital_get(index_t pin);                /* must be set as an input */
  * ANALOG IO
  */
 void analog_set(index_t pin, int8_t value);   /* control a motor or server */
-uint16_t analog_get(index_t pin);             /* returns a 10-bit value */
+uint16_t analog_adc_get(index_t pin);         /* returns a 10-bit value */
+int8_t analog_oi_get(index_t oi_idx);         /* signed 8bit +-127 */
 
 /*
  * INTERRUPTS
