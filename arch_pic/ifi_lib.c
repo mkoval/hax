@@ -75,13 +75,12 @@ void isr_high(void)
 		Handle_Spi_Int();
 }
 
-
 #if defined(MCC18)
 #pragma code InterruptVectorHigh=0x808
 void InterruptVectorHigh(void)
 {
 	_asm
-		GOTO isr_high 
+		GOTO isr_high
 	_endasm
 }
 #pragma code
@@ -94,7 +93,7 @@ void ivt_high(void) __naked __interrupt 1 {
 #endif				/* defined(SDCC) */
 /*******************************************************************************
 * FUNCTION NAME: Setup_Spi_Slave
-* PURPOSE:       
+* PURPOSE:
 * CALLED FROM:   this file (Initialize_Registers)
 * ARGUMENTS:     none
 * RETURNS:       void
@@ -337,7 +336,7 @@ void Getdata(rx_data_ptr ptr)
 #endif
 #if defined(COMPETITION) || defined(AUTONOMOUS)
 		if (AutoOn) {
-			// XXX: Again. 
+			// XXX: Again.
 			rxdata.rc_receiver_status_byte.allbits = 4;
 			rxdata.oi_analog01 = rxdata.oi_analog02 =
 			    rxdata.oi_analog03 = rxdata.oi_analog04 = 0x7f;

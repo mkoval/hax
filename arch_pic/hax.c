@@ -22,8 +22,11 @@
 #include "master.h"
 #include "ifi_lib.h"
 
+#ifndef USER_CT_ANALOG
+#define USER_CT_ANALOG 0
+#endif
 
-/* Checks if the kNumAnalog is valid */
+/* Checks if the USER_CT_ANALOG is valid */
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
 #define kVPMaxMotors 8
 #define kVPNumOIInputs 16
@@ -83,7 +86,7 @@ void setup_1(void)
 	 * where x counts the number of DIGITAL ports. In total, there are
 	 * sixteen ports numbered from 0ANA to 15ANA.
 	 */
-	if ( NUM_ANALOG_VALID(kNumAnalogInputs) && kNumAnalogInputs > 0 ) {
+	if (NUM_ANALOG_VALID(USER_CT_ANALOG) && USER_CT_ANALOG > 0) {
 		/* ADC_FOSC: Based on a baud_115 value of 21, given the formula
 		 * FOSC/(16(X + 1)) in table 18-1 of the PIC18F8520 doc the
 		 * FOSC is 40Mhz.
@@ -93,7 +96,7 @@ void setup_1(void)
 		 */
 #if defined(MCC18)
 		OpenADC( ADC_FOSC_64 & ADC_RIGHT_JUST &
-		                       ( 0xF0 | (16 - kNumAnalogInputs) ) ,
+		                       ( 0xF0 | (16 - USER_CT_ANALOG) ) ,
 		                       ADC_CH0 & ADC_INT_OFF & ADC_VREFPLUS_VDD &
 				           ADC_VREFMINUS_VSS );
 #elif defined(SDCC)
@@ -203,6 +206,9 @@ bool new_data_received(void)
 	return statusflag.b.NEW_SPI_DATA;
 }
 
+/* Determines whether any oi input is outside of a middle range
+ * 0xff is split into 3 parts, 0xdf and 0x1f are the edges
+ */
 static bool check_oi(void)
 {
 	uint8_t i;
@@ -237,7 +243,7 @@ state_t mode_get(void)
 #define BIT_LO(x, i)     ((x) &= ~(1 << (i)))
 #define BIT_SET(x, i, v) ((v) ? BIT_HI((x), (i)) : BIT_LO((x), (i)))
 
-void pin_set_io(index_t i, bool bit)
+void digital_setup(index_t i, bool output)
 {
 	switch (i) {
 	/* Digitals 1...4, bits 0,1,2,3 in port A */
@@ -245,12 +251,12 @@ void pin_set_io(index_t i, bool bit)
 	case IX_DIGITAL(2):
 	case IX_DIGITAL(3):
 	case IX_DIGITAL(4):
-		BIT_SET(TRISA, i - IX_DIGITAL(1), bit);
+		BIT_SET(TRISA, i - IX_DIGITAL(1), output);
 		break;
 
 	/* Digital 5, bit 4 in port A */
 	case IX_DIGITAL(5):
-		BIT_SET(TRISA, 4, bit);
+		BIT_SET(TRISA, 4, output);
 		break;
 
 	/* Digitals 6...12, bits 0,1... in port F */
@@ -261,7 +267,7 @@ void pin_set_io(index_t i, bool bit)
 	case IX_DIGITAL(10):
 	case IX_DIGITAL(11):
 	case IX_DIGITAL(12):
-		BIT_SET(TRISF, i - IX_DIGITAL(6) , bit);
+		BIT_SET(TRISF, i - IX_DIGITAL(6) , output);
 		break;
 
 	/* Digitals 13...16, bits 4,5,6,7 in port H. */
@@ -269,7 +275,7 @@ void pin_set_io(index_t i, bool bit)
 	case IX_DIGITAL(14):
 	case IX_DIGITAL(15):
 	case IX_DIGITAL(16):
-		BIT_SET(TRISH, i - IX_DIGITAL(13) + 4, bit);
+		BIT_SET(TRISH, i - IX_DIGITAL(13) + 4, output);
 		break;
 
 	/* Interrupts (all), bits 2,3,4,5,6,7 in port B */
@@ -279,7 +285,7 @@ void pin_set_io(index_t i, bool bit)
 	case IX_INTERRUPT(4):
 	case IX_INTERRUPT(5):
 	case IX_INTERRUPT(6):
-		BIT_SET(TRISB, i - IX_INTERRUPT(1) + 2, bit);
+		BIT_SET(TRISB, i - IX_INTERRUPT(1) + 2, output);
 	}
 }
 
@@ -325,6 +331,8 @@ bool digital_get(index_t i)
 	case IX_INTERRUPT(6):
 		return BIT_GET(PORTB, i - IX_INTERRUPT(1) + 2);
 
+	/* TODO: OI digitals. */
+
 	default:
 		ERROR();
 		return false;
@@ -333,9 +341,9 @@ bool digital_get(index_t i)
 
 uint16_t analog_adc_get(index_t index)
 {
-	if (1 <= index && index <= kNumAnalogInputs && NUM_ANALOG_VALID(kNumAnalogInputs)) {
+	if (IX_ANALOG(1) <= index && index <= IX_ANALOG(USER_CT_ANALOG) && NUM_ANALOG_VALID(USER_CT_ANALOG)) {
 		/* Read ADC (0b10000111 = 0x87). */
-		uint8_t chan = 0x87 | (index-1) << 3;
+		uint8_t chan = 0x87 | (IX_ANALOG_INV(index) << 3);
 		adc_setchannel(chan);
 		delay10tcy(5); /* Wait for capacitor to charge */
 		adc_conv();
@@ -349,51 +357,24 @@ uint16_t analog_adc_get(index_t index)
 
 int8_t analog_oi_get(index_t index)
 {
-	if (1 <= index && index <= kVPNumOIInputs) {
-		int8_t v = rxdata.oi_analog[index - 1] - 128;
+	if (IX_OI(1,1) <= index && index <= IX_OI(2, CT_OI_GROUP_SZ)) {
+		int8_t v = rxdata.oi_analog[IX_OI_INV(index)] - 128;
 		return (v < 0) ? v + 1 : v;
 	} else {
-		ERROR();
-		return 0;
+		ERROR("index: %d", index);
+		return -128;
 	}
-}
-
-bool digital_io_get(index_t index)
-{
-	/* FIXME: for each index we get "2" digitals.
-	 * handle?
-	 */
-	if (1 <= index && index <= kVPNumOIInputs) {
-		uint8_t level = rxdata.oi_analog[index - 1];
-
-		/* divide the analog range (0 to 255 || 0xFF) into 3 equal sections
-		 * of size 85 (0x55).
-		 * 0 to 0x55 = down
-		 * 0x55 to 0xaa (170) = none
-		 * 0xaa to 0xFF = up
-		 */
-		if (level < 0x55) {
-			// down
-		} else if (level < 0xaa) {
-			// none
-		} else /* (level < 0xFF) */ {
-			// up
-		}
-	}
-
-	ERROR();
-	return false;
 }
 
 void analog_set(index_t index, int8_t sp)
 {
-	if (1 <= index && index <= kVPMaxMotors) {
+	if (IX_MOTOR(1) <= index && index <= IX_MOTOR(CT_MOTOR)) {
 		uint8_t val;
 		sp = ( sp < 0 && sp != -128) ? sp - 1 : sp;
 		val = sp + 128;
-		txdata.rc_pwm[index - 1] = (uint8_t)val;
+		txdata.rc_pwm[IX_MOTOR_INV(index)] = (uint8_t)val;
 	} else {
-		ERROR();
+		ERROR("index: %d", index);
 	}
 }
 
@@ -402,10 +383,10 @@ void analog_set(index_t index, int8_t sp)
  */
 static isr_t isr_callbacks[6];
 
-void interrupt_reg_isr(index_t index, isr_t isr)
+void interrupt_setup(index_t index, isr_t isr)
 {
-	if (17 <= index && index <= 22) {
-		isr_callbacks[index - 17] = isr;
+	if (IX_INTERRUPT(1) <= index && index <= IX_INTERRUPT(CT_INTERRUPT)) {
+		isr_callbacks[IX_INTERRUPT_INV(index)] = isr;
 	} else {
 		ERROR();
 	}
@@ -492,27 +473,36 @@ void ivt_low(void)
 #error "Bad Compiler."
 #endif
 
-
-bool interrupt_get(index_t interrupt_index)
+static void interrupt_disable(index_t index)
 {
-	return digital_get(interrupt_index + 16);
+	/* FIXME: support disable */
+	switch (index) {
+	case IX_INTERRUPT(1):
+	case IX_INTERRUPT(2):
+	case IX_INTERRUPT(3):
+	case IX_INTERRUPT(4):
+	case IX_INTERRUPT(5):
+	case IX_INTERRUPT(6):
+	}
 }
 
-
-/* TODO: Implement interrupt_disable(). */
-
-void interrupt_enable(index_t index)
+void interrupt_set(index_t index, bool enable)
 {
+	if (!enable) {
+		interrupt_disable(index);
+		return;
+	}
+
 	switch (index) {
-	case 17:
+	case IX_INTERRUPT(1):
 		TRISBbits.TRISB2    = 1;
 		INTCON3bits.INT2IP  = 0;
 		INTCON3bits.INT2IF  = 0;
 		INTCON2bits.INTEDG2 = 1;
 		INTCON3bits.INT2IE  = 1;
 		break;
-	
-	case 18:
+
+	case IX_INTERRUPT(2):
 		TRISBbits.TRISB3    = 1;
 #if defined(MCC18)
 		INTCON2bits.INT3IP  = 0;
@@ -523,20 +513,20 @@ void interrupt_enable(index_t index)
 		INTCON3bits.INT3IF  = 0;
 		INTCON3bits.INT3IE  = 1;
 		break;
-	
-	case 19:
-	case 20:
-	case 21:
-	case 22:
+
+	case IX_INTERRUPT(3):
+	case IX_INTERRUPT(4):
+	case IX_INTERRUPT(5):
+	case IX_INTERRUPT(6):
 		TRISBbits.TRISB4 = 1;
 		TRISBbits.TRISB5 = 1;
 		TRISBbits.TRISB6 = 1;
 		TRISBbits.TRISB7 = 1;
-  		INTCON2bits.RBIP = 0;
+		INTCON2bits.RBIP = 0;
 		INTCONbits.RBIF  = 0;
 		INTCONbits.RBIE  = 1;
 		break;
-	
+
 	default:
 		ERROR();
 	}
