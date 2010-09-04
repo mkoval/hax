@@ -214,7 +214,7 @@ static bool check_oi(void)
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
 		if((rxdata.oi_analog[i] > 0xdf)
-		            || (rxdata.oi_analog[i] < 0x1f)) {
+		    || (rxdata.oi_analog[i] < 0x1f)) {
 			return true;
 		}
 	}
@@ -382,11 +382,17 @@ void analog_set(index_t index, int8_t sp)
  * INTERRUPTS
  */
 static isr_t isr_callbacks[6];
+static isr_t isr_inactive_cb[4];
 
 void interrupt_setup(index_t index, isr_t isr)
 {
 	if (IX_INTERRUPT(1) <= index && index <= IX_INTERRUPT(CT_INTERRUPT)) {
-		isr_callbacks[IX_INTERRUPT_INV(index)] = isr;
+		uint8_t i = IX_INTERRUPT_INV(index);
+		if (i > 1) {
+			isr_inactive_cb[i] = isr;
+		} else {
+			isr_callbacks[i] = isr;
+		}
 	} else {
 		ERROR();
 	}
@@ -473,16 +479,23 @@ void ivt_low(void)
 #error "Bad Compiler."
 #endif
 
+
 static void interrupt_disable(index_t index)
 {
-	/* FIXME: support disable */
 	switch (index) {
 	case IX_INTERRUPT(1):
+		INTCON3bits.INT2IE = 0;
+		break;
+
 	case IX_INTERRUPT(2):
+		INTCON3bits.INT3IE = 0;
+		break;
+
 	case IX_INTERRUPT(3):
 	case IX_INTERRUPT(4):
 	case IX_INTERRUPT(5):
 	case IX_INTERRUPT(6):
+		isr_callbacks[IX_INTERRUPT_INV(index) - 2] = NULL;
 	}
 }
 
@@ -517,7 +530,9 @@ void interrupt_set(index_t index, bool enable)
 	case IX_INTERRUPT(3):
 	case IX_INTERRUPT(4):
 	case IX_INTERRUPT(5):
-	case IX_INTERRUPT(6):
+	case IX_INTERRUPT(6): {
+		uint8_t i = IX_INTERRUPT_INV(index);
+		isr_callbacks[i] = isr_inactive_cb[i - 2];
 		TRISBbits.TRISB4 = 1;
 		TRISBbits.TRISB5 = 1;
 		TRISBbits.TRISB6 = 1;
@@ -526,6 +541,7 @@ void interrupt_set(index_t index, bool enable)
 		INTCONbits.RBIF  = 0;
 		INTCONbits.RBIE  = 1;
 		break;
+	}
 
 	default:
 		ERROR();
