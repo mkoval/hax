@@ -29,11 +29,16 @@ void digital_set(index_t pin, bool value);    /* must be set as an output */
 bool digital_get(index_t pin);                /* must be set as an input */
 
 /*
+ * OI [Operator Interface] Input
+ */
+bool  oi_button_get(index_t ix);
+int8_t oi_group_get(index_t ix);  /* contrained from -127 to 127 */
+
+/*
  * ANALOG IO
  */
 void analog_set(index_t pin, int8_t value);   /* control a motor or server */
-uint16_t analog_adc_get(index_t pin);         /* returns a 10-bit value */
-int8_t analog_oi_get(index_t oi_idx);         /* signed 8bit +-127 */
+uint16_t analog_get(index_t pin);         /* returns a 10-bit value read via adc */
 
 /*
  * INTERRUPTS
