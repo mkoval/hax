@@ -339,7 +339,26 @@ bool digital_get(index_t i)
 	}
 }
 
-uint16_t analog_adc_get(index_t index)
+int8_t oi_group_get(index_t index)
+{
+	if (IX_OI(1,1) <= index && index <= IX_OI(2, CT_OI_GROUP_SZ)) {
+		int8_t v = rxdata.oi_analog[IX_OI_INV(index)] - 128;
+		return (v < 0) ? v + 1 : v;
+	} else {
+		ERROR("index: %d", index);
+		return -128;
+	}
+}
+
+int8_t oi_trigger_get(index_t ix)
+{
+}
+
+bool oi_button_get(index_t ix)
+{
+}
+
+uint16_t analog_get(index_t index)
 {
 	if (IX_ANALOG(1) <= index && index <= IX_ANALOG(USER_CT_ANALOG) && NUM_ANALOG_VALID(USER_CT_ANALOG)) {
 		/* Read ADC (0b10000111 = 0x87). */
@@ -352,17 +371,6 @@ uint16_t analog_adc_get(index_t index)
 	} else {
 		ERROR();
 		return 0xFFFF;
-	}
-}
-
-int8_t analog_oi_get(index_t index)
-{
-	if (IX_OI(1,1) <= index && index <= IX_OI(2, CT_OI_GROUP_SZ)) {
-		int8_t v = rxdata.oi_analog[IX_OI_INV(index)] - 128;
-		return (v < 0) ? v + 1 : v;
-	} else {
-		ERROR("index: %d", index);
-		return -128;
 	}
 }
 
@@ -389,7 +397,7 @@ void interrupt_setup(index_t index, isr_t isr)
 	if (IX_INTERRUPT(1) <= index && index <= IX_INTERRUPT(CT_INTERRUPT)) {
 		uint8_t i = IX_INTERRUPT_INV(index);
 		if (i > 1) {
-			isr_inactive_cb[i] = isr;
+			isr_inactive_cb[i - 2] = isr;
 		} else {
 			isr_callbacks[i] = isr;
 		}
