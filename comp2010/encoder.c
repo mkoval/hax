@@ -14,10 +14,11 @@ static volatile index_t encmap[6];
  */
 static volatile uint32_t counts[6];
 
-/* FIXME: digital_get is not necissarily reading the right pin, depending on
- * mapping.
- */
-#define ENCODER(_flip_, _other_, _num_)      \
+#define ENC(flip, other_map_idx, pin_map_idx) \
+	ENCODER(flip, encmap[other_map_idx], encmap[pin_map_idx])
+#define ENCODER(flip, other_pin, pin_idx) \
+	ENCODER_(flip, other_pin, IX_INTERRUPT_INV(pin_idx))
+#define ENCODER_(_flip_, _other_, _num_)     \
     do {                                     \
         bool other = digital_get(_other_);   \
         if (_flip_) {                        \
@@ -43,21 +44,21 @@ void encoder_init(uint8_t id, index_t int1, index_t int2) {
 
 	switch (id) {
 	case 0:
-		interrupt_init(int1, encoder_0a);
-		interrupt_init(int2, encoder_0b);
+		interrupt_setup(int1, encoder_0a);
+		interrupt_setup(int2, encoder_0b);
 		break;
-	
+
 	case 1:
-		interrupt_init(int1, encoder_1a);
-		interrupt_init(int2, encoder_1b);
+		interrupt_setup(int1, encoder_1a);
+		interrupt_setup(int2, encoder_1b);
 		break;
-	
+
 	case 2:
-		interrupt_init(int1, encoder_2a);
-		interrupt_init(int2, encoder_2b);
+		interrupt_setup(int1, encoder_2a);
+		interrupt_setup(int2, encoder_2b);
 		break;
 	}
-	
+
 	/* Enable interrupts for both encoder connections. */
 	interrupt_set(int1, true);
 	interrupt_set(int2, true);
@@ -83,25 +84,25 @@ void encoder_reset_all(void) {
 }
 
 void encoder_0a(int8_t l) {
-	ENCODER(l, encmap[1], encmap[0]);
+	ENC( l, 1, 0);
 }
 
 void encoder_0b(int8_t l) {
-	ENCODER(!l, encmap[0], encmap[1]);
+	ENC(!l, 0, 1);
 }
 
 void encoder_1a(int8_t l) {
-	ENCODER(l, encmap[3], encmap[2]);
+	ENC( l, 3, 2);
 }
 
 void encoder_1b(int8_t l) {
-	ENCODER(!l, encmap[2], encmap[3]);
+	ENC(!l, 2, 3);
 }
 
 void encoder_2a(int8_t l) {
-	ENCODER(l, encmap[5], encmap[4]);
+	ENC( l, 5, 4);
 }
 
 void encoder_2b(int8_t l) {
-	ENCODER(!l, encmap[4], encmap[5]);
+	ENC(!l, 4, 5);
 }
