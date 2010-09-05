@@ -24,6 +24,8 @@ mode_t mode_get(void); /* see mode_t for possible return values */
 /*
  * DIGITAL IO
  */
+#define DIGITAL_OUT true
+#define DIGITAL_IN false
 void digital_setup(index_t pin, bool output); /* initialize prior to use */
 void digital_set(index_t pin, bool value);    /* must be set as an output */
 bool digital_get(index_t pin);                /* must be set as an input */
@@ -31,8 +33,9 @@ bool digital_get(index_t pin);                /* must be set as an input */
 /*
  * OI [Operator Interface] Input
  */
-bool  oi_button_get(index_t ix);
-int8_t oi_group_get(index_t ix);  /* contrained from -127 to 127 */
+bool   oi_button_get(index_t ix);
+int8_t oi_group_get(index_t ix);  /* constrained from -127 to 127 */
+int8_t oi_rocker_get(index_t ix); /* Rocker/Trigger reading {-1, 0, 1} */
 
 /*
  * ANALOG IO
