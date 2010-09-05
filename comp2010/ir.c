@@ -5,7 +5,6 @@
 
 #define IR_LONG_TABLE_SIZE 256
 #define IR_SHORT_TABLE_SIZE 256
-
 static __rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
 	180,180,180,180,180,180,180,180,180,180,180,180,
 	180,180,180,180,180,180,180,180,180,180,180,177,
@@ -49,24 +48,24 @@ static __rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] =
 uint16_t ir_long_to_in10(uint16_t sig)
 {
 	uint16_t index;
-	
+
 	index = sig/2;
 	if (index >= IR_LONG_TABLE_SIZE) {
 		return 0;
 	}
-	
+
 	return (uint16_t)ir_long_table_sigo2_in5[index] * 2;
 }
 
 uint16_t ir_short_to_in10(uint16_t sig)
 {
 	uint16_t index;
-	
+
 	index = sig/2;
 	if (index >= IR_SHORT_TABLE_SIZE) {
 		return 0;
 	}
-	
+
 	return (uint16_t)ir_short_table_sigo2_in5[index] * 2;
 }
 
@@ -81,11 +80,11 @@ ir_filter_t ir_filters[num_ir_sensors] = {
 void IR_Filter_Routinu(void)
 {
 	char i;
-	
+
 	for (i=0; i<num_ir_sensors; i++) {
 		ir_filters[i].s2 = ir_filters[i].s1;
 		ir_filters[i].s1 = Get_Analog_Value(ir_filters[i].ana_port);
-		
+
 		if (ir_filters[i].s1 > ir_filters[i].s2) {
 			ir_filters[i].output = ir_filters[i].s2;
 		}
