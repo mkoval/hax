@@ -5,44 +5,43 @@
 
 #define __packed __attribute__((packed))
 struct oi_data {
-	// right stick
-	u8 axis_1;
-	u8 axis_2;
-	
-	// left stick
-	u8 axis_3;
-	u8 axis_4;
-	
-	// accelerometer
-	u8 accel_x;
-	u8 accel_y;
-	u8 accel_z;
-	
-	// trigger buttons ( comment data given is clearly incorrect)
-	/* 
-	byte 7 = Group 5 & 6   //Buttons  
-		bit0 = Left Down       *** Group 5
-		bit1 = Left Up
-		bit2 = Right Down      *** Group 6
-		bit3 = Left Down
-	*/
-	u8 g5_u:1;
+	/* right stick */
+	u8 axis_1; /* g1 */
+	u8 axis_2; /* g2 */
+
+	/* left stick */
+	u8 axis_3; /* g3 */
+	u8 axis_4; /* g4 */
+
+	/* accelerometer */
+	u8 accel_x; /* g9  */
+	u8 accel_y; /* g10 */
+	u8 accel_z; /* g11 */
+
+	/* trigger buttons ( comment data given is clearly incorrect)
+	 * byte 7 = Group 5 & 6  (Buttons)
+	 *	bit0 = Left Down       *** Group 5
+	 *	bit1 = Left Up
+	 *	bit2 = Right Down      *** Group 6
+	 *	bit3 = Left Down
+	 */
+	u8 g5_u:1; /* g5 */
 	u8 g5_d:1;
-	u8 g6_u:1;
+	u8 g6_u:1; /* g6 */
 	u8 g6_d:1;
-	u8 reserved1:4; // not mentioned.
-	
-	u8 g8_d:1;
+	u8 reserved1:4; /* not mentioned. */
+
+	u8 g8_d:1; /* g8 */
 	u8 g8_l:1;
 	u8 g8_u:1;
 	u8 g8_r:1;
-	
-	u8 g7_d:1;
+
+	u8 g7_d:1; /* g7 */
 	u8 g7_l:1;
 	u8 g7_u:1;
 	u8 g7_r:1;
-	
-	u8 reserved2[3]; // noted as "spare"
+
+	u8 reserved2[3]; /* noted as "spare" */
 } __packed;
 
 
@@ -99,7 +98,7 @@ typedef union {
 	u16 w[SPI_PACKET_LEN];
 
 	//Data From Master
-	struct { 
+	struct {
 		u16 sync; // Should always be SYNC_MAGIC
 		union {
 			u8  a;
@@ -118,7 +117,7 @@ typedef union {
 				u8 disable:1;
 			} __packed b;
 		} sys_flags;
-		u8  batt_volt_main; // mult by 0.0591 for something readable.      
+		u8  batt_volt_main; // mult by 0.0591 for something readable.
 		u8  batt_volt_backup;
 		union {
 			u8  a[12];
@@ -129,7 +128,7 @@ typedef union {
 	} __packed m2u;
 
 	//Data To Master
-	struct { 
+	struct {
 		u16 sync; // should always be SYNC_MAGIC
 		union {
 			u8 a;
@@ -147,8 +146,8 @@ typedef union {
 				u8 reserved:2; // unmentioned.
 			} __packed b;
 		} sys_flags; //XXX: "Reserved for Slave (TBD)"
-		u8  digital1;  //Digital bits 1-8      
-		u8  digital2;  //Digital bits 9-12, 13-16 (spare)   
+		u8  digital1;  //Digital bits 1-8
+		u8  digital2;  //Digital bits 9-12, 13-16 (spare)
 		u8  motors[8];  //PWM values 0-255
 		u8  motor_status[8]; //XXX: "PWM motor states (TBD)"
 		u8  analog[8]; //Analog port (1-8)
@@ -163,8 +162,8 @@ typedef union {
  ** and the code were inconsistent.
  **/
 
-/* Uses SPI1: 
- * SCK, MISO, MOSI : PA{5,6,7} 
+/* Uses SPI1:
+ * SCK, MISO, MOSI : PA{5,6,7}
  * XXX: IFI makes them all ouputs
  */
 
@@ -179,26 +178,26 @@ typedef union {
  */
 
 /* "Smart Motor" Setup :
- * Call "SetMotorControl_To_Neutral"  
+ * Call "SetMotorControl_To_Neutral"
  * ORIG: "set PD{0,1} to ouput pp." [Don't]
  * PD{3,4,7,8} = output pp.
  * Then:
- * GPIOD->CRH = (9 << 16) | (9 << 20) 
+ * GPIOD->CRH = (9 << 16) | (9 << 20)
  *	  | (9 << 24) | ( 9 << 28) | 1;
  */
- 
+
 /* PD{0,1} = input */
 
 /* PE{4,7,8,9,10,11,12,13,14} = input
  *  Note: only claim to set PE{13,14} = input
  */
- 
+
 /* Claim to set PE{9,11,13,14} = output pp
  * Actualy set PE{0,6} to output pp
- */ 
+ */
 
 /** END GPIO INITS **/
- 
+
 /* SPI1:
  * Master Mode, bidirectional,
  * 16b data size, CPOL_Low,
@@ -215,7 +214,7 @@ typedef union {
 /* Interrupts used:
  * TIM1, TIM2, TIM3, TIM4, EXTI9_5
  */
- 
+
 /* Crystal Detection
  * PB10: low when RX1 is connected.
  * PC8 : low when RX2 is connected.
@@ -238,7 +237,7 @@ typedef union {
 /* TIM1 used to trigger an update of the
  * master processor
  */
- 
+
 /* TIM{2,3} is using capture #3 and
  * filling the pwm{1,2} array.
  * For crystal input.
@@ -254,7 +253,7 @@ typedef union {
  * following things. No idea what they mean:
  * TARGET_BOARD
  * KEY_BUTTON
- */ 
+ */
 
 /* Control Pins for Motors 1 & 10. Connected directly to the STM.
 // See Set_MotorControl_Sw{1,2} for details.
@@ -266,7 +265,7 @@ typedef union {
  * PD8 : BH2 // gpio
  * PD12: AL1
  * PD13: BL1
- * PD14: AL2 
+ * PD14: AL2
  * PD15: BL2
  */
 

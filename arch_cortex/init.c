@@ -37,7 +37,7 @@ void gpio_init(void)
 	             | RCC_APB2ENR_IOPGEN;
 
 	// Set all gpios to "analog", aka diabled
-	GPIOA->CRL = GPIOB->CRL 
+	GPIOA->CRL = GPIOB->CRL
 	           = GPIOC->CRL = GPIOD->CRL
 	           = GPIOE->CRL = GPIOF->CRL
 	           = GPIOG->CRL = 0;
@@ -46,7 +46,6 @@ void gpio_init(void)
 	           = GPIOE->CRH = GPIOF->CRH
 	           = GPIOG->CRH = 0;
 }
-
 
 void adc_init(void) {
 	// ADCCLK(max 14Mhz)
@@ -79,7 +78,7 @@ void adc_init(void) {
 
 	/* Enable DMA1 channel1 */
 	DMA_Cmd(DMA1_Channel1, ENABLE);
-	 
+
 	/* ADC1 configuration ------------------------------------------------------*/
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
 	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
@@ -89,7 +88,7 @@ void adc_init(void) {
 	ADC_InitStructure.ADC_NbrOfChannel = ADC_NUM;
 	ADC_Init(ADC1, &ADC_InitStructure);
 
-	/* ADC1 regular channel14 configuration */ 
+	/* ADC1 regular channel14 configuration */
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  1, ADC_SampleTime_239Cycles5);
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_1,  2, ADC_SampleTime_239Cycles5);
 	ADC_RegularChannelConfig(ADC1, ADC_Channel_2,  3, ADC_SampleTime_239Cycles5);
@@ -108,7 +107,7 @@ void adc_init(void) {
 	ADC_StartCalibration(ADC1);
 	/* Check the end of ADC1 calibration */
 	while(ADC_GetCalibrationStatus(ADC1));
-	/* Start ADC1 Software Conversion */ 
+	/* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
 }
 
@@ -118,11 +117,9 @@ void nvic_init(void) {
 
 
 void tim1_init(void) {
-	RCC_APB2PeriphClockCmd(
-		RCC_APB2Periph_TIM1
-		, ENABLE);
-	
-	NVIC_InitTypeDef NVIC_param;	
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+
+	NVIC_InitTypeDef NVIC_param;
 	/* Enable the TIM1 global Interrupt */
 	NVIC_param.NVIC_IRQChannel = TIM1_CC_IRQn;
 	NVIC_param.NVIC_IRQChannelPreemptionPriority = 3;
@@ -148,7 +145,7 @@ void tim1_init(void) {
 
 	/* TIM IT enable */
 	TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
-	
+
 	// Clear the lower 3 bits (SMS) to disable slave mode.
 	TIM1->SMCR &= 0xFFF8;
 }
@@ -157,14 +154,13 @@ __attribute__((interrupt)) void TIM1_CC_IRQHandler(void)
 {
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC1)) {
 		spi_transfer_flag = true;
-		spi_transfer_flag = true;
 		TIM_ClearITPendingBit(TIM1, TIM_IT_CC1);
 	}
 }
 
 #ifdef  USE_FULL_ASSERT
 void assert_failed(u8* file, u32 line)
-{ 
+{
 	/* User can add his own implementation to report the file name and line number,
 	 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
 	printf("error %s:%d - assert failed\n", file, line);
