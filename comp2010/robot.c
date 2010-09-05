@@ -10,20 +10,20 @@
 #if defined(ROBOT_KEVIN)
 
 void drive_raw(AnalogOut left, AnalogOut right) {
-	motor_set(MTR_DRIVE_L, +left);
-	motor_set(MTR_DRIVE_R, -right);
+	analog_set(MTR_DRIVE_L, +left);
+	analog_set(MTR_DRIVE_R, -right);
 }
 
 void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_LT, -vel);
-	motor_set(MTR_ARM_LB, +vel);
-	motor_set(MTR_ARM_RT, +vel);
-	motor_set(MTR_ARM_RB, -vel);
+	analog_set(MTR_ARM_LT, -vel);
+	analog_set(MTR_ARM_LB, +vel);
+	analog_set(MTR_ARM_RT, +vel);
+	analog_set(MTR_ARM_RB, -vel);
 }
 
 void ramp_raw(AnalogOut left, AnalogOut right) {
-	motor_set(MTR_LIFT_L, -left);
-	motor_set(MTR_LIFT_R, +right);
+	analog_set(MTR_LIFT_L, -left);
+	analog_set(MTR_LIFT_R, +right);
 }
 
 bool ramp_smart(AnalogOut vel) {
@@ -40,20 +40,20 @@ bool ramp_smart(AnalogOut vel) {
 #elif defined(ROBOT_NITISH)
 
 void drive_raw(AnalogOut left, AnalogOut right) {
-	motor_set(MTR_DRIVE_L1, +left);
-	motor_set(MTR_DRIVE_L2, +left);
-	motor_set(MTR_DRIVE_R1, -right);
-	motor_set(MTR_DRIVE_R2, -right);
+	analog_set(MTR_DRIVE_L1, +left);
+	analog_set(MTR_DRIVE_L2, +left);
+	analog_set(MTR_DRIVE_R1, -right);
+	analog_set(MTR_DRIVE_R2, -right);
 }
 
 void arm_raw(AnalogOut vel) {
-	motor_set(MTR_ARM_L, -vel);
-	motor_set(MTR_ARM_R, +vel);
+	analog_set(MTR_ARM_L, -vel);
+	analog_set(MTR_ARM_R, +vel);
 }
 
 void ramp_raw(AnalogOut left, AnalogOut right) {
-	motor_set(MTR_LIFT_L, -left);
-	motor_set(MTR_LIFT_R, +right);
+	analog_set(MTR_LIFT_L, -left);
+	analog_set(MTR_LIFT_R, +right);
 }
 
 bool ramp_smart(AnalogOut vel) {
