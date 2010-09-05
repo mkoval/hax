@@ -14,3 +14,4 @@ log
 *.elf
 *.map
 *.c.asm
+.*.swp
