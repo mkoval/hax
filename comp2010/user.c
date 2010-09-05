@@ -13,10 +13,10 @@
 #include "user.h"
 
 /* Physical and electronic robot configuration is specified in ports.h. */
-uint8_t const kNumAnalogInputs = ANA_NUM;
+//uint8_t const kNumAnalogInputs = ANA_NUM;
 
 /* User-override for arm and ramp potentiometers. */
-bool override = false;
+static bool override = false;
 
 void init(void) {
 	/* Initialize autonomous mode. */
@@ -26,8 +26,8 @@ void init(void) {
 	_puts("]\n\r");
 
 #if defined(ROBOT_NITISH)
-	pin_set_io(BUT_B_L, kInput);
-	pin_set_io(BUT_B_R, kInput);
+	digital_setup(BUT_B_L, DIGITAL_IN);
+	digital_setup(BUT_B_R, DIGITAL_IN);
 #endif
 
 	override = false;
@@ -42,12 +42,12 @@ void init(void) {
 void disable_loop(void) {
 }
 
-void disable_spin(void) { 
+void disable_spin(void) {
 }
 
 void auton_loop(void) {
 	state_t const __rom *next = auto_current;
-	uint8_t i;
+	index_t i;
 
 	/* Remove outliers from the IR distance sensor data. */
 #if defined(ROBOT_KEVIN)
@@ -55,8 +55,8 @@ void auton_loop(void) {
 #endif
 
 	/* Start each autonomous slow loop with a clean slate. */
-	for (i = 0; i < MTR_NUM; ++i) {
-		motor_set(i, 0);
+	for (i = IX_MOTOR(1); i < MTR_NUM; ++i) {
+		analog_set(i, 0);
 	}
 
 	/* Update the current state. */
@@ -94,22 +94,17 @@ void auton_spin(void) {
 	encoder_update();
 }
 
-void telop_loop(void) {
+void telop_loop(void)
+{
+	int8_t left  = oi_group_get(OI_L_Y);
+	int8_t right = oi_group_get(OI_R_Y);
+	int8_t arm   = ARM_SPEEDMAX * oi_rocker_get(OI_L_B);
+	int8_t ramp  = 127 * oi_rocker_get(OI_R_B);
 #if defined(ARCH_PIC)
-	uint16_t left  = analog_oi_get(OI_L_Y);
-	uint16_t right = analog_oi_get(OI_R_Y);
-	uint16_t arm   = analog_oi_get(OI_L_B);
-	uint16_t ramp  = analog_oi_get(OI_R_B);
 #elif defined(ARCH_CORTEX)
-	uint16_t left  = CONSTRAIN(analog_oi_get(OI_STICK_L_Y), -127, 127);
-	uint16_t right = CONSTRAIN(analog_oi_get(OI_STICK_R_Y), -127, 127);
-	uint16_t arm   = ARM_SPEEDMAX * analog_oi_get(OI_TRIG_L_U)
-	                 + -ARM_SPEEDMAX * analog_oi_get(OI_TRIG_L_D);
-	uint16_t ramp  = 127*analog_oi_get(OI_TRIG_R_U) + -127*analog_oi_get(OI_TRIG_R_D);
-
 	/* Override potentiometer motor limits. */
-	bool override_set   = analog_oi_get(OI_BUT_L_D) && analog_oi_get(OI_BUT_R_D);
-	bool override_reset = analog_oi_get(OI_BUT_L_U) && analog_oi_get(OI_BUT_R_U);
+	bool override_set   = oi_button_get(OI_BUT_L_D) && oi_button_get(OI_BUT_R_D);
+	bool override_reset = oi_button_get(OI_BUT_L_U) && oi_button_get(OI_BUT_R_U);
 	override = override_set || (override && !override_reset);
 
 	printf("OVERRIDE %d  ", override);

@@ -3,22 +3,20 @@
 
 #include <hax.h>
 
-#if defined(ARCH_PIC)
-/* Operator interface port mappings are not robot specific. */
 enum {
-	OI_R_X = kAnalogSplit,
-	OI_R_Y,
-	OI_L_Y,
-	OI_L_X,
+	OI_R_X = JOY_R_X(1),
+	OI_R_Y = JOY_R_Y(1),
+	OI_L_Y = JOY_L_Y(1),
+	OI_L_X = JOY_L_X(1),
+};
+#if defined(ARCH_PIC)
+enum {
 	OI_L_B,
 	OI_R_B
-};
+}
+/* Operator interface port mappings are not robot specific. */
 #elif defined(ARCH_CORTEX)
 enum {
-	OI_STICK_L_X,
-	OI_STICK_L_Y,
-	OI_STICK_R_X,
-	OI_STICK_R_Y,
 	OI_BUT_L_U,
 	OI_BUT_L_D,
 	OI_BUT_L_L,
@@ -37,7 +35,7 @@ enum {
 #if defined(ROBOT_KEVIN)
 /* PWM Motor Outputs */
 enum {
-	MTR_DRIVE_L = 0,
+	MTR_DRIVE_L = IX_MOTOR(1),
 	MTR_DRIVE_R,
 	MTR_LIFT_L,
 	MTR_LIFT_R,
@@ -45,28 +43,30 @@ enum {
 	MTR_ARM_LB,
 	MTR_ARM_RT,
 	MTR_ARM_RB,
-	MTR_NUM
+	MTR_LAST
 };
+#define MTR_NUM (IX_MOTOR_INV(MTR_LAST))
 
 #if defined(ARCH_PIC)
 enum {
-	INT_ENC_L1 = 17,
+	INT_ENC_L1 = IX_INTERRUPT(1),
 	INT_ENC_L2,
 	INT_ENC_R1,
 	INT_ENC_R2,
 	INT_NUM
 };
 enum {
-	POT_ARM = 0,
+	POT_ARM = IX_ANALOG(1),
 	POT_LIFT,
-	IR_FRONT_H = 7, /* High */
+	IR_FRONT_H = IX_ANALOG(8), /* High */
 	IR_SIDE_B,
 	IR_REAR,
 	IR_FRONT_L,     /* Low */
-	ANA_NUM
+	ANA_LAST
 };
+#define ANA_NUM IX_ANALOG_INV(ANA_LAST)
 enum {
-	BUT_B = ANA_NUM,
+	BUT_B = IX_DIGITAL(ANA_NUM + 1),
 	JUMP_CAL_MODE1,
 	JUMP_CAL_MODE2,
 	JUMP_CAL_MODE3,
@@ -78,7 +78,7 @@ enum {
 
 #elif defined(ARCH_CORTEX)
 enum {
-	INT_ENC_L1 = 17,
+	INT_ENC_L1 = IX_INTERRUPT(1),
 	INT_ENC_L2,
 	INT_ENC_R1,
 	INT_ENC_R2,
@@ -91,7 +91,7 @@ enum {
 	SEN_NUM
 };
 enum {
-	POT_ARM = 0,
+	POT_ARM = IX_ANALOG(1),
 	POT_LIFT,
 	IR_REAR,
 	ANA_NUM
