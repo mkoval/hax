@@ -12,6 +12,6 @@ HEADERS += $(PROG)/auton.h   \
            $(PROG)/user.h    \
            $(PROG)/util.h    \
            $(PROG)/state.h   \
-		   $(PROG)/ru_ir.h
+	   $(PROG)/ru_ir.h
 
 CFLAGS  += -DROBOT_$(ROBOT)

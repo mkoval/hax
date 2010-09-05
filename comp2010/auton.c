@@ -134,7 +134,7 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	int16_t pos  = analog_adc_get(POT_LIFT);
 	bool    up   = state->data->pose.vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = state->data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
-	
+
 	return !(up || down);
 }
 
