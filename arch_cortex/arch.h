@@ -8,10 +8,10 @@
 #define CT_ANALOG      8
 #define CT_DIGITAL    12
 #define CT_MOTOR      10
-#define CT_OIx         8 /* groups per OI */
+#define CT_OI_GROUPS   8 /* groups per OI */
 #define CT_OI_GROUP_SZ 4 /* Max number of buttons per group */
-#define CT_OI         (2 * CT_OIx)
-#define CT_OIx_BUTTON (CT_OI_GROUP_SZ * CT_OIx)
+#define CT_OI         (2 * CT_OI_GROUPS)
+#define CT_OIx_BUTTON (CT_OI_GROUP_SZ * CT_OI_GROUPS) /* buttons per oi */
 #define CT_OI_BUTTON  (2 * CT_OIx_BUTTON)
 
 /* IX_OI_BUTTON dir arguments */
@@ -32,10 +32,25 @@
 #define IX_ANALOG(pin)    (OFFSET_ANALOG + (pin) - 1)
 #define IX_DIGITAL(pin)   (OFFSET_DIGITAL + (pin) - 1)
 #define IX_MOTOR(n)       (OFFSET_MOTOR + (n) - 1)
-#define IX_OI(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IOx) + (group) - 1)
+#define IX_OI(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IO_GROUPS) \
+		+ (group) - 1)
 #define IX_OI_BUTTON(oi, group, dir) \
-	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) + \
-	 (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
+	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) \
+	 + (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
+
+/* Inverses to convinient 0 indexed sets */
+#define IX_OI_GROUP_INV(ix) _IX_OI_GROUP_INV((ix) - OFFSET_OI)
+#define _IX_OI_GROUP_INV(ix) ((ix) > CT_OI_GROUPS)? \
+	((ix) - CT_OI_GROUPS):(ix)
+
+#define IX_OI_OI_INV(ix) _IX_OI_OI_INV((ix) - OFFSET_OI)
+#define _IX_OI_OI_INV(ix) (((ix) > CT_OI_GROUPS)?(1):(0))
+
+#define IX_OI_BUTTON_OI_INV(ix) /* Button_ix to oi_i  */ \
+	(((ix) > IX_OI_BUTTON(1,CT_OI_GROUPS,3))?  \
+		((ix) - CT_OIx_BUTTON):((ix)))
+#define IX_OI_BUTTONx_INV(ix, oi) \
+	(ix - CT_OIx_BUTTON * oi)
 
 /* Joysticks */
 #define JOY_L_X(oi) IX_OI(oi, 0)

@@ -1,77 +1,6 @@
 /*
  * ANALOG IO
  */
-void analog_init(void) {
-	/* ADCCLK(max 14Mhz)
-	 * XXX: IFI overclocked the ADC to 18MHz.
-	 *  PCLK2 /6 = 12 + 2/3 MHz
-	 */
-	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_ADCPRE) | RCC_CFGR_ADCPRE_DIV6;
-
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-
-	ADC_InitTypeDef ADC_InitStructure;
-	DMA_InitTypeDef DMA_InitStructure;
-
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);	// Enable DMA1 clock
-	ADC_DeInit(ADC1);
-
-	/* DMA1 channel1 configuration ----------------------------------------------*/
-	DMA_DeInit(DMA1_Channel1);
-	DMA_InitStructure.DMA_PeripheralBaseAddr = (u32) &ADC1->DR;
-	DMA_InitStructure.DMA_MemoryBaseAddr = (u32) &adc_buffer[0];
-	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
-	DMA_InitStructure.DMA_BufferSize = ADC_NUM;
-	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
-	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-	DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-	DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-
-	/* Enable DMA1 channel1 */
-	DMA_Cmd(DMA1_Channel1, ENABLE);
-	 
-	/* ADC1 configuration ------------------------------------------------------*/
-	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
-	ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;
-	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfChannel = ADC_NUM;
-	ADC_Init(ADC1, &ADC_InitStructure);
-
-	/* ADC1 regular channel14 configuration */ 
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_0,  1, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1,  2, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_2,  3, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_3,  4, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_12, 5, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 6, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 7, ADC_SampleTime_239Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_11, 8, ADC_SampleTime_239Cycles5);
-
-	ADC_DMACmd(ADC1, ENABLE);
-	ADC_Cmd(ADC1, ENABLE);
-	ADC_ResetCalibration(ADC1);
-
-	/* Check the end of ADC1 reset calibration register */
-	while (ADC_GetResetCalibrationStatus(ADC1))
-		;
-
-	/* Start ADC1 calibaration */
-	ADC_StartCalibration(ADC1);
-
-	/* Check the end of ADC1 calibration */
-	while (ADC_GetCalibrationStatus(ADC1))
-		;
-
-	/* Start ADC1 Software Conversion */ 
-	ADC_SoftwareStartConvCmd(ADC1, ENABLE);
-}
-
 void analog_set(index_t index, int8_t value) {
 	uint8_t value2;
 
@@ -86,38 +15,96 @@ void analog_set(index_t index, int8_t value) {
 	}
 }
 
+int8_t oi_group_get(index_t ix)
+{
+	uint8_t gr = IX_OI_GROUP_INV(ix);
+	struct oi_date *oi = &m2u.m2u.joystics[IX_OI_OI_INV(ix)].b;
+	uint8_t data;
+	switch(gr) {
+	case 1:
+		data = oi->axis_1;
+		break;
+	case 2:
+		data = oi->axis_2;
+		break;
+	case 3:
+		data = oi->axis_3;
+		break;
+	case 4:
+		data = oi->axis_4;
+		break;
+	/* Triggers (groups of 2) */
+	case 5:
+		return 127*(oi->g5_u) - 127*(oi->g5_d)
+	case 6:
+		return 127*(oi->g6_u) - 127*(oi->g6_d)
+	/* Buttons (groups of 4) */
+	case 7:
+	case 8:
+		return -128;
+		break;
+	/* accelerometer data */
+	case 9:
+		data = oi->accel_x;
+		break;
+	case 10:
+		data = oi->accel_y;
+		break;
+	case 11:
+		data = oi->accel_z;
+		break;
+	default:
+		return -128;
+	}
 
-int16_t analog_get(index_t id) {
-	struct oi_data *oi1 = &m2u.m2u.joysticks[0].b;
-	struct oi_data *oi2 = &m2u.m2u.joysticks[1].b;
+	return (data == -128)?(-127):(data);
+}
 
-	switch (id) {
-	/* Right Joystick */
-	case JOY_R_Y(1):
-		return oi1->axis_1;
-	case JOY_R_X(1):
-		return oi1->axis_2;
-	case JOY_R_Y(2):
-		return oi2->axis_1;
-	case JOY_R_X(2):
-		return oi2->axis_2;
+bool oi_button_get(index_t ix)
+{
+	uint8_t oi_i = IX_OI_BUTTON_OI_INV(ix);
+	struct oi_data *oi = &m2u.m2u.joystick[oi_i].b;
+	index_t i = IX_OI_BUTTONx_INV(ix, oi_i);
 
-	/* Left Joystick */
-	case JOY_L_Y(1):
-		return oi1->axis_3;
-	case JOY_L_X(1):
-		return oi1->axis_4;
-	case JOY_L_Y(2):
-		return oi1->axis_3;
-	case JOY_L_X(2):
-		return oi1->axis_4;
+	switch(i) {
+	case IX_OI_BUTTON(1, 5, OI_B_UP):
+		return oi->g5_u;
+	case IX_OI_BUTTON(1, 5, OI_B_DN):
+		return oi->g5_d;
+	case IX_OI_BUTTON(1, 6, OI_B_UP):
+		return oi->g6_u;
+	case IX_OI_BUTTON(1, 6, OI_B_DN):
+		return oi->g6_d;
 
-	/* ADCs */
-	case OFFSET_ANALOG ... (OFFSET_ANALOG + CT_ANALOG - 1):
-		return adc_buffer[index - 1] >> 2;
+	case IX_OI_BUTTON(1, 7, OI_B_UP):
+		return oi->g7_u;
+	case IX_OI_BUTTON(1, 7, OI_B_LT):
+		return oi->g7_l;
+	case IX_OI_BUTTON(1, 7, OI_B_DN):
+		return oi->g7_d;
+	case IX_OI_BUTTON(1, 7, OI_B_RT):
+		return oi->g7_r;
+
+	case IX_OI_BUTTON(1, 8, OI_B_UP):
+		return oi->g8_u;
+	case IX_OI_BUTTON(1, 8, OI_B_LT):
+		return oi->g8_l;
+	case IX_OI_BUTTON(1, 8, OI_B_DN):
+		return oi->g8_d;
+	case IX_OI_BUTTON(1, 8, OI_B_RT):
+		return oi->g8_r;
 
 	default:
-		ERROR();
+		ERROR("idx: %d", ix);
+	}
+}
+
+uint16_t analog_get(index_t ix)
+{
+	if (IX_ANALOG(1) <= ix && ix <= IX_ANALOG(CT_ANALOG)) {
+		return adc_buffer[IX_ANALOG_INV(ix)];
+	} else {
+		ERROR("idx: %d", ix);
 		return 0;
 	}
 }
