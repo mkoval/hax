@@ -11,7 +11,7 @@ void analog_set(index_t index, int8_t value) {
 	if (OFFSET_ANALOG <= index && index <= OFFSET_ANALOG + CT_ANALOG) {
 		u2m.u2m.motors[index] = val;
 	} else {
-		ERROR();
+		ERROR("index %d; value %d", index, value);
 	}
 }
 
@@ -41,8 +41,8 @@ int8_t oi_group_get(index_t ix)
 	/* Buttons (groups of 4) */
 	case 7:
 	case 8:
-		return -128;
-		break;
+		ERROR("idx %d", ix);
+		return 0;
 	/* accelerometer data */
 	case 9:
 		data = oi->accel_x;
@@ -54,10 +54,29 @@ int8_t oi_group_get(index_t ix)
 		data = oi->accel_z;
 		break;
 	default:
-		return -128;
+		ERROR("idx %d", ix);
+		return 0;
 	}
 
 	return (data == -128)?(-127):(data);
+}
+
+int8_t oi_rocker_get(index_t ix)
+{
+	struct oi_data *oi [] = { &m2u.m2u.joystick[0].b, &m2u.m2u.joystick[1].b };
+	switch(ix) {
+	case IX_OI(1, 5):
+		return oi[0]->g5_u - oi[0]->g5_d;
+	case IX_OI(1, 6):
+		return oi[0]->g6_u - oi[0]->g6_d;
+	case IX_OI(2, 5):
+		return oi[1]->g5_u - oi[1]->g5_d;
+	case IX_OI(2, 6):
+		return oi[1]->g6_u - oi[1]->g6_d;
+	default:
+		ERROR("idx: %d", ix);
+		return 0;
+	}
 }
 
 bool oi_button_get(index_t ix)
