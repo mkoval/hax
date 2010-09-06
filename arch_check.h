@@ -1,3 +1,5 @@
+#ifndef ARCH_CHECK_H_
+#define ARCH_CHECK_H_
 
 /* misc defines */
 #ifndef SLOW_US
@@ -61,3 +63,5 @@
 #ifndef OI_TRIGGER_R
 # error "ARCH: missing OI_TRIGGER_R"
 #endif
+
+#endif /* ARCH_CHECH_H_ */
