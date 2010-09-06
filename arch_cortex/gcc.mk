@@ -12,7 +12,7 @@ RM            = rm -f
 GREP          = grep
 
 # External libraries.
-CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib -I$(ARCH)
+CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib -I$(ARCH) -I$(PROG)
 LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
 
 LD_SCRIPT = STM32F103_384K_64K_FLASH.ld
@@ -20,6 +20,7 @@ STMPROC   = STM32F10X_HD
 HSE_VALUE = 8000000
 
 ARCH_CFLAGS=-MD -D$(STMPROC) -DHSE_VALUE=$(HSE_VALUE) \
+	   -Wl,--as-needed                            \
            -mthumb -mcpu=cortex-m3 -Wall              \
            -Wno-main -DUSE_STDPERIPH_DRIVER -pipe     \
            -ffunction-sections -fno-unwind-tables     \
@@ -38,11 +39,9 @@ TRASH        += $(TARGET) $(OBJECTS) $(OBJECTS:.o.=.d)
 
 
 clean :
-	@$(RM) $(TRASH)
-	@$(FIND) . -print \
-		| $(GREP) '.*\.\([od]\|elf\|hex\|bin\|map\|lss\|sym\|strip\)$$' \
-		| $(XARGS) -- $(RM)
 	@echo "CLEAN"
+	@$(RM) $(TRASH)
+
 
 
 .SECONDARY : 

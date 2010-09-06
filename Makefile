@@ -24,3 +24,8 @@ TARGET  = $(PROG)-$(ARCH).$(ARCH_EXT)
 
 build: $(TARGET)
 
+mrproper:
+	@echo "MRPROPER"
+	@$(FIND) . -print \
+	| $(GREP) '.*\.\([od]\|elf\|hex\|bin\|map\|lss\|sym\|strip\)$$' \
+	| $(XARGS) -- $(RM)

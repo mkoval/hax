@@ -10,6 +10,7 @@ SOURCE += $(srcdir)/$(ARCH)/ifi_util_sdcc.asm
 ARCH_CFLAGS = -mpic16 -p18f8520
 ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
 ARCH_CFLAGS += -I$(srcdir)/$(ARCH)/h
+ARCH_CFLAGS += -I$(PROG)
 ARCH_CFLAGS += --ivt-loc=0x800 --no-crt
 ARCH_CFLAGS += --optimize-cmp
 ARCH_CFLAGS += --optimize-df
