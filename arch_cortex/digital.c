@@ -32,7 +32,7 @@ void digital_setup(index_t index, bool output)
 {
 	/* Only external digital pins can be used as output. */
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
-		ERROR();
+		WARN();
 	} else {
 		GPIO_InitTypeDef param;
 		param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
@@ -97,7 +97,7 @@ bool digital_get(index_t index)
 		return !!(port->IDR & (1 << pin));
 
 	default:
-		ERROR();
+		WARN();
 		return 0;
 	}
 }
@@ -108,7 +108,7 @@ void digital_set(index_t index, bool output)
 
 	// Only external digital pins can be used as output.
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
-		ERROR();
+		WARN();
 	} else if (output) {
 		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[pin];
 	} else {

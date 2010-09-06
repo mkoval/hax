@@ -105,7 +105,7 @@ void interrupt_setup(index_t index, isr_t isr)
 		EXTI->RTSR  |=  (1 << pin); /* enable rising edge trigger */
 		EXTI->FTSR  |=  (1 << pin); /* enable falling edge trigger */
 	} else {
-		ERROR();
+		WARN();
 	}
 }
 
@@ -113,7 +113,7 @@ void interrupt_set(index_t index, bool enable)
 {
 	index_t pin = index - OFFSET_DIGITAL;
 	if (!(0 <= pin && pin <= 12 && pin != 9)) {
-		ERROR();
+		WARN();
 	} else if (enable) {
 		digital_init(ifipin_to_pin[pin], false);
 		EXTI->IMR  |=  (1 << pin); /* enable interrupt */

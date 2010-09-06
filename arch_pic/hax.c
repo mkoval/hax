@@ -334,7 +334,7 @@ bool digital_get(index_t i)
 	/* TODO: OI digitals. */
 
 	default:
-		ERROR();
+		WARN();
 		return false;
 	}
 }
@@ -345,7 +345,7 @@ int8_t oi_group_get(index_t index)
 		int8_t v = rxdata.oi_analog[IX_OI_INV(index)] - 128;
 		return (v < 0) ? v + 1 : v;
 	} else {
-		ERROR("index: %d", index);
+		WARN("index: %d", index);
 		return -128;
 	}
 }
@@ -369,7 +369,7 @@ uint16_t analog_get(index_t index)
 		while(adc_busy());
 		return adc_read();
 	} else {
-		ERROR();
+		WARN();
 		return 0xFFFF;
 	}
 }
@@ -382,7 +382,7 @@ void analog_set(index_t index, int8_t sp)
 		val = sp + 128;
 		txdata.rc_pwm[IX_MOTOR_INV(index)] = (uint8_t)val;
 	} else {
-		ERROR("index: %d", index);
+		WARN("index: %d", index);
 	}
 }
 
@@ -402,7 +402,7 @@ void interrupt_setup(index_t index, isr_t isr)
 			isr_callbacks[i] = isr;
 		}
 	} else {
-		ERROR();
+		WARN();
 	}
 }
 
@@ -552,7 +552,7 @@ void interrupt_set(index_t index, bool enable)
 	}
 
 	default:
-		ERROR();
+		WARN();
 	}
 }
 
