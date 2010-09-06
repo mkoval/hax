@@ -2,7 +2,7 @@
 #include "compilers.h"
 
 __noreturn void main(void) {
-	static state_t mode;
+	static ctrl_mode_t mode;
 
 	setup_1();
 	init();
