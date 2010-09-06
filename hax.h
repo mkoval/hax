@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <arch.h>
+
+#include <arch.h> /* $(ARCH)/arch.h */
+#include "prog_conf.h" /* $(PROG)/prog_conf.h */
 
 #include "arch_check.h"
 #include "prog_check.h"
+
+#define WARN_IX(ix) WARN("idx: %d", ix)
 
 typedef uint8_t index_t;     /* internal pin index */
 typedef void (*isr_t)(bool pin_state); /* interrupt callback */
