@@ -84,60 +84,62 @@ void spi_init(void)
 		init_data[i] = SPI_I2S_ReceiveData(SPI1);
 }
 
-void spi_process_packets(spi_packet_vex *m2u, spi_packet_vex *u2m)
+void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 {
 	/* Bad sync magic: bad packet. */
-	if (m2u->m2u.sync != SYNC_MAGIC) {
+	if (m2u->sync != SYNC_MAGIC) {
 		return;
 	}
 
-	if (m2u->m2u.state.b.config) {
+	if (m2u->state.b.config) {
 		// config state
 		static bool not_yet_iacked = 1;
 		if (not_yet_iacked) {
-			u2m->u2m.state.a = STATE_IACK | STATE_CONFIG;
-		} else if (m2u->m2u.state.b.iack) {
-			u2m->u2m.state.a = STATE_VALID;
+			u2m->state.a = STATE_IACK | STATE_CONFIG;
+		} else if (m2u->state.b.iack) {
+			u2m->state.a = STATE_VALID;
 		}
 
 		printf("[MASTER config]");
 	}
 
-	if (m2u->m2u.state.b.initializing) {
+	if (m2u->state.b.initializing) {
 		// not yet good data.
-		u2m->u2m.state.a = STATE_VALID; // we have data ready
-		m2u->m2u.packet_num = 1; //XXX: "to skip print"
+		u2m->state.a = STATE_VALID; // we have data ready
+		m2u->packet_num = 1; //XXX: "to skip print"
 		printf("[MASTER init]");
 	}
 
-	if (m2u->m2u.state.b.valid) {
-		u2m->u2m.state.a = STATE_VALID;
+	if (m2u->state.b.valid) {
+		u2m->state.a = STATE_VALID;
 		// TODO: Buffer the data.
 	}
 }
 
-void vex_spi_xfer(spi_packet_vex *m2u, spi_packet_vex *u2m)
+void vex_spi_xfer(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 {
 	static uint8_t packet_num = 0;
 	uint8_t gap = 0;
 	volatile uint16_t d = 0;
 	uint8_t i = 0;
+	spi_packet_t *u2m_raw = (spi_packet_t *)u2m;
+	spi_packet_t *m2u_raw = (spi_packet_t *)m2u;
 
-	u2m->u2m.packet_num = packet_num;
+	u2m->packet_num = packet_num;
 
 	GPIO_SetBits(GPIOA, GPIO_Pin_11); // "RTS" high
 
 	for (i = 0; i < SPI_PACKET_LEN; i++) {
 		GPIO_ResetBits(GPIOE, GPIO_Pin_0); // Slave Select
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-		SPI_I2S_SendData(SPI1, u2m->w[i]);
+		SPI_I2S_SendData(SPI1, u2m_raw->w[i]);
 
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-		m2u->w[i] = SPI_I2S_ReceiveData(SPI1);
+		m2u_raw->w[i] = SPI_I2S_ReceiveData(SPI1);
 
 		while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
 		GPIO_SetBits(GPIOE, GPIO_Pin_0); // Slave Select
-		for (d = 0; d < 150; d++); //15us
+		for (d = 0; d < 150; d++); //XXX: Noted as "15us", truth?
 		gap++;
 		if (gap == 4) { //put a gap after 4 bytes xfered
 			for (d = 0; d < 1000; d++); //210us
@@ -157,23 +159,23 @@ bool is_master_ready(void)
 		!GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4);
 }
 
-void spi_packet_init_m2u(spi_packet_vex *m2u)
+void spi_packet_init_m2u(spi_packet_m2u_t *m2u)
 {
 
 }
 
-void spi_packet_init_u2m(spi_packet_vex *u2m)
+void spi_packet_init_u2m(spi_packet_u2m_t *u2m)
 {
-	u2m->u2m.sync = SYNC_MAGIC;
-	u2m->u2m.version = 1;
-	u2m->u2m.packet_num = 0;
+	u2m->sync = SYNC_MAGIC;
+	u2m->version = 1;
+	u2m->packet_num = 0;
 
 	// First send needs to be "config"
-	u2m->u2m.state.a = STATE_CONFIG;
+	u2m->state.a = STATE_CONFIG;
 
 	uint8_t i;
 	for(i = 0; i < MOTOR_CT; i++) {
-		u2m->u2m.motors[i] = 127;
+		u2m->motors[i] = 127;
 	}
 }
 
@@ -217,19 +219,19 @@ void print_oi(struct oi_data *oi)
 		);
 }
 
-void print_m2u(spi_packet_vex *m2u)
+void print_m2u(spi_packet_m2u_t *m2u)
 {
 	printf("sync: %x; state: %x; "
 		"sysflag: %x; b_main: %x; "
 		"b_back: %x; version: %x; "
 		"pnum: %x\n"
-		,m2u->m2u.sync
-		,m2u->m2u.state.a
-		,m2u->m2u.sys_flags.a
-		,m2u->m2u.batt_volt_main
-		,m2u->m2u.batt_volt_backup
-		,m2u->m2u.version
-		,m2u->m2u.packet_num
+		,m2u->sync
+		,m2u->state.a
+		,m2u->sys_flags.a
+		,m2u->batt_volt_main
+		,m2u->batt_volt_backup
+		,m2u->version
+		,m2u->packet_num
 		);
 
 #if 0

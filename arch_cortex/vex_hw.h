@@ -1,6 +1,8 @@
 #ifndef VEX_HW_
 #define VEX_HW_
 
+#include <lib/stm32f10x.h>
+
 /* Documetaion of the VEX interfaces */
 
 #define __packed __attribute__((packed))
@@ -123,10 +125,10 @@ typedef struct u2m_s {
 } __packed spi_packet_u2m_t;
 
 //Data From Master
-struct m2u_s {
+typedef struct m2u_s {
 	u16 sync; // Should always be SYNC_MAGIC
 	union {
-		u8  a;
+		u8 a;
 		struct state_pack b;
 	} state;
 	union {
@@ -142,18 +144,18 @@ struct m2u_s {
 			u8 disable:1;
 		} __packed b;
 	} sys_flags;
-	u8  batt_volt_main; // mult by 0.0591 for something readable.
-	u8  batt_volt_backup;
+	u8 batt_volt_main; // mult by 0.0591 for something readable.
+	u8 batt_volt_backup;
 	union {
-		u8  a[12];
+		u8 a[12];
 		struct oi_data b;
 	} joysticks[2];
-	u8  version;
-	u8  packet_num;
+	u8 version;
+	u8 packet_num;
 } __packed spi_packet_m2u_t;
 
 typedef union {
-	u16 w[SPI_PACKET_LEN];
+	uint16_t w[SPI_PACKET_LEN];
 	spi_packet_m2u_t m2u;
 	spi_packet_u2m_t u2m;
 } spi_packet_t;
