@@ -5,6 +5,9 @@
 #include <stdbool.h>
 #include <arch.h>
 
+#include "arch_check.h"
+#include "prog_check.h"
+
 typedef uint8_t index_t;     /* internal pin index */
 typedef void (*isr_t)(bool pin_state); /* interrupt callback */
 typedef enum {

@@ -54,6 +54,6 @@
 #define OI_ROCKER_L(oi) IX_OI(oi, 5)
 #define OI_ROCKER_R(oi) IX_OI(oi, 6)
 #define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 5, dir)
-#define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 6, dir)
+#define OI_TRIGGER_R(oi, dir) IX_OI_BUTTON(oi, 6, dir)
 
 #endif
