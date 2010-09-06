@@ -6,7 +6,7 @@
 #include <arch.h>
 
 typedef uint8_t index_t;     /* internal pin index */
-typedef void (*isr_t)(void); /* interrupt callback */
+typedef void (*isr_t)(bool pin_state); /* interrupt callback */
 typedef enum {
     MODE_TELOP,  /* user-controlled with full OI access (default) */
     MODE_AUTON,  /* autonomous mode with no OI access */
