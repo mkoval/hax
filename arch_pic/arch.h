@@ -31,9 +31,9 @@
 #define IX_DIGITAL(pin)   (OFFSET_DIGITAL + (pin) - 1)
 #define IX_INTERRUPT(pin) (OFFSET_INTERRUPT + (pin) - 1)
 #define IX_MOTOR(n)       (OFFSET_MOTOR + (n) - 1)
-#define IX_OI(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IO_GROUPS) + (group) - 1)
-#define IX_OI_BUTTON(io, group, dir) \
-	(OFFSET_OI_BUTTON + (((oi) - 1 ) * CT_IOx_BUTTON) + \
+#define IX_OI(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_OI_GROUPS) + (group) - 1)
+#define IX_OI_BUTTON(oi, group, dir) \
+	(OFFSET_OI_BUTTON + (((oi) - 1 ) * CT_OIx_BUTTON) + \
 	 (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
 
 /* Back convertions for internal use */
