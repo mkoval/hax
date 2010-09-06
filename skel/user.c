@@ -1,7 +1,6 @@
 #include <hax.h>
 #include <stdio.h>
-
-uint8_t const kNumAnalogInputs = 2;
+#include "user.h"
 
 void init(void) {
 	printf("INIT\n");
@@ -10,8 +9,9 @@ void init(void) {
 void auton_loop(void) {
 	printf("AUTON\n");
 }
-	
+
 void auton_spin(void) {
+	/* Not recomended to print constantly */
 }
 
 void telop_loop(void) {
@@ -19,6 +19,7 @@ void telop_loop(void) {
 }
 
 void telop_spin(void) {
+	/* Not recomended to print constantly */
 }
 
 void disable_loop(void) {
@@ -26,4 +27,5 @@ void disable_loop(void) {
 }
 
 void disable_spin(void) {
+	/* Not recomended to print constantly */
 }
