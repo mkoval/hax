@@ -206,6 +206,18 @@ bool new_data_received(void)
 	return statusflag.b.NEW_SPI_DATA;
 }
 
+
+static int8_t oi_3band(uint8_t x)
+{
+	if(x > 0xdf)
+		return  1;
+	else if (x < 0x1f)
+		return -1;
+	else
+		return  0;
+
+}
+
 /* Determines whether any oi input is outside of a middle range
  * 0xff is split into 3 parts, 0xdf and 0x1f are the edges
  */
@@ -213,8 +225,7 @@ static bool check_oi(void)
 {
 	uint8_t i;
 	for(i = 0; i < 16; i++) {
-		if((rxdata.oi_analog[i] > 0xdf)
-		    || (rxdata.oi_analog[i] < 0x1f)) {
+		if(oi_3band(rxdata.oi_analog[i])) {
 			return true;
 		}
 	}
@@ -345,17 +356,46 @@ int8_t oi_group_get(index_t index)
 		int8_t v = rxdata.oi_analog[IX_OI_INV(index)] - 128;
 		return (v < 0) ? v + 1 : v;
 	} else {
-		WARN("index: %d", index);
-		return -128;
+		WARN_IX(index);
+		return 0;
 	}
 }
 
-int8_t oi_trigger_get(index_t ix)
+int8_t oi_rocker_get(index_t ix)
 {
+	switch(ix) {
+	case OI_ROCKER_L(1):
+	case OI_ROCKER_L(1):
+	case OI_ROCKER_R(2):
+	case OI_ROCKER_R(2):
+		return oi_3band(rxdata.oi_analog[IX_OI_INV(index)]);
+	default:
+		WARN_IX(ix);
+		return 0;
+
+	}
 }
 
 bool oi_button_get(index_t ix)
 {
+	switch(ix) {
+
+	case OI_TRIGGER_L(1, OI_B_DN):
+	case OI_TRIGGER_L(2, OI_B_DN):
+	case OI_TRIGGER_R(1, OI_B_DN):
+	case OI_TRIGGER_R(2, OI_B_DN):
+		return oi_3band(rxdata.oi_analog[IX_OI_INV(ix)]) < 0;a
+
+	case OI_TRIGGER_L(1, OI_B_UP):
+	case OI_TRIGGER_L(2, OI_B_UP):
+	case OI_TRIGGER_R(1, OI_B_UP):
+	case OI_TRIGGER_R(2, OI_B_UP):
+		return oi_3band(rxdata.oi_analog[IX_OI_INV(ix)]) > 0;
+
+	default:
+		WARN_IX(ix);
+		return false;
+	}
 }
 
 uint16_t analog_get(index_t index)
@@ -369,8 +409,8 @@ uint16_t analog_get(index_t index)
 		while(adc_busy());
 		return adc_read();
 	} else {
-		WARN();
-		return 0xFFFF;
+		WARN_IX(index);
+		return 0;
 	}
 }
 
