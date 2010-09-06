@@ -22,9 +22,7 @@
 #include "master.h"
 #include "ifi_lib.h"
 
-#ifndef USER_CT_ANALOG
-#define USER_CT_ANALOG 0
-#endif
+#define USER_CT_ANALOG PROG_ANALOG_IN_NUM
 
 /* Checks if the USER_CT_ANALOG is valid */
 #define NUM_ANALOG_VALID(_x_) ( (_x_) <= 16 && (_x_) != 15 )
@@ -49,7 +47,7 @@ typedef enum {
 	kBaud115 = 21
 } SerialSpeed;
 
-static state_t mode_s = MODE_AUTON;
+static ctrl_mode_t mode_s = MODE_AUTON;
 
 /*
  * INITIALIZATION AND MISC
@@ -75,8 +73,8 @@ void setup_1(void)
 	/* Make the master control all PWMs (for now) */
 	txdata.pwm_mask.a = 0xFF;
 
-	for (i = 0; i < 22; ++i) {
-		pin_set_io(i, false);
+	for (i = IX_DIGITAL(1); i <= IX_DIGITAL(CT_DIGITAL); ++i) {
+		digital_setup(i, false);
 	}
 
 	/* Init ADC */
@@ -232,7 +230,7 @@ static bool check_oi(void)
 	return false;
 }
 
-state_t mode_get(void)
+ctrl_mode_t mode_get(void)
 {
 	if (rxdata.rcstatusflag.b.oi_on) {
 		if (mode_s != MODE_TELOP) {
@@ -365,10 +363,10 @@ int8_t oi_rocker_get(index_t ix)
 {
 	switch(ix) {
 	case OI_ROCKER_L(1):
-	case OI_ROCKER_L(1):
+	case OI_ROCKER_L(2):
+	case OI_ROCKER_R(1):
 	case OI_ROCKER_R(2):
-	case OI_ROCKER_R(2):
-		return oi_3band(rxdata.oi_analog[IX_OI_INV(index)]);
+		return oi_3band(rxdata.oi_analog[IX_OI_INV(ix)]);
 	default:
 		WARN_IX(ix);
 		return 0;
@@ -384,7 +382,7 @@ bool oi_button_get(index_t ix)
 	case OI_TRIGGER_L(2, OI_B_DN):
 	case OI_TRIGGER_R(1, OI_B_DN):
 	case OI_TRIGGER_R(2, OI_B_DN):
-		return oi_3band(rxdata.oi_analog[IX_OI_INV(ix)]) < 0;a
+		return oi_3band(rxdata.oi_analog[IX_OI_INV(ix)]) < 0;
 
 	case OI_TRIGGER_L(1, OI_B_UP):
 	case OI_TRIGGER_L(2, OI_B_UP):
