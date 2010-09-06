@@ -4,7 +4,7 @@
 /* This header is included by other hax source files to
  * determine how the uC should be configured */
 
-#define ANALOG_IN_NUM 16
+#define PROG_ANALOG_IN_NUM 16
 #define WARN(...)
 
 #endif
