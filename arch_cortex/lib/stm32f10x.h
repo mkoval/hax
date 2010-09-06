@@ -29,20 +29,20 @@
 /** @addtogroup stm32f10x
   * @{
   */
-    
+
 #ifndef __STM32F10x_H
 #define __STM32F10x_H
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
-  
+#endif
+
 /** @addtogroup Library_configuration_section
   * @{
   */
-  
+
 /* Uncomment the line below according to the target STM32 device used in your
-   application 
+   application
   */
 
 #if !defined (STM32F10X_LD) && !defined (STM32F10X_LD_VL) && !defined (STM32F10X_MD) && !defined (STM32F10X_MD_VL) && !defined (STM32F10X_HD) && !defined (STM32F10X_CL) 
@@ -73,34 +73,34 @@
 #if defined(USE_STDPERIPH_DRIVER)
 //#define assert_param(x)
 #else
-	
+
 /**
  * @brief Comment the line below if you will not use the peripherals drivers.
-   In this case, these drivers will not be included and the application code will 
-   be based on direct access to peripherals registers 
+   In this case, these drivers will not be included and the application code will
+   be based on direct access to peripherals registers
    */
   /*#define USE_STDPERIPH_DRIVER*/
 #endif
 
 /**
  * @brief In the following line adjust the value of External High Speed oscillator (HSE)
-   used in your application 
-   
+   used in your application
+
    Tip: To avoid modifying this file each time you need to use different HSE, you
         can define the HSE value in your toolchain compiler preprocessor.
-  */           
+  */
 #if !defined  HSE_VALUE
- #ifdef STM32F10X_CL   
+ #ifdef STM32F10X_CL
   #define HSE_VALUE    ((uint32_t)25000000) /*!< Value of the External oscillator in Hz */
- #else 
+ #else
   #define HSE_VALUE    ((uint32_t)8000000) /*!< Value of the External oscillator in Hz */
  #endif /* STM32F10X_CL */
 #endif /* HSE_VALUE */
 
 
 /**
- * @brief In the following line adjust the External High Speed oscillator (HSE) Startup 
-   Timeout value 
+ * @brief In the following line adjust the External High Speed oscillator (HSE) Startup
+   Timeout value
    */
 #define HSE_STARTUP_TIMEOUT   ((uint16_t)0x0500) /*!< Time out for HSE start up */
 
@@ -125,7 +125,7 @@
   */
 
 /**
- * @brief Configuration of the Cortex-M3 Processor and Core Peripherals 
+ * @brief Configuration of the Cortex-M3 Processor and Core Peripherals
  */
 #define __MPU_PRESENT             0 /*!< STM32 does not provide an MPU */
 #define __NVIC_PRIO_BITS          4 /*!< STM32 uses 4 Bits for the Priority Levels    */
