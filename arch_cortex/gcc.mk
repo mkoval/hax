@@ -12,7 +12,7 @@ RM            = rm -f
 GREP          = grep
 
 # External libraries.
-CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib -I$(ARCH) -I$(PROG)
+CC_INC      = -I$(srcdir) -I$(ARCH)/lib/fwlib/inc -I$(ARCH)/lib -I$(ARCH) -I.
 LD_INC      = -L$(ARCH)/lib -L$(ARCH)/ld -L$(ARCH)/ld/other
 
 LD_SCRIPT = STM32F103_384K_64K_FLASH.ld
@@ -37,14 +37,9 @@ ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
 OBJECTS       = $(SOURCE:=.o)
 TRASH        += $(TARGET) $(OBJECTS) $(OBJECTS:.o.=.d)
 
-
 clean :
 	@echo "CLEAN"
 	@$(RM) $(TRASH)
-
-
-
-.SECONDARY : 
 
 %.s.o: %.s $(HEADER)
 	@echo "AS $<"
@@ -76,4 +71,5 @@ clean :
 	@echo "SYM $<"
 	@$(NM) -n $< > $@
 
-.PHONY : clean rebuild
+.PHONY: clean rebuild
+.SECONDARY: 
