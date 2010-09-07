@@ -9,6 +9,17 @@ srcdir     := $(srcdir:/=)
 ARCH        = $(srcdir)/arch_$(arch)
 TARGET      = $(prog)-$(arch).$(ARCH_EXT)
 
+ifneq ($(arch),cortex)
+ifneq ($(arch),pic)
+$(error unsupported architecture)
+endif
+endif
+
+ifndef prog
+$(error unnamed program)
+endif
+
+
 .SUFFIXES:
 .PHONY: all clean build rebuild
 
