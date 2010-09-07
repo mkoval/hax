@@ -1,3 +1,6 @@
-# hax/skel
-SOURCE += $(PROG)/main.c
-SOURCE += $(PROG)/user.c
+arch     = cortex
+prog     = skel
+HAX_PATH = ..
+SOURCE   = main.c user.c
+
+include $(HAX_PATH)/build.mk
