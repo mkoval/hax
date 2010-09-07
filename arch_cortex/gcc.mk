@@ -50,7 +50,7 @@ clean :
 	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
 %.elf: $(OBJECTS)
-	@echo "LD $^"
+	@echo "LD $@"
 	@$(LD) $(ALL_LDFLAGS) -o $@ $^
 
 %.hex: %.elf
