@@ -11,12 +11,12 @@ TARGET      = $(prog)-$(arch).$(ARCH_EXT)
 
 ifneq ($(arch),cortex)
 ifneq ($(arch),pic)
-$(error unsupported architecture)
+$(error "unsupported architecture")
 endif
 endif
 
 ifndef prog
-$(error unnamed program)
+$(error "unnamed program")
 endif
 
 
@@ -27,7 +27,7 @@ all: build
 
 rebuild : | clean build
 
-include $(SOURCE:=.d)
+-include $(SOURCE:=.d)
 include $(ARCH)/build.mk
 
 build: $(TARGET)
