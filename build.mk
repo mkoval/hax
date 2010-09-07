@@ -16,6 +16,7 @@ all: build
 
 rebuild : | clean build
 
+include $(SOURCE:=.d)
 include $(ARCH)/build.mk
 
 build: $(TARGET)
