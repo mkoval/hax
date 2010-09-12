@@ -17,9 +17,12 @@
 2. Look at the 'skel' directory and the (forthcoming) 'test' directory
    to get an idea of how the functions work, etc. Files containing code
    specific to a particular architecture are placed in folder prefixed by 
-   'arch_' followed by the arch name (presently, 'pic' or 'cortex').
+   `arch_` followed by the arch name (presently, 'pic' or 'cortex').
 
 3. For everything hax defines, look at 'hax.h'.
+
+4. To build some user code, cd to a user program directory (for example,
+  'skel') and type make.
 
 ## Other Stuff ##
 
