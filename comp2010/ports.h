@@ -4,33 +4,11 @@
 #include <hax.h>
 
 enum {
-	OI_R_X = JOY_R_X(1),
-	OI_R_Y = JOY_R_Y(1),
-	OI_L_Y = JOY_L_Y(1),
-	OI_L_X = JOY_L_X(1),
+	OI_R_X = OI_JOY_R_X(1),
+	OI_R_Y = OI_JOY_R_Y(1),
+	OI_L_Y = OI_JOY_L_Y(1),
+	OI_L_X = OI_JOY_L_X(1),
 };
-#if defined(ARCH_PIC)
-enum {
-	OI_L_B,
-	OI_R_B
-}
-/* Operator interface port mappings are not robot specific. */
-#elif defined(ARCH_CORTEX)
-enum {
-	OI_BUT_L_U,
-	OI_BUT_L_D,
-	OI_BUT_L_L,
-	OI_BUT_L_R,
-	OI_BUT_R_U,
-	OI_BUT_R_D,
-	OI_BUT_R_L,
-	OI_BUT_R_R,
-	OI_TRIG_L_U,
-	OI_TRIG_L_D,
-	OI_TRIG_R_U,
-	OI_TRIG_R_D
-};
-#endif
 
 #if defined(ROBOT_KEVIN)
 /* PWM Motor Outputs */

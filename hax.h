@@ -5,7 +5,8 @@
 #include <stdbool.h>
 
 #include <arch.h> /* $(ARCH)/arch.h */
-#include "prog_conf.h" /* $(PROG)/prog_conf.h */
+#include <prog_conf.h> /* $(PROG)/prog_conf.h */
+#include "compilers.h"
 
 #include "arch_check.h"
 #include "prog_check.h"

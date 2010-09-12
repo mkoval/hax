@@ -12,8 +12,6 @@
 #define TURN_ERROR     ((int16_t)10 * ENC_PER_DEG)
 #define TURN_THRESHOLD ((int16_t)5  * ENC_PER_DEG)
 
-#define SLOW_US ((uint32_t)18500)
-
 #define MS_TO_LOOPS(_x_)   (((uint32_t)(_x_) * (uint32_t)1000 / SLOW_US))
 #define IN10_TO_TICKS(_x_) ((uint32_t)(_x_) * ENC_PER_IN / 10)
 #define DEG_TO_TICKS(_x_)  ((uint32_t)(_x_) * ENC_PER_DEG)

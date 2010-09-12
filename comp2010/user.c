@@ -12,9 +12,6 @@
 
 #include "user.h"
 
-/* Physical and electronic robot configuration is specified in ports.h. */
-//uint8_t const kNumAnalogInputs = ANA_NUM;
-
 /* User-override for arm and ramp potentiometers. */
 static bool override = false;
 

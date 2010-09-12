@@ -1,17 +1,13 @@
-SOURCE += $(PROG)/auton.c   \
-          $(PROG)/encoder.c \
-          $(PROG)/robot.c   \
-          $(PROG)/user.c    \
-          $(PROG)/state.c   \
-          $(PROG)/ru_ir.c
+arch     = cortex
+prog     = comp2010
 
-HEADERS += $(PROG)/auton.h   \
-           $(PROG)/encoder.h \
-           $(PROG)/ports.h   \
-           $(PROG)/robot.h   \
-           $(PROG)/user.h    \
-           $(PROG)/util.h    \
-           $(PROG)/state.h   \
-	   $(PROG)/ru_ir.h
+SOURCE = auton.c   \
+	encoder.c \
+	robot.c   \
+	user.c    \
+	state.c   \
+	ru_ir.c
 
-CFLAGS  += -DROBOT_$(ROBOT)
+CFLAGS = -DROBOT_$(ROBOT)
+
+include ../build.mk
