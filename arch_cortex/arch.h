@@ -32,7 +32,7 @@
 #define IX_ANALOG(pin)    (OFFSET_ANALOG + (pin) - 1)
 #define IX_DIGITAL(pin)   (OFFSET_DIGITAL + (pin) - 1)
 #define IX_MOTOR(n)       (OFFSET_MOTOR + (n) - 1)
-#define IX_OI_GROUP(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IO_GROUPS) \
+#define IX_OI_GROUP(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_OI_GROUPS) \
 		+ (group) - 1)
 #define IX_OI_BUTTON(oi, group, dir) \
 	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) \
@@ -53,13 +53,13 @@
 	(ix - CT_OIx_BUTTON * oi)
 
 /* Joysticks */
-#define OI_JOY_L_X(oi) IX_OI(oi, 0)
-#define OI_JOY_L_Y(oi) IX_OI(oi, 1)
-#define OI_JOY_R_X(oi) IX_OI(oi, 2)
-#define OI_JOY_R_Y(oi) IX_OI(oi, 3)
+#define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 0)
+#define OI_JOY_L_Y(oi) IX_OI_GROUP(oi, 1)
+#define OI_JOY_R_X(oi) IX_OI_GROUP(oi, 2)
+#define OI_JOY_R_Y(oi) IX_OI_GROUP(oi, 3)
 
-#define OI_ROCKER_L(oi) IX_OI(oi, 7)
-#define OI_ROCKER_R(oi) IX_OI(oi, 8)
+#define OI_ROCKER_L(oi) IX_OI_GROUP(oi, 7)
+#define OI_ROCKER_R(oi) IX_OI_GROUP(oi, 8)
 #define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 7, dir)
 #define OI_TRIGGER_R(oi, dir) IX_OI_BUTTON(oi, 8, dir)
 
