@@ -32,7 +32,7 @@
 #define IX_ANALOG(pin)    (OFFSET_ANALOG + (pin) - 1)
 #define IX_DIGITAL(pin)   (OFFSET_DIGITAL + (pin) - 1)
 #define IX_MOTOR(n)       (OFFSET_MOTOR + (n) - 1)
-#define IX_OI(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IO_GROUPS) \
+#define IX_OI_GROUP(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_IO_GROUPS) \
 		+ (group) - 1)
 #define IX_OI_BUTTON(oi, group, dir) \
 	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) \

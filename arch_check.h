@@ -23,8 +23,8 @@
 # error "ARCH: missing IX_MOTOR"
 #endif
 
-#ifndef IX_OI
-# error "ARCH: missing IX_OI"
+#ifndef IX_OI_GROUP
+# error "ARCH: missing IX_OI_GROUP"
 #endif
 
 #ifndef IX_OI_BUTTON
