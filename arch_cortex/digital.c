@@ -3,42 +3,22 @@
 #include "stm32f10x.h"
 #include "stm32f10x_gpio.h"
 
+#include "exti.h"
+
 /*
  * DIGITAL IO
  */
-void digital_init(void) {
-	/* Enable gpio clock (+ AFIO for good measure). */
-	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN
-	             | RCC_APB2ENR_IOPAEN
-	             | RCC_APB2ENR_IOPBEN
-	             | RCC_APB2ENR_IOPCEN
-	             | RCC_APB2ENR_IOPDEN
-	             | RCC_APB2ENR_IOPEEN
-	             | RCC_APB2ENR_IOPFEN
-	             | RCC_APB2ENR_IOPGEN;
-
-	/* Set all gpios to "analog", aka diabled */
-	GPIOA->CRL = GPIOB->CRL
-	           = GPIOC->CRL = GPIOD->CRL
-	           = GPIOE->CRL = GPIOF->CRL
-	           = GPIOG->CRL = 0;
-	GPIOA->CRH = GPIOB->CRH
-	           = GPIOC->CRH = GPIOD->CRH
-	           = GPIOE->CRH = GPIOF->CRH
-	           = GPIOG->CRH = 0;
-}
-
 void digital_setup(index_t index, bool output)
 {
 	/* Only external digital pins can be used as output. */
-	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
-		WARN();
+	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
+		WARN_IX(index);
 	} else {
 		GPIO_InitTypeDef param;
 		param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
 		if (output) {
 			param.GPIO_Mode  = GPIO_Mode_IPU;
-			param.GPIO_Speed = GPIO_Speed_500MHz;
+			param.GPIO_Speed = GPIO_Speed_50MHz;
 		} else {
 			param.GPIO_Mode  = GPIO_Mode_Out_PP;
 		}
@@ -48,57 +28,13 @@ void digital_setup(index_t index, bool output)
 
 bool digital_get(index_t index)
 {
-	struct oi_data *oi1 = &m2u.m2u.joysticks[0].b;
-	struct oi_data *oi2 = &m2u.m2u.joysticks[1].b;
-
-	switch (index) {
-	/* Left Trigger */
-	case IX_OI_BUTTON(1, 5, OI_B_UP):
-		return oi1->g5_u;
-	case IX_OI_BUTTON(1, 5, OI_B_DN):
-		return oi1->g5_d;
-	case IX_OI_BUTTON(2, 5, OI_B_UP):
-		return oi2->g5_u;
-	case IX_OI_BUTTON(2, 5, OI_B_DN):
-		return oi2->g5_d;
-
-	/* Right Trigger */
-	case IX_OI_BUTTON(1, 6, OI_B_UP):
-		return oi1->g6_u;
-	case IX_OI_BUTTON(1, 6, OI_B_DN):
-		return oi1->g6_d;
-	case IX_OI_BUTTON(2, 6, OI_B_UP):
-		return oi2->g6_u;
-	case IX_OI_BUTTON(2, 6, OI_B_DN):
-		return oi2->g6_d;
-
-	/* Left D-Pad */
-	case IX_OI_BUTTON(1, 7, OI_B_UP):
-		return oi1->g7_u;
-	case IX_OI_BUTTON(1, 7, OI_B_DN):
-		return oi1->g7_d;
-	case IX_OI_BUTTON(1, 7, OI_B_LT):
-		return oi1->g7_l;
-	case IX_OI_BUTTON(1, 7, OI_B_RT):
-		return oi1->g7_r;
-	case IX_OI_BUTTON(2, 7, OI_B_UP):
-		return oi2->g7_u;
-	case IX_OI_BUTTON(2, 7, OI_B_DN):
-		return oi2->g7_d;
-	case IX_OI_BUTTON(2, 7, OI_B_LT):
-		return oi2->g7_l;
-	case IX_OI_BUTTON(2, 7, OI_B_RT):
-		return oi2->g7_r;
-
-	/* Exposed Digital Pins */
-	case OFFSET_DIGITAL ... (OFFSET_DIGITAL + CT_DIGITAL - 1):
+	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
 		GPIO_TypeDef * port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
 		index_t         pin = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
 		return !!(port->IDR & (1 << pin));
-
-	default:
-		WARN();
-		return 0;
+	} else {
+		WARN_IX(index);
+		return false;
 	}
 }
 
@@ -108,7 +44,7 @@ void digital_set(index_t index, bool output)
 
 	// Only external digital pins can be used as output.
 	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
-		WARN();
+		WARN_IX(index);
 	} else if (output) {
 		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[pin];
 	} else {

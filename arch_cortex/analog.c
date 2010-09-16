@@ -1,7 +1,8 @@
 #include <stdint.h>
 #include <hax.h>
 #include "spi.h"
-
+#include "cortex.h"
+#include "init.h"
 /*
  * ANALOG IO
  */
@@ -13,7 +14,7 @@ void analog_set(index_t index, int8_t value) {
 	value2 = value + 128;
 
 	if (OFFSET_ANALOG <= index && index <= OFFSET_ANALOG + CT_ANALOG) {
-		u2m.u2m.motors[index] = val;
+		u2m.u2m.motors[index] = value2;
 	} else {
 		WARN("index %d; value %d", index, value);
 	}
@@ -22,7 +23,7 @@ void analog_set(index_t index, int8_t value) {
 uint16_t analog_get(index_t ix)
 {
 	if (IX_ANALOG(1) <= ix && ix <= IX_ANALOG(CT_ANALOG)) {
-		return adc_buffer[IX_ANALOG_INV(ix)];
+		return adc_buffer[ix - IX_ANALOG(1)];
 	} else {
 		WARN_IX(ix);
 		return 0;

@@ -1,5 +1,5 @@
-#ifndef INIT_H_
-#define INIT_H_
+#ifndef CORTEX_INIT_H_
+#define CORTEX_INIT_H_ 1
 
 #include <stdint.h>
 

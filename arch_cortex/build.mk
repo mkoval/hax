@@ -6,7 +6,8 @@ SRC_PRINTF  = $(wildcard $(ARCH)/lib/small_printf/*.c)
 SOURCE  += $(ARCH)/hax.c          \
 	   $(ARCH)/analog.c       \
 	   $(ARCH)/digital.c      \
-	   \
+	   $(ARCH)/interrupt.c    \
+           \
            $(ARCH)/rcc.c          \
            $(ARCH)/spi.c          \
            $(ARCH)/init.c         \

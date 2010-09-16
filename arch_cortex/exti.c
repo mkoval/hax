@@ -12,17 +12,20 @@
 /* Not used. (replace PC7(3))
  * PE7(9)
  */
+
+/*     PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
+GPIO_TypeDef *const ifipin_to_port[12] =
+    {GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
+const int8_t ifipin_to_pin[12] =
+    {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
+
 static const uint8_t pin_to_ifipin [16] =
 	/* 0   1    2    3    4    5  6    7 */
 	{ 10, 11, 255, 255, 255, 255, 2,   3,
 	/* 8   9   10   11   12   13 14   15 */
 	   6,  0,   7,   1,   8,   4, 5, 255};
 
-static isr_t isr_callback[12];
-
-#define IS_DIGITAL(_x_)   ( 1 <= (_x_) && (_x_) <= 20)
-#define IS_ANALOG(_x_)    (13 <= (_x_) && (_x_) <= 20)
-#define IS_INTERRUPT(_x_) ( 1 <= (_x_) && (_x_) <= 12 && (_x_) != 9)
+isr_t isr_callback[12];
 
 #define __isr __attribute__((interrupt))
 
@@ -44,7 +47,9 @@ __isr void EXTI1_IRQHandler(void) {
 }
 
 __isr void EXTI9_5_IRQHandler(void) {
-	// CALL_ISR(5); // not connected
+#if 0
+	CALL_ISR(5); // not connected
+#endif
 	CALL_ISR(6);
 	CALL_ISR(7);
 	CALL_ISR(8);
@@ -58,102 +63,6 @@ __isr void EXTI15_10_IRQHandler(void) {
 	CALL_ISR(13);
 	CALL_ISR(14);
 	CALL_ISR(15);
-}
-
-
-/*     PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
-static GPIO_TypeDef *const ifipin_to_port[12] =
-    {GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
-
-static const int8_t ifipin_to_pin[12] =
-    {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
-
-bool digital_get(index_t index) {
-	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		WARN("idx: %d", index);
-		return false;
-	}
-
-	GPIO_TypeDef *port = ifipin_to_port[index - 1];
-	index_t       pin  = ifipin_to_pin[index - 1];
-	return (port->IDR & ( 1 << pin )) == (1 << pin);
-}
-
-void digital_set(index_t index, bool pull_high) {
-	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		WARN();
-		return;
-	}
-
-	if (pull_high) {
-		ifipin_to_port[index - 1]->BSRR = 1 << ifipin_to_pin[index - 1];
-	} else {
-		ifipin_to_port[index - 1]->BRR  = 1 << ifipin_to_pin[index - 1];
-	}
-}
-
-void pin_set_io(index_t index, bool set_output ) {
-	GPIO_InitTypeDef GPIO_param;
-
-	/* TODO Enable support for using analog pins as digital IOs. */
-	if (!IS_DIGITAL(index) || IS_ANALOG(index)) {
-		WARN();
-		return;
-	}
-
-	GPIO_param.GPIO_Pin = (uint16_t)(1 << ifipin_to_pin[index - 1]);
-
-	if (!set_output) {
-		GPIO_param.GPIO_Mode = GPIO_Mode_IPU;
-	} else {
-		GPIO_param.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_param.GPIO_Mode = GPIO_Mode_Out_PP;
-	}
-
-	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &GPIO_param);
-}
-
-void interrupt_reg_isr(index_t index, isr_t isr) {
-	if (!IS_INTERRUPT(index)) {
-		WARN();
-		return;
-	}
-
-	isr_callback[index - 1] = isr;
-}
-
-void interrupt_enable(index_t index) {
-	uint8_t ri;
-
-	if (!IS_INTERRUPT(index)) {
-		WARN();
-		return;
-	}
-
-	ri = ifipin_to_pin[index - 1];
-
-	pin_set_io(index, false);
-
-	// unmask the interrupt.
-	EXTI->IMR |= (1 << ri);
-
-	// mask the event reqest.
-	EXTI->EMR &= ~(1 << ri);
-
-	// enable rising trigger and falling trigger.
-	EXTI->RTSR |= (1 << ri);
-	EXTI->FTSR |= (1 << ri);
-}
-
-void interrupt_disable(index_t index) {
-	if (!IS_INTERRUPT(index)) {
-		WARN();
-		return;
-	}
-
-	EXTI->IMR &= ~(1 << ifipin_to_pin[index]);
 }
 
 void exti_init(void) {

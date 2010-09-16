@@ -183,5 +183,6 @@ bool oi_button_get(index_t ix)
 
 	default:
 		WARN_IX(ix);
+		return false;
 	}
 }
