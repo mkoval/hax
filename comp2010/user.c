@@ -10,6 +10,7 @@
 
 #include "ru_ir.h"
 
+#include "misc.h"
 #include "user.h"
 
 /* User-override for arm and ramp potentiometers. */

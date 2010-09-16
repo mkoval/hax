@@ -17,7 +17,7 @@ static volatile uint32_t counts[6];
 #define ENC(flip, other_map_idx, pin_map_idx) \
 	ENCODER(flip, encmap[other_map_idx], encmap[pin_map_idx])
 #define ENCODER(flip, other_pin, pin_idx) \
-	ENCODER_(flip, other_pin, IX_INTERRUPT_INV(pin_idx))
+	ENCODER_(flip, other_pin, (pin_idx) - IX_INTERRUPT(1))
 #define ENCODER_(_flip_, _other_, _num_)     \
     do {                                     \
         bool other = digital_get(_other_);   \
@@ -33,6 +33,30 @@ static volatile uint32_t counts[6];
                 ++counts[2 *(_num_) + 1];    \
         }                                    \
     } while (0)
+
+static void encoder_0a(bool l) {
+	ENC( l, 1, 0);
+}
+
+static void encoder_0b(bool l) {
+	ENC(!l, 0, 1);
+}
+
+static void encoder_1a(bool l) {
+	ENC( l, 3, 2);
+}
+
+static void encoder_1b(bool l) {
+	ENC(!l, 2, 3);
+}
+
+static void encoder_2a(bool l) {
+	ENC( l, 5, 4);
+}
+
+static void encoder_2b(bool l) {
+	ENC(!l, 4, 5);
+}
 
 void encoder_init(uint8_t id, index_t int1, index_t int2) {
 	encmap[2 * id + 0] = int1;
@@ -83,26 +107,3 @@ void encoder_reset_all(void) {
 	}
 }
 
-void encoder_0a(int8_t l) {
-	ENC( l, 1, 0);
-}
-
-void encoder_0b(int8_t l) {
-	ENC(!l, 0, 1);
-}
-
-void encoder_1a(int8_t l) {
-	ENC( l, 3, 2);
-}
-
-void encoder_1b(int8_t l) {
-	ENC(!l, 2, 3);
-}
-
-void encoder_2a(int8_t l) {
-	ENC( l, 5, 4);
-}
-
-void encoder_2b(int8_t l) {
-	ENC(!l, 4, 5);
-}

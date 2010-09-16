@@ -1,15 +1,13 @@
-#ifndef USER_COMP2010_H_
-#define USER_COMP2010_H_
-#include <stdlib.h>
+#ifndef USER_H_
+#define USER_H_
+/* Our personal functions for this program */
 
-typedef enum {
-	CAL_MODE_NONE = 0,
-	CAL_MODE_DRIVE,
-	CAL_MODE_TURN,
-	CAL_MODE_PRINT
-} CalibrationMode;
-
-/* Avoid including string.h since it causes the MPLINK to fail. */
-void *memset(void *, int, size_t);
+void init(void);
+void auton_loop(void);
+void auton_spin(void);
+void telop_loop(void);
+void telop_spin(void);
+void disable_loop(void);
+void disable_spin(void);
 
 #endif

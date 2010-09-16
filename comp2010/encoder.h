@@ -32,12 +32,4 @@ void encoder_reset(EncoderIx);
 /* Equivalent to calling encoder_reset() on each encoder. */
 void encoder_reset_all(void);
 
-/* Interrupt service routine callbacks for internal use. */
-void encoder_0a(int8_t);
-void encoder_0b(int8_t);
-void encoder_1a(int8_t);
-void encoder_1b(int8_t);
-void encoder_2a(int8_t);
-void encoder_2b(int8_t);
-
 #endif

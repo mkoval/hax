@@ -48,7 +48,7 @@ enum kevin_motor_e {
 #endif
 
 
-#define MTR_NUM (IX_MOTOR_INV(MTR_LAST))
+#define MTR_NUM ((MTR_LAST) - IX_MOTOR(1) + 1)
 
 #if defined(ROBOT_KEVIN)
 /* PWM Motor Outputs */
