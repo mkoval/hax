@@ -230,7 +230,7 @@ static bool check_oi(void)
 	return false;
 }
 
-ctrl_mode_t mode_get(void)
+ctrl_mode_t ctrl_mode_get(void)
 {
 	if (rxdata.rcstatusflag.b.oi_on) {
 		if (mode_s != MODE_TELOP) {

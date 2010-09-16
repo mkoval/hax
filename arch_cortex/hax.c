@@ -69,7 +69,7 @@ bool do_slow_loop(void) {
 	return spi_transfer_flag;
 }
 
-ctrl_mode_t mode_get(void) {
+ctrl_mode_t ctrl_mode_get(void) {
 	if (m2u.m2u.sys_flags.b.autonomus) {
 		return MODE_AUTON;
 	} else if (m2u.m2u.sys_flags.b.disable) {

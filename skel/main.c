@@ -11,7 +11,7 @@ __noreturn void main(void) {
 	arch_init_2();
 
 	for(;;) {
-		mode = mode_get();
+		mode = ctrl_mode_get();
 
 		/* The "slow loop", executes once every SLOW_US microseconds. */
 		if (do_slow_loop()) {

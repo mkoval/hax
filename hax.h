@@ -31,7 +31,7 @@ void arch_loop_2(void); /* call on exit from the slow loop */
 void arch_spin(void); /* call in the fast loop (as quickly as possible) */
 
 bool do_slow_loop(void); /* if true, a slow loop should be executed */
-ctrl_mode_t mode_get(void); /* see ctrl_mode_t for possible return values */
+ctrl_mode_t ctrl_mode_get(void); /* see ctrl_mode_t for possible return values */
 
 /*
  * DIGITAL IO
