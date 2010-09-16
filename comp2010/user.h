@@ -1,5 +1,6 @@
 #ifndef USER_COMP2010_H_
 #define USER_COMP2010_H_
+#include <stdlib.h>
 
 typedef enum {
 	CAL_MODE_NONE = 0,

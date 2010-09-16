@@ -40,7 +40,6 @@ def mdebug(level, message):
     if(QUIET >= level):
         print >> sys.stderr , message
 
-
 class CmdException(Exception):
     pass
 

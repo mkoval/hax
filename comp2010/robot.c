@@ -9,25 +9,25 @@
 
 #if defined(ROBOT_KEVIN)
 
-void drive_raw(AnalogOut left, AnalogOut right) {
+void drive_raw(int8_t left, int8_t right) {
 	analog_set(MTR_DRIVE_L, +left);
 	analog_set(MTR_DRIVE_R, -right);
 }
 
-void arm_raw(AnalogOut vel) {
+void arm_raw(int8_t vel) {
 	analog_set(MTR_ARM_LT, -vel);
 	analog_set(MTR_ARM_LB, +vel);
 	analog_set(MTR_ARM_RT, +vel);
 	analog_set(MTR_ARM_RB, -vel);
 }
 
-void ramp_raw(AnalogOut left, AnalogOut right) {
+void ramp_raw(int8_t left, int8_t right) {
 	analog_set(MTR_LIFT_L, -left);
 	analog_set(MTR_LIFT_R, +right);
 }
 
-bool ramp_smart(AnalogOut vel) {
-	int16_t pos  = analog_adc_get(POT_LIFT);
+bool ramp_smart(int8_t vel) {
+	int16_t pos  = analog_get(POT_LIFT);
 	bool    up   = vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
@@ -39,24 +39,24 @@ bool ramp_smart(AnalogOut vel) {
 
 #elif defined(ROBOT_NITISH)
 
-void drive_raw(AnalogOut left, AnalogOut right) {
+void drive_raw(int8_t left, int8_t right) {
 	analog_set(MTR_DRIVE_L1, +left);
 	analog_set(MTR_DRIVE_L2, +left);
 	analog_set(MTR_DRIVE_R1, -right);
 	analog_set(MTR_DRIVE_R2, -right);
 }
 
-void arm_raw(AnalogOut vel) {
+void arm_raw(int8_t vel) {
 	analog_set(MTR_ARM_L, -vel);
 	analog_set(MTR_ARM_R, +vel);
 }
 
-void ramp_raw(AnalogOut left, AnalogOut right) {
+void ramp_raw(int8_t left, int8_t right) {
 	analog_set(MTR_LIFT_L, -left);
 	analog_set(MTR_LIFT_R, +right);
 }
 
-bool ramp_smart(AnalogOut vel) {
+bool ramp_smart(int8_t vel) {
 	int16_t left  = analog_adc_get(POT_LIFT_L);
 	int16_t right = analog_adc_get(POT_LIFT_R);
 
@@ -72,22 +72,22 @@ bool ramp_smart(AnalogOut vel) {
 
 #endif
 
-void drive_smart(AnalogOut forward, AnalogOut turn) {
+void drive_smart(int8_t forward, int8_t turn) {
 	int16_t left  = (int16_t) forward + turn;
 	int16_t right = (int16_t) forward - turn;
 	int16_t max   = MAX(ABS(left), ABS(right));
 
 	/* Scale the values to not exceed kMotorMax. */
-	if (max > kMotorMax) {
-		left  = left  * kMotorMax / max;
-		right = right * kMotorMax / max;
+	if (max > 127) {
+		left  = left  * 127 / max;
+		right = right * 127 / max;
 	}
 
 	drive_raw(left, right);
 }
 
-bool arm_smart(AnalogOut vel) {
-	int16_t pos  = analog_adc_get(POT_ARM);
+bool arm_smart(int8_t vel) {
+	int16_t pos  = analog_get(POT_ARM);
 	bool    up   = vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
@@ -97,7 +97,7 @@ bool arm_smart(AnalogOut vel) {
 	return !move;
 }
 
-int32_t drive_straight(AnalogOut forward) {
+int32_t drive_straight(int8_t forward) {
 	int32_t left  = encoder_get(ENC_L);
 	int32_t right = encoder_get(ENC_R);
 	int32_t diff  = left - right;
@@ -114,7 +114,7 @@ bool drive_turn(int16_t angle) {
 	int32_t cur   = ABS(left - right) / 2;
 	int32_t tar   = (int32_t)ABS(angle) * ENC_PER_DEG;
 	int32_t diff  = ABS(cur - tar);
-	int32_t turn  = PROP(kMotorMax, DRIVE_TURN_ERRMAX, diff);
+	int32_t turn  = PROP(127, DRIVE_TURN_ERRMAX, diff);
 
 	drive_smart(0, SIGN(angle) * turn);
 

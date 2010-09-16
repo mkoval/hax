@@ -60,24 +60,24 @@ __rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
 int IR_Long_To_In10(int sig)
 {
 	int index;
-	
+
 	index = sig/2;
 	if (index >= IR_LONG_TABLE_SIZE) {
 		return 0;
 	}
-	
+
 	return (int)(ir_long_table_sigo2_in5[index]) * 2;
 }
 
 int IR_Short_To_In10(int sig)
 {
 	int index;
-	
+
 	index = sig/2;
 	if (index >= IR_SHORT_TABLE_SIZE) {
 		return 0;
 	}
-	
+
 	return (int)(ir_short_table_sigo2_in5[index]) * 2;
 }
 
@@ -86,11 +86,11 @@ int IR_Short_To_In10(int sig)
 void IR_Filter_Routine(void)
 {
 	uint8_t i;
-	
+
 	for (i=0; i<num_ir_sensors; i++) {
 		ir_filters[i].s2 = ir_filters[i].s1;
-		ir_filters[i].s1 = analog_adc_get(ir_filters[i].ana_port);
-		
+		ir_filters[i].s1 = analog_get(ir_filters[i].ana_port);
+
 		if (ir_filters[i].s1 > ir_filters[i].s2) {
 			ir_filters[i].output = ir_filters[i].s2;
 		}

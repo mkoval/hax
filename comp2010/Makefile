@@ -2,11 +2,12 @@ arch     = cortex
 prog     = comp2010
 
 SOURCE = auton.c   \
-	encoder.c \
-	robot.c   \
-	user.c    \
-	state.c   \
-	ru_ir.c
+	encoder.c  \
+	robot.c    \
+	user.c     \
+	state.c    \
+	ru_ir.c    \
+	main.c
 
 CFLAGS = -DROBOT_$(ROBOT)
 

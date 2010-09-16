@@ -99,7 +99,7 @@ void auto_arm_init(state_t const __rom *state, mutable_t *mut) {
 }
 
 void auto_arm_loop(state_t const __rom *state, mutable_t *mut) {
-	int16_t pos  = analog_adc_get(POT_ARM);
+	int16_t pos  = analog_get(POT_ARM);
 	bool    up   = state->data->pose.vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = state->data->pose.vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 	bool    move = up || down;
@@ -108,7 +108,7 @@ void auto_arm_loop(state_t const __rom *state, mutable_t *mut) {
 }
 
 bool auto_arm_isdone(state_t const __rom *state, mutable_t *mut) {
-	int16_t pos  = analog_adc_get(POT_ARM);
+	int16_t pos  = analog_get(POT_ARM);
 	bool    up   = state->data->pose.vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = state->data->pose.vel < 0 && ARM_GT(pos, POT_ARM_LOW);
 
@@ -122,7 +122,7 @@ void auto_ramp_init(state_t const __rom *state, mutable_t *mut) {
 }
 
 void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
-	int16_t pos  = analog_adc_get(POT_LIFT);
+	int16_t pos  = analog_get(POT_LIFT);
 	bool    up   = state->data->pose.vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = state->data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 	bool    move = up || down;
@@ -131,7 +131,7 @@ void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
 }
 
 bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
-	int16_t pos  = analog_adc_get(POT_LIFT);
+	int16_t pos  = analog_get(POT_LIFT);
 	bool    up   = state->data->pose.vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = state->data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
 
@@ -150,8 +150,8 @@ void auto_ramp_init(state_t const __rom *state, mutable_t *mut) {
 
 void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
 	int8_t  vel   = state->data->pose.vel;
-	int16_t left  = analog_adc_get(POT_LIFT_L);
-	int16_t right = analog_adc_get(POT_LIFT_R);
+	int16_t left  = analog_get(POT_LIFT_L);
+	int16_t right = analog_get(POT_LIFT_R);
 
 	bool move_left  = (vel > 0 && LIFT_L_LT(left, POT_LIFT_L_HIGH))
 	               || (vel < 0 && LIFT_L_GT(left, POT_LIFT_L_LOW));
@@ -163,8 +163,8 @@ void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
 
 bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	int8_t  vel   = state->data->pose.vel;
-	int16_t left  = analog_adc_get(POT_LIFT_L);
-	int16_t right = analog_adc_get(POT_LIFT_R);
+	int16_t left  = analog_get(POT_LIFT_L);
+	int16_t right = analog_get(POT_LIFT_R);
 
 	bool move_left  = (vel > 0 && LIFT_L_LT(left, POT_LIFT_L_HIGH))
 	               || (vel < 0 && LIFT_L_GT(left, POT_LIFT_L_LOW));

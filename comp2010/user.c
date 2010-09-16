@@ -1,7 +1,7 @@
-#include <hax.h>
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <hax.h>
 #include "auton.h"
 #include "encoder.h"
 #include "ports.h"
@@ -18,9 +18,9 @@ static bool override = false;
 void init(void) {
 	/* Initialize autonomous mode. */
 	auto_current->cb_init(auto_current, &auto_mutable);
-	_puts("[STATE ");
-	_puts(auto_current->name);
-	_puts("]\n\r");
+	fputs("[STATE ", stdout);
+	fputs(auto_current->name, stdout);
+	fputs("]\n\r", stdout);
 
 #if defined(ROBOT_NITISH)
 	digital_setup(BUT_B_L, DIGITAL_IN);
@@ -71,9 +71,9 @@ void auton_loop(void) {
 
 		auto_current = next;
 
-		_puts("[STATE ");
-		_puts(auto_current->name);
-		_puts("]\n\r");
+		fputs("[STATE ", stdout);
+		fputs(auto_current->name, stdout);
+		fputs("]\n\r", stdout);
 
 		/* Perform auto_mutable initialization for the new state; replacing the
 		 * non-functioning memset() implementation on the PIC.
@@ -123,16 +123,16 @@ void telop_loop(void)
 #if defined(ROBOT_KEVIN)
 	IR_Filter_Routine();
 	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n\r",
-		   (int)analog_adc_get(POT_ARM),
-		   (int)analog_adc_get(POT_LIFT),
+		   (int)analog_get(POT_ARM),
+		   (int)analog_get(POT_LIFT),
 		   (int)encoder_get(ENC_L),
 		   (int)encoder_get(ENC_R),
 		   (int)Get_Rear_IR());
 #elif defined(ROBOT_NITISH)
 	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
-		   (int)analog_adc_get(POT_ARM),
-		   (int)analog_adc_get(POT_LIFT_L),
-		   (int)analog_adc_get(POT_LIFT_R),
+		   (int)analog_get(POT_ARM),
+		   (int)analog_get(POT_LIFT_L),
+		   (int)analog_get(POT_LIFT_R),
 		   (int)encoder_get(ENC_L),
 		   (int)encoder_get(ENC_R));
 #endif
