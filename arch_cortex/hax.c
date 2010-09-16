@@ -78,3 +78,110 @@ ctrl_mode_t mode_get(void) {
 		return MODE_TELOP;
 	}
 }
+
+/*
+ * OI access
+ */
+
+int8_t oi_group_get(index_t ix)
+{
+	uint8_t gr = IX_OI_GROUP_INV(ix);
+	struct oi_data *oi = &m2u.m2u.joysticks[IX_OI_OI_INV(ix)].b;
+	uint8_t data;
+	switch(gr) {
+	case 1:
+		data = oi->axis_1;
+		break;
+	case 2:
+		data = oi->axis_2;
+		break;
+	case 3:
+		data = oi->axis_3;
+		break;
+	case 4:
+		data = oi->axis_4;
+		break;
+	/* Triggers (groups of 2) */
+	case 5:
+		return 127*(oi->g5_u) - 127*(oi->g5_d);
+	case 6:
+		return 127*(oi->g6_u) - 127*(oi->g6_d);
+	/* Buttons (groups of 4) */
+	case 7:
+	case 8:
+		WARN("idx %d", ix);
+		return 0;
+	/* accelerometer data */
+	case 9:
+		data = oi->accel_x;
+		break;
+	case 10:
+		data = oi->accel_y;
+		break;
+	case 11:
+		data = oi->accel_z;
+		break;
+	default:
+		WARN_IX(ix);
+		return 0;
+	}
+
+	return (data == -128)?(-127):(data);
+}
+
+int8_t oi_rocker_get(index_t ix)
+{
+	struct oi_data *oi [] = { &m2u.m2u.joysticks[0].b, &m2u.m2u.joysticks[1].b };
+	switch(ix) {
+	case IX_OI_GROUP(1, 5):
+		return oi[0]->g5_u - oi[0]->g5_d;
+	case IX_OI_GROUP(1, 6):
+		return oi[0]->g6_u - oi[0]->g6_d;
+	case IX_OI_GROUP(2, 5):
+		return oi[1]->g5_u - oi[1]->g5_d;
+	case IX_OI_GROUP(2, 6):
+		return oi[1]->g6_u - oi[1]->g6_d;
+	default:
+		WARN_IX(ix);
+		return 0;
+	}
+}
+
+bool oi_button_get(index_t ix)
+{
+	uint8_t oi_i = IX_OI_BUTTON_OI_INV(ix);
+	struct oi_data *oi = &m2u.m2u.joysticks[oi_i].b;
+	index_t i = IX_OI_BUTTONx_INV(ix, oi_i);
+
+	switch(i) {
+	case IX_OI_BUTTON(1, 5, OI_B_UP):
+		return oi->g5_u;
+	case IX_OI_BUTTON(1, 5, OI_B_DN):
+		return oi->g5_d;
+	case IX_OI_BUTTON(1, 6, OI_B_UP):
+		return oi->g6_u;
+	case IX_OI_BUTTON(1, 6, OI_B_DN):
+		return oi->g6_d;
+
+	case IX_OI_BUTTON(1, 7, OI_B_UP):
+		return oi->g7_u;
+	case IX_OI_BUTTON(1, 7, OI_B_LT):
+		return oi->g7_l;
+	case IX_OI_BUTTON(1, 7, OI_B_DN):
+		return oi->g7_d;
+	case IX_OI_BUTTON(1, 7, OI_B_RT):
+		return oi->g7_r;
+
+	case IX_OI_BUTTON(1, 8, OI_B_UP):
+		return oi->g8_u;
+	case IX_OI_BUTTON(1, 8, OI_B_LT):
+		return oi->g8_l;
+	case IX_OI_BUTTON(1, 8, OI_B_DN):
+		return oi->g8_d;
+	case IX_OI_BUTTON(1, 8, OI_B_RT):
+		return oi->g8_r;
+
+	default:
+		WARN_IX(ix);
+	}
+}

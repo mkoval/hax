@@ -4,6 +4,9 @@ SRC_STM_LIB = $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
 SRC_PRINTF  = $(wildcard $(ARCH)/lib/small_printf/*.c)
 
 SOURCE  += $(ARCH)/hax.c          \
+	   $(ARCH)/analog.c       \
+	   $(ARCH)/digital.c      \
+	   \
            $(ARCH)/rcc.c          \
            $(ARCH)/spi.c          \
            $(ARCH)/init.c         \
@@ -11,8 +14,7 @@ SOURCE  += $(ARCH)/hax.c          \
            $(ARCH)/syscall.c      \
            $(ARCH)/usart.c        \
 	   $(ARCH)/exti.c         \
-           $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
-           $(wildcard $(FWLIB_DIR)/src/*.c)
+           $(SRC_STM_LIB)
 
 ARCH_EXT = bin
 include $(ARCH)/gcc.mk
