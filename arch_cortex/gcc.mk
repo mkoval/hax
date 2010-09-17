@@ -36,7 +36,7 @@ ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
 
 OBJECTS       = $(SOURCE:=.o)
 TRASH        += $(TARGET) $(TARGET:.bin=.elf) \
-	$(TARGET:.bin=.elf.map)
+	$(TARGET:.bin=.elf.map) \
 	$(OBJECTS) $(OBJECTS:.o.=.d)
 
 clean :
