@@ -1,5 +1,8 @@
 arch     = cortex
 prog     = comp2010
+ifndef ROBOT
+	ROBOT = KEVIN
+endif
 
 SOURCE = auton.c   \
 	encoder.c  \
