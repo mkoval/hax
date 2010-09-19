@@ -1,0 +1,16 @@
+CC=gcc
+RM=rm -f
+
+TARGET=test
+SRC = test_idx.c
+CFLAGS = -Wall -g
+
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) -o $@ $<
+
+.PHONY: clean
+clean:
+	$(RM) $(TARGET)
+
+.PHONY: rebuild
+rebuild: | clean $(TARGET)
