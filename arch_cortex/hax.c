@@ -24,6 +24,7 @@
 #include "usart.h"
 #include "spi.h"
 #include "exti.h"
+#include "cortex.h"
 
 spi_packet_t m2u;
 spi_packet_t u2m;
@@ -78,6 +79,37 @@ ctrl_mode_t ctrl_mode_get(void) {
 		return MODE_TELOP;
 	}
 }
+
+/*
+ * Analog
+ */
+uint16_t analog_get(index_t ix)
+{
+	if (IX_ANALOG(1) <= ix && ix <= IX_ANALOG(CT_ANALOG)) {
+		return adc_buffer[ix - IX_ANALOG(1)];
+	} else {
+		WARN_IX(ix);
+		return 0;
+	}
+}
+
+/*
+ * Motors
+ */
+void analog_set(index_t index, int8_t value) {
+	uint8_t value2;
+
+	/* Convert the motor speed to an unsigned value. */
+	value  = (value < 0 && value != -128) ? value - 1 : value;
+	value2 = value + 128;
+
+	if (IX_MOTOR(1) <= index && index <= IX_MOTOR(CT_MOTOR)) {
+		u2m.u2m.motors[index - IX_MOTOR(1)] = value2;
+	} else {
+		WARN("index %d; value %d", index, value);
+	}
+}
+
 
 /*
  * OI access
