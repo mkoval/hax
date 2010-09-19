@@ -34,9 +34,9 @@ spi_packet_t u2m;
 void arch_init_1(void) {
 	rcc_init();
 	gpio_init();
+	nvic_init();
 	usart_init();
 	spi_init();
-	nvic_init();
 	tim1_init();
 	adc_init();
 	exti_init();
@@ -85,8 +85,13 @@ ctrl_mode_t ctrl_mode_get(void) {
 
 int8_t oi_group_get(index_t ix)
 {
-	uint8_t gr = IX_OI_GROUP_INV(ix);
-	struct oi_data *oi = &m2u.m2u.joysticks[IX_OI_OI_INV(ix)].b;
+	uint8_t gr = IX_OI_GROUP_INV(ix) + 1;
+	uint8_t oi_i = IX_OI_OI_INV(ix);
+	if (oi_i != 0 && oi_i != 1) {
+		WARN("ix: %d; gr: %d; oi: %d", ix, gr, oi_i);
+		return 0;
+	}
+	struct oi_data *oi = &m2u.m2u.joysticks[oi_i].b;
 	uint8_t data;
 	switch(gr) {
 	case 1:
@@ -109,8 +114,8 @@ int8_t oi_group_get(index_t ix)
 	/* Buttons (groups of 4) */
 	case 7:
 	case 8:
-		WARN("idx %d", ix);
-		return 0;
+		goto error;
+
 	/* accelerometer data */
 	case 9:
 		data = oi->accel_x;
@@ -122,25 +127,32 @@ int8_t oi_group_get(index_t ix)
 		data = oi->accel_z;
 		break;
 	default:
-		WARN_IX(ix);
+	error:
+		WARN("ix: %d; gr: %d; oi: %d", ix, gr, oi_i);
 		return 0;
 	}
 
 	return (data == -128)?(-127):(data);
 }
 
+#define ROCKER_CASE(x, y)       \
+	case IX_OI_GROUP(x, y): \
+		return oi[x-1]->g##y##_u - oi[x-1]->g##y##_d
+
 int8_t oi_rocker_get(index_t ix)
 {
 	struct oi_data *oi [] = { &m2u.m2u.joysticks[0].b, &m2u.m2u.joysticks[1].b };
 	switch(ix) {
-	case IX_OI_GROUP(1, 5):
-		return oi[0]->g5_u - oi[0]->g5_d;
-	case IX_OI_GROUP(1, 6):
-		return oi[0]->g6_u - oi[0]->g6_d;
-	case IX_OI_GROUP(2, 5):
-		return oi[1]->g5_u - oi[1]->g5_d;
-	case IX_OI_GROUP(2, 6):
-		return oi[1]->g6_u - oi[1]->g6_d;
+	ROCKER_CASE(1,5);
+	ROCKER_CASE(1,6);
+	ROCKER_CASE(2,5);
+	ROCKER_CASE(2,6);
+
+	/* These ones are questionable */
+	ROCKER_CASE(1,7);
+	ROCKER_CASE(1,8);
+	ROCKER_CASE(2,7);
+	ROCKER_CASE(2,8);
 	default:
 		WARN_IX(ix);
 		return 0;
@@ -150,6 +162,10 @@ int8_t oi_rocker_get(index_t ix)
 bool oi_button_get(index_t ix)
 {
 	uint8_t oi_i = IX_OI_BUTTON_OI_INV(ix);
+	if (oi_i != 0 && oi_i != 1) {
+		WARN("ix: %d; oi: %d", ix, oi_i);
+		return false;
+	}
 	struct oi_data *oi = &m2u.m2u.joysticks[oi_i].b;
 	index_t i = IX_OI_BUTTONx_INV(ix, oi_i);
 
