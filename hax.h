@@ -16,9 +16,9 @@
 typedef uint8_t index_t;     /* internal pin index */
 typedef void (*isr_t)(bool pin_state); /* interrupt callback */
 typedef enum {
-    MODE_TELOP,  /* user-controlled with full OI access (default) */
-    MODE_AUTON,  /* autonomous mode with no OI access */
-    MODE_DISABLE /* disabled mode with no OI access or output control */
+	MODE_TELOP,  /* user-controlled with full OI access (default) */
+	MODE_AUTON,  /* autonomous mode with no OI access */
+	MODE_DISABLE /* disabled mode with no OI access or output control */
 } ctrl_mode_t;
 
 /*
