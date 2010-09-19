@@ -84,6 +84,67 @@ void spi_init(void)
 		init_data[i] = SPI_I2S_ReceiveData(SPI1);
 }
 
+void print_oi(struct oi_data *oi)
+{
+	printf("rt1: %x; rt2: %x; "
+		"lt1: %x; lt2: %x; "
+		"aX: %x; aY: %x; aZ: %x; "
+		,oi->axis_1
+		,oi->axis_2
+		,oi->axis_3
+		,oi->axis_4
+		,oi->accel_x
+		,oi->accel_y
+		,oi->accel_z
+		);
+
+	printf("g5( u:%x; d:%x); "
+		"g6( u:%x; d:%x); "
+		,oi->g5_u
+		,oi->g5_d
+		,oi->g6_u
+		,oi->g6_d
+		);
+
+	printf("g8( d:%x; l:%x; "
+		"u:%x; r%x );"
+		,oi->g8_d
+		,oi->g8_l
+		,oi->g8_u
+		,oi->g8_r
+		);
+
+	printf("g7( d:%x; l:%x; "
+		"u:%x; r%x );"
+		,oi->g7_d
+		,oi->g7_l
+		,oi->g7_u
+		,oi->g7_r
+		);
+}
+
+void print_m2u(spi_packet_m2u_t *m2u)
+{
+	printf("sync: %x; state: %x; "
+		"sysflag: %x; b_main: %x; "
+		"b_back: %x; version: %x; "
+		"pnum: %x\n"
+		,m2u->sync
+		,m2u->state.a
+		,m2u->sys_flags.a
+		,m2u->batt_volt_main
+		,m2u->batt_volt_backup
+		,m2u->version
+		,m2u->packet_num
+		);
+
+#if 0
+	print_oi(&(m2u->m2u.joysticks[0].b));
+	print_oi(&(m2u->m2u.joysticks[1].b));
+#endif
+
+}
+
 void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 {
 	/* Bad sync magic: bad packet. */
@@ -113,6 +174,7 @@ void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 	if (m2u->state.b.valid) {
 		u2m->state.a = STATE_VALID;
 		// TODO: Buffer the data.
+		print_m2u(m2u);
 	}
 }
 
@@ -179,65 +241,4 @@ void spi_packet_init_u2m(spi_packet_u2m_t *u2m)
 	}
 }
 
-
-void print_oi(struct oi_data *oi)
-{
-	printf("rt1: %x; rt2: %x; "
-		"lt1: %x; lt2: %x; "
-		"aX: %x; aY: %x; aZ: %x; "
-		,oi->axis_1
-		,oi->axis_2
-		,oi->axis_3
-		,oi->axis_4
-		,oi->accel_x
-		,oi->accel_y
-		,oi->accel_z
-		);
-
-	printf("g5( u:%x; d:%x); "
-		"g6( u:%x; d:%x); "
-		,oi->g5_u
-		,oi->g5_d
-		,oi->g6_u
-		,oi->g6_d
-		);
-
-	printf("g8( d:%x; l:%x; "
-		"u:%x; r%x );"
-		,oi->g8_d
-		,oi->g8_l
-		,oi->g8_u
-		,oi->g8_r
-		);
-
-	printf("g7( d:%x; l:%x; "
-		"u:%x; r%x );"
-		,oi->g7_d
-		,oi->g7_l
-		,oi->g7_u
-		,oi->g7_r
-		);
-}
-
-void print_m2u(spi_packet_m2u_t *m2u)
-{
-	printf("sync: %x; state: %x; "
-		"sysflag: %x; b_main: %x; "
-		"b_back: %x; version: %x; "
-		"pnum: %x\n"
-		,m2u->sync
-		,m2u->state.a
-		,m2u->sys_flags.a
-		,m2u->batt_volt_main
-		,m2u->batt_volt_backup
-		,m2u->version
-		,m2u->packet_num
-		);
-
-#if 0
-	print_oi(&(m2u->m2u.joysticks[0].b));
-	print_oi(&(m2u->m2u.joysticks[1].b));
-#endif
-
-}
 

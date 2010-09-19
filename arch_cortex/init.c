@@ -37,14 +37,10 @@ void gpio_init(void)
 	             | RCC_APB2ENR_IOPGEN;
 
 	// Set all gpios to "analog", aka diabled
-	GPIOA->CRL = GPIOB->CRL
-	           = GPIOC->CRL = GPIOD->CRL
-	           = GPIOE->CRL = GPIOF->CRL
-	           = GPIOG->CRL = 0;
-	GPIOA->CRH = GPIOB->CRH
-	           = GPIOC->CRH = GPIOD->CRH
-	           = GPIOE->CRH = GPIOF->CRH
-	           = GPIOG->CRH = 0;
+	GPIOA->CRL = GPIOB->CRL = GPIOC->CRL = GPIOD->CRL
+	           = GPIOE->CRL = GPIOF->CRL = GPIOG->CRL = 0;
+	GPIOA->CRH = GPIOB->CRH = GPIOC->CRH = GPIOD->CRH
+	           = GPIOE->CRH = GPIOF->CRH = GPIOG->CRH = 0;
 }
 
 void adc_init(void) {
@@ -58,10 +54,11 @@ void adc_init(void) {
 	ADC_InitTypeDef ADC_InitStructure;
 	DMA_InitTypeDef DMA_InitStructure;
 
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);	// Enable DMA1 clock
+	// Enable DMA1 clock
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 	ADC_DeInit(ADC1);
 
-	/* DMA1 channel1 configuration ----------------------------------------------*/
+	/*---- DMA1 channel1 configuration ----*/
 	DMA_DeInit(DMA1_Channel1);
 	DMA_InitStructure.DMA_PeripheralBaseAddr = (u32) &ADC1->DR;
 	DMA_InitStructure.DMA_MemoryBaseAddr = (u32) &adc_buffer[0];
@@ -114,7 +111,6 @@ void adc_init(void) {
 void nvic_init(void) {
 	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
 }
-
 
 void tim1_init(void) {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
