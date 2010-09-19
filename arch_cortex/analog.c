@@ -13,8 +13,8 @@ void analog_set(index_t index, int8_t value) {
 	value  = (value < 0 && value != -128) ? value - 1 : value;
 	value2 = value + 128;
 
-	if (OFFSET_ANALOG <= index && index <= OFFSET_ANALOG + CT_ANALOG) {
-		u2m.u2m.motors[index] = value2;
+	if (IX_MOTOR(1) <= index && index <= IX_MOTOR(CT_MOTOR)) {
+		u2m.u2m.motors[index - IX_MOTOR(1)] = value2;
 	} else {
 		WARN("index %d; value %d", index, value);
 	}
