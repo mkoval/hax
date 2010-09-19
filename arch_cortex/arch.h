@@ -40,11 +40,11 @@
 
 /* Inverses to convinient 0 indexed sets */
 #define IX_OI_GROUP_INV(ix) _IX_OI_GROUP_INV((ix) - OFFSET_OI)
-#define _IX_OI_GROUP_INV(ix) ((ix) > CT_OI_GROUPS)? \
+#define _IX_OI_GROUP_INV(ix) ((ix) >= CT_OI_GROUPS)? \
 	((ix) - CT_OI_GROUPS):(ix)
 
 #define IX_OI_OI_INV(ix) _IX_OI_OI_INV((ix) - OFFSET_OI)
-#define _IX_OI_OI_INV(ix) (((ix) > CT_OI_GROUPS)?(1):(0))
+#define _IX_OI_OI_INV(ix) (((ix) >= CT_OI_GROUPS)?(1):(0))
 
 #define IX_OI_BUTTON_OI_INV(ix) /* Button_ix to oi_i  */ \
 	(((ix) > IX_OI_BUTTON(1,CT_OI_GROUPS,3))?  \
@@ -58,9 +58,9 @@
 #define OI_JOY_R_X(oi) IX_OI_GROUP(oi, 2)
 #define OI_JOY_R_Y(oi) IX_OI_GROUP(oi, 3)
 
-#define OI_ROCKER_L(oi) IX_OI_GROUP(oi, 7)
-#define OI_ROCKER_R(oi) IX_OI_GROUP(oi, 8)
-#define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 7, dir)
-#define OI_TRIGGER_R(oi, dir) IX_OI_BUTTON(oi, 8, dir)
+#define OI_ROCKER_L(oi) IX_OI_GROUP(oi, 5)
+#define OI_ROCKER_R(oi) IX_OI_GROUP(oi, 6)
+#define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 5, dir)
+#define OI_TRIGGER_R(oi, dir) IX_OI_BUTTON(oi, 6, dir)
 
 #endif
