@@ -96,7 +96,7 @@ uint16_t analog_get(index_t ix)
 /*
  * Motors
  */
-void analog_set(index_t index, int8_t value) {
+void motor_set(index_t index, int8_t value) {
 	uint8_t value2;
 
 	/* Convert the motor speed to an unsigned value. */

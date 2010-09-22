@@ -31,7 +31,7 @@ void arch_loop_2(void); /* call on exit from the slow loop */
 void arch_spin(void); /* call in the fast loop (as quickly as possible) */
 
 bool do_slow_loop(void); /* if true, a slow loop should be executed */
-ctrl_mode_t ctrl_mode_get(void); /* see ctrl_mode_t for possible return values */
+ctrl_mode_t ctrl_mode_get(void); /* see ctrl_mode_t for possible return vals */
 
 /*
  * DIGITAL IO
@@ -49,11 +49,12 @@ bool   oi_button_get(index_t ix);
 int8_t oi_group_get(index_t ix);  /* constrained from -127 to 127 */
 int8_t oi_rocker_get(index_t ix); /* Rocker/Trigger reading {-1, 0, 1} */
 
-/*
- * ANALOG IO
- */
-void analog_set(index_t pin, int8_t value);   /* control a motor or server */
-uint16_t analog_get(index_t pin);         /* returns a 10-bit value read via adc */
+/* MOTORs */
+void motor_set(index_t pin, int8_t value);   /* control a motor or server */
+
+
+/* ANALOG (adc) IN */
+uint16_t analog_get(index_t pin); /* returns a 10-bit value read via adc */
 
 /*
  * INTERRUPTS
