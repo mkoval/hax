@@ -1,5 +1,6 @@
 #ifndef ARCH_CORTEX_H_
 #define ARCH_CORTEX_H_
+/* Macros prefixed with '_' are for arch_cortex internal use */
 
 /* Period of the slow loop, in microseconds. */
 #define SLOW_US 18200
@@ -34,9 +35,12 @@
 #define IX_MOTOR(n)       (OFFSET_MOTOR + (n) - 1)
 #define IX_OI_GROUP(oi, group)  (OFFSET_OI + (((oi) - 1) * CT_OI_GROUPS) \
 		+ (group) - 1)
+
 #define IX_OI_BUTTON(oi, group, dir) \
-	(OFFSET_OI_BUTTON + (((oi) - 1) * CT_OIx_BUTTON) \
-	 + (((group) - 1) * CT_OI_GROUP_SZ) + (dir))
+	((((oi) - 1) * CT_OIx_BUTTON) \
+	 + _IX_OI_BUTTON(group, dir) + OFFSET_OI_BUTTON)
+#define _IX_OI_BUTTON(group, dir) \
+	((((group) - 1) * CT_OI_GROUP_SZ) + (dir))
 
 /* Inverses to convinient 0 indexed sets */
 #define IX_OI_GROUP_INV(ix) _IX_OI_GROUP_INV((ix) - OFFSET_OI)
@@ -46,11 +50,13 @@
 #define IX_OI_OI_INV(ix) _IX_OI_OI_INV((ix) - OFFSET_OI)
 #define _IX_OI_OI_INV(ix) (((ix) >= CT_OI_GROUPS)?(1):(0))
 
-#define IX_OI_BUTTON_OI_INV(ix) /* Button_ix to oi_i  */ \
-	(((ix) > IX_OI_BUTTON(1,CT_OI_GROUPS,3))?  \
-		((ix) - CT_OIx_BUTTON):((ix)))
-#define IX_OI_BUTTONx_INV(ix, oi) \
-	(ix - CT_OIx_BUTTON * oi)
+#define IX_OI_BUTTON_OI_INV(ix) _IX_OI_BUTTON_OI_INV((ix) - OFFSET_OI_BUTTON)
+#define _IX_OI_BUTTON_OI_INV(ix) \
+	(((ix) > CT_OIx_BUTTON)?  \
+		(1):(0))
+
+#define IX_OI_BUTTON_GROUP_INV(ix, oi) \
+	(ix - CT_OIx_BUTTON * oi - OFFSET_OI_BUTTON)
 
 /* Joysticks */
 #define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 0)
