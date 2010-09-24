@@ -24,6 +24,7 @@
 #include "usart.h"
 #include "spi.h"
 #include "exti.h"
+#include "cortex.h"
 
 spi_packet_t m2u;
 spi_packet_t u2m;
@@ -78,6 +79,37 @@ ctrl_mode_t ctrl_mode_get(void) {
 		return MODE_TELOP;
 	}
 }
+
+/*
+ * Analog
+ */
+uint16_t analog_get(index_t ix)
+{
+	if (IX_ANALOG(1) <= ix && ix <= IX_ANALOG(CT_ANALOG)) {
+		return adc_buffer[ix - IX_ANALOG(1)];
+	} else {
+		WARN_IX(ix);
+		return 0;
+	}
+}
+
+/*
+ * Motors
+ */
+void motor_set(index_t index, int8_t value) {
+	uint8_t value2;
+
+	/* Convert the motor speed to an unsigned value. */
+	value  = (value < 0 && value != -128) ? value - 1 : value;
+	value2 = value + 128;
+
+	if (IX_MOTOR(1) <= index && index <= IX_MOTOR(CT_MOTOR)) {
+		u2m.u2m.motors[index - IX_MOTOR(1)] = value2;
+	} else {
+		WARN("index %d; value %d", index, value);
+	}
+}
+
 
 /*
  * OI access
@@ -167,34 +199,34 @@ bool oi_button_get(index_t ix)
 		return false;
 	}
 	struct oi_data *oi = &m2u.m2u.joysticks[oi_i].b;
-	index_t i = IX_OI_BUTTONx_INV(ix, oi_i);
+	index_t i = IX_OI_BUTTON_GROUP_INV(ix, oi_i);
 
 	switch(i) {
-	case IX_OI_BUTTON(1, 5, OI_B_UP):
+	case _IX_OI_BUTTON(5, OI_B_UP):
 		return oi->g5_u;
-	case IX_OI_BUTTON(1, 5, OI_B_DN):
+	case _IX_OI_BUTTON(5, OI_B_DN):
 		return oi->g5_d;
-	case IX_OI_BUTTON(1, 6, OI_B_UP):
+	case _IX_OI_BUTTON(6, OI_B_UP):
 		return oi->g6_u;
-	case IX_OI_BUTTON(1, 6, OI_B_DN):
+	case _IX_OI_BUTTON(6, OI_B_DN):
 		return oi->g6_d;
 
-	case IX_OI_BUTTON(1, 7, OI_B_UP):
+	case _IX_OI_BUTTON(7, OI_B_UP):
 		return oi->g7_u;
-	case IX_OI_BUTTON(1, 7, OI_B_LT):
+	case _IX_OI_BUTTON(7, OI_B_LT):
 		return oi->g7_l;
-	case IX_OI_BUTTON(1, 7, OI_B_DN):
+	case _IX_OI_BUTTON(7, OI_B_DN):
 		return oi->g7_d;
-	case IX_OI_BUTTON(1, 7, OI_B_RT):
+	case _IX_OI_BUTTON(7, OI_B_RT):
 		return oi->g7_r;
 
-	case IX_OI_BUTTON(1, 8, OI_B_UP):
+	case _IX_OI_BUTTON(8, OI_B_UP):
 		return oi->g8_u;
-	case IX_OI_BUTTON(1, 8, OI_B_LT):
+	case _IX_OI_BUTTON(8, OI_B_LT):
 		return oi->g8_l;
-	case IX_OI_BUTTON(1, 8, OI_B_DN):
+	case _IX_OI_BUTTON(8, OI_B_DN):
 		return oi->g8_d;
-	case IX_OI_BUTTON(1, 8, OI_B_RT):
+	case _IX_OI_BUTTON(8, OI_B_RT):
 		return oi->g8_r;
 
 	default:

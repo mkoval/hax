@@ -54,7 +54,7 @@ void auton_loop(void) {
 
 	/* Start each autonomous slow loop with a clean slate. */
 	for (i = IX_MOTOR(1); i < MTR_NUM; ++i) {
-		analog_set(i, 0);
+		motor_set(i, 0);
 	}
 
 	/* Update the current state. */

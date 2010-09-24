@@ -24,8 +24,8 @@ void test_oi_button(uint8_t oi_i, uint8_t gr_i, uint8_t but_i)
 {
 	index_t a = IX_OI_BUTTON(oi_i, gr_i, but_i);
 
-	uint8_t gr = IX_OI_BUTTON_OI_INV(a);
-	uint8_t oi = IX_OI_BUTTON_OI_INV(a);
+	int oi = IX_OI_BUTTON_OI_INV(a);
+	int gr = IX_OI_BUTTON_GROUP_INV(a, oi);
 	int but = -1;
 
 	printf("IN(%d, %d, %d) == %d == OUT(%d, %d, %d)\n",
