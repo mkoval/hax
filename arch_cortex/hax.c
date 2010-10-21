@@ -164,7 +164,7 @@ int8_t oi_group_get(index_t ix)
 		return 0;
 	}
 
-	return (data == -128)?(-127):(data);
+	return (data == 0)?(-127):(data - 128);
 }
 
 #define ROCKER_CASE(x, y)       \
