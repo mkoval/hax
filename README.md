@@ -11,15 +11,15 @@
 	    (http://github.com/jmesmon/mcc18-wrapper) or
 	  - sdcc.
 	  - a bootloader communicator ("programmer")
-	  	- rigel
-		- ifi-picloader
-		- roboctl
-		- ifi loader
+	    + rigel
+	    + ifi-picloader
+	    + roboctl
+	    + ifi loader
         * For 'cortex' you will need 
 	  - compiled for arm-none-eabi (maybe possible to use arm-elf)
-	    - binutils, 
-	    - gcc, and
-	    - newlib
+	    + binutils, 
+	    + gcc, and
+	    + newlib
 	  - "programmer" included in ./arch_cortex/jtag/stm32lodaer.py 
 	    (no, it isn`t jtag)
 
