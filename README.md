@@ -7,12 +7,21 @@
       Cygwin (on Windows), MacOSX, and Linux.
     * A build environment. 
         * For 'pic', this means installing
-          - >=mcc18-3.35 and the wrapper scripts
+          - \>=mcc18-3.35 and the wrapper scripts
 	    (http://github.com/jmesmon/mcc18-wrapper) or
 	  - sdcc.
-        * For 'cortex' you will need binutils, gcc, and
-          newlib for the arm-none-eabi architecture (arm-elf
-          may also work, but is untested)
+	  - a bootloader communicator ("programmer")
+	  	- rigel
+		- ifi-picloader
+		- roboctl
+		- ifi loader
+        * For 'cortex' you will need 
+	  - compiled for arm-none-eabi (maybe possible to use arm-elf)
+	    - binutils, 
+	    - gcc, and
+	    - newlib
+	  - "programmer" included in ./arch_cortex/jtag/stm32lodaer.py 
+	    (no, it isn`t jtag)
 
 2. Look at the 'skel' directory and the (forthcoming) 'test' directory
    to get an idea of how the functions work, etc. Files containing code
