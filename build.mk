@@ -19,7 +19,6 @@ ifndef prog
 $(error "unnamed program")
 endif
 
-
 .SUFFIXES:
 .PHONY: all clean build rebuild
 
@@ -32,6 +31,7 @@ include $(ARCH)/build.mk
 
 build: $(TARGET)
 
+.PHONY: mrproper
 mrproper:
 	@echo "MRPROPER"
 	@$(FIND) . -print \
