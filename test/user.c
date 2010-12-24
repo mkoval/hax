@@ -4,26 +4,21 @@
 
 #include "user.h"
 
-/* Number of analog inputs. Required for compatability with the PIC, which uses
- * this constant to initialize its ADCs (analog to digital convertors).
- */
-uint8_t const kNumAnalogInputs = 0;
-
 /* Called as soon as the processor is initialized. Generally used to initialize
  * digital inputs, analog inputs, digital outputs, and interrupts.
  */
 void init(void) {
 	/* Register interrupt callback functions for encoders. */
-	interrupt_reg_isr(INT_LEFT_A, enc_left_a);
-	interrupt_reg_isr(INT_LEFT_B, enc_left_b);
-	interrupt_reg_isr(INT_RIGHT_A, enc_right_a);
-	interrupt_reg_isr(INT_RIGHT_B, enc_right_b);
+	interrupt_setup(IX_INTERRUPT(1), enc_left_a);
+	interrupt_setup(IX_INTERRUPT(2), enc_left_b);
+	interrupt_setup(IX_INTERRUPT(3), enc_right_a);
+	interrupt_setup(IX_INTERRUPT(4), enc_right_b);
 
 	/* Enable an interrupt only after its corresponding callback is set. */
-	interrupt_enable(INT_LEFT_A);
-	interrupt_enable(INT_LEFT_B);
-	interrupt_enable(INT_RIGHT_A);
-	interrupt_enable(INT_RIGHT_B);
+	interrupt_set(IX_INTERRUPT(1), 1);
+	interrupt_set(IX_INTERRUPT(2), 1);
+	interrupt_set(IX_INTERRUPT(3), 1);
+	interrupt_set(IX_INTERRUPT(4), 1);
 }
 
 /* Called every time the user processor receives data from the master processor
@@ -36,13 +31,13 @@ void auton_loop(void) {
 		/* Motor speeds range from -127 (full power, reverse) to +227 (full
 		 * power, forward).
 		 */
-		analog_set(MTR_LEFT,   127);
-		analog_set(MTR_RIGHT, -127);
+		motor_set(IX_MOTOR(2),   127);
+		motor_set(IX_MOTOR(3), -127);
 
 		/* Buttons and limit switches are active-low, meaning that they have
 		 * a default value of 1 ("true").
 		 */
-		done = !digital_get(1);
+		done = !digital_get(IX_DIGITAL(5));
 	}
 }
 
@@ -53,11 +48,11 @@ void telop_loop(void) {
 	/* One uses analog_oi_get() and digital_oi_get() to get values from the
 	 * transmitter in telop mode.
 	 */
-	int8_t left  = analog_oi_get(OI_STICK_L_Y);
-	int8_t right = analog_oi_get(OI_STICK_R_Y);
+	int8_t left  = oi_group_get(IX_OI_GROUP(1, 3));
+	int8_t right = oi_group_get(IX_OI_GROUP(1, 2));
 
-	analog_set(MTR_LEFT,   left);
-	analog_set(MTR_RIGHT, -right);
+	motor_set(IX_MOTOR(2),   left);
+	motor_set(IX_MOTOR(3), -right);
 }
 
 /* Same as auton_loop() and telop_loop(), except in disabled mode. This is 
@@ -80,7 +75,7 @@ volatile int32_t left  = 0;
 volatile int32_t right = 0;
 
 void enc_left_a(bool dig) {
-	bool const other = digital_get(INT_LEFT_B);
+	bool const other = digital_get(IX_INTERRUPT(2));
 
 	if (dig && other)
 		--left;
@@ -93,7 +88,7 @@ void enc_left_a(bool dig) {
 }
 
 void enc_left_b(bool dig) {
-	bool const other = digital_get(INT_LEFT_A);
+	bool const other = digital_get(IX_INTERRUPT(1));
 
 	if (dig && other)
 		--left;
@@ -106,7 +101,7 @@ void enc_left_b(bool dig) {
 }
 
 void enc_right_a(bool dig) {
-	bool const other = digital_get(INT_RIGHT_B);
+	bool const other = digital_get(IX_INTERRUPT(4));
 
 	if (dig && other)
 		--right;
@@ -119,7 +114,7 @@ void enc_right_a(bool dig) {
 }
 
 void enc_right_b(bool dig) {
-	bool const other = digital_get(INT_RIGHT_A);
+	bool const other = digital_get(IX_INTERRUPT(3));
 
 	if (dig && other)
 		--right;
