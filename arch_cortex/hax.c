@@ -199,7 +199,7 @@ bool oi_button_get(index_t ix)
 		return false;
 	}
 	struct oi_data *oi = &m2u.m2u.joysticks[oi_i].b;
-	index_t i = IX_OI_BUTTON_GROUP_INV(ix, oi_i);
+	index_t i = IX_OI_BUTTON_INV_BUTTONS(ix, oi_i);
 
 	switch(i) {
 	case _IX_OI_BUTTON(5, OI_B_UP):
