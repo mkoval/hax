@@ -55,6 +55,8 @@ class CommandInterface:
             rtscts=0,               # disable RTS/CTS flow control
             timeout=5               # set a timeout value, None for waiting forever
         )
+        self.sp.flushInput()
+        self.sp.flushOutput()
 
 
     def _wait_for_ask(self, info = ""):
@@ -89,6 +91,7 @@ class CommandInterface:
         self.reset()
 
         self.sp.write("\x7F")       # Syncro
+        self.sp.flush()
         return self._wait_for_ask("Syncro")
 
     def releaseChip(self):
@@ -98,6 +101,7 @@ class CommandInterface:
     def cmdGeneric(self, cmd):
         self.sp.write(chr(cmd))
         self.sp.write(chr(cmd ^ 0xFF)) # Control byte
+        self.sp.flush()
         return self._wait_for_ask(hex(cmd))
 
     def cmdGet(self):
@@ -149,10 +153,12 @@ class CommandInterface:
         if self.cmdGeneric(0x11):
             mdebug(10, "*** ReadMemory command")
             self.sp.write(self._encode_addr(addr))
+            self.sp.flush()
             self._wait_for_ask("0x11 address failed")
             N = (lng - 1) & 0xFF
             crc = N ^ 0xFF
             self.sp.write(chr(N) + chr(crc))
+            self.sp.flush()
             self._wait_for_ask("0x11 length failed")
             return map(lambda c: ord(c), self.sp.read(lng))
         else:
@@ -163,6 +169,7 @@ class CommandInterface:
         if self.cmdGeneric(0x21):
             mdebug(10, "*** Go command")
             self.sp.write(self._encode_addr(addr))
+            self.sp.flush()
             self._wait_for_ask("0x21 go failed")
         else:
             raise CmdException("Go (0x21) failed")
@@ -173,6 +180,7 @@ class CommandInterface:
         if self.cmdGeneric(0x31):
             mdebug(10, "*** Write memory command")
             self.sp.write(self._encode_addr(addr))
+            self.sp.flush()
             self._wait_for_ask("0x31 address failed")
             #map(lambda c: hex(ord(c)), data)
             lng = (len(data)-1) & 0xFF
@@ -183,6 +191,7 @@ class CommandInterface:
                 crc = crc ^ c
                 self.sp.write(chr(c))
             self.sp.write(chr(crc))
+            self.sp.flush()
             self._wait_for_ask("0x31 programming failed")
             mdebug(10, "    Write memory done")
         else:
@@ -196,6 +205,7 @@ class CommandInterface:
                 # Global erase
                 self.sp.write(chr(0xFF))
                 self.sp.write(chr(0x00))
+                self.sp.flush()
             else:
                 # Sectors erase
                 self.sp.write(chr((len(sectors)-1) & 0xFF))
@@ -204,6 +214,7 @@ class CommandInterface:
                     crc = crc ^ c
                     self.sp.write(chr(c))
                 self.sp.write(chr(crc))
+                self.sp.flush()
             self._wait_for_ask("0x43 erasing failed")
             mdebug(10, "    Erase memory done")
         else:
@@ -218,6 +229,7 @@ class CommandInterface:
                 crc = crc ^ c
                 self.sp.write(chr(c))
             self.sp.write(chr(crc))
+            self.sp.flush()
             self._wait_for_ask("0x63 write protect failed")
             mdebug(10, "    Write protect done")
         else:
@@ -411,6 +423,8 @@ if __name__ == "__main__":
 #    cmd.cmdReadoutUnprotect()
 #    cmd.cmdWriteUnprotect()
 #    cmd.cmdWriteProtect([0, 1])
+
+        
 
         if (conf['write'] or conf['verify']):
             data = map(lambda c: ord(c), file(args[0]).read())

@@ -19,12 +19,16 @@ ifndef prog
 $(error "unnamed program")
 endif
 
+ifeq ($(serial),)
+$(warning "no serial port specified; 'make install' may fail")
+endif
+
 .SUFFIXES:
-.PHONY: all clean build rebuild
+.PHONY: all clean build rebuild install
 
 all: build
 
-rebuild : | clean build
+rebuild: | clean build
 
 -include $(SOURCE:=.d)
 include $(ARCH)/build.mk
@@ -38,3 +42,8 @@ mrproper:
 	| $(GREP) '.*\.\([od]\|elf\|hex\|bin\|map\|lss\|sym\|strip\)$$' \
 	| $(XARGS) -- $(RM)
 
+ifeq ($(arch),cortex)
+install: $(TARGET)
+	@echo "UPLOAD $^"
+	@$(srcdir)/arch_cortex/jtag/stm32loader.py -ewv -p"$(serial)" -b115200 $(TARGET)
+endif
