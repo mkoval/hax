@@ -16,11 +16,11 @@
             + roboctl
             + ifi loader
         * For 'cortex' you will need 
-          - compiled for arm-none-eabi (maybe possible to use arm-elf)
+          - compiled for arm-none-eabi (may be possible to use arm-elf)
             + binutils, 
-            + gcc, and
-            + newlib
-          - "programmer" / chip flasher:
+            + gcc,
+            + and newlib
+          - a "programmer" / chip flasher:
 	    + stm32loader : included in ./arch_cortex/jtag/stm32lodaer.py 
 		     (no, it isn`t jtag)
 	    + stm32flash http://code.google.com/p/stm32flash/
