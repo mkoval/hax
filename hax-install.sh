@@ -206,14 +206,14 @@ assoc_set "ext" "newlib"   "newlib-1.18.0"
 assoc_set "ext" "gcc"      "gcc-4.4.4"
 
 # Attempt to detect previous installations of each dependency.
-assoc_set "dep" "sdcc"     "`has 'sdcc'`"
-assoc_set "dep" "m4"       "`has 'm4'`"
-assoc_set "dep" "gmp"      ""
-assoc_set "dep" "mpfr"     ""
-assoc_set "dep" "binutils" "`has 'arm-none-eabi-objcopy'`"
-assoc_set "dep" "gcc_bs"   "`has 'arm-none-eabi-gcc'`"
-assoc_set "dep" "newlib"   ""
-assoc_set "dep" "gcc_bs"   ""
+assoc_set "dep" "sdcc"     "`command -v 'sdcc'`"
+assoc_set "dep" "m4"       "`command -v 'm4'`"
+assoc_set "dep" "gmp"      "`ld -lgmp --help &> '/dev/null'`"
+assoc_set "dep" "mpfr"     "`ld -lpfr --help &> '/dev/null'`"
+assoc_set "dep" "binutils" "`command -v 'arm-none-eabi-objcopy'`"
+assoc_set "dep" "gcc_bs"   "`command -v 'arm-none-eabi-gcc'`"
+assoc_set "dep" "newlib"   "`command -v 'arm-none-eabi-gcc'`"
+assoc_set "dep" "gcc"      "`command -v 'arm-none-eabi-gcc'`"
 
 # Configuration (./configure) flags for each dependency.
 function mk_sdcc_conf () {
@@ -279,6 +279,18 @@ if [ "$COMMAND" = "install" ]; then
 				build "m4" "all" "install"
 			fi
 
+			# GMP
+			if [ ! "`assoc_get "dep" "gmp"`" ]; then
+				extract "gmp"
+				build "gmp" "all" "install"
+			fi
+
+			# MPFR
+			if [ ! "`assoc_get "dep" "mpfr"`" ]; then
+				extract "mpfr"
+				build "mpfr" "all" "install"
+			fi
+
 			# Binutils
 			if [ ! "`assoc_get "dep" "binutils"`" ]; then
 				extract "binutils"
@@ -287,14 +299,7 @@ if [ "$COMMAND" = "install" ]; then
 
 			# GCC (Stage 1), Newlib, and GCC (Stage 2)
 			if [ ! "`assoc_get "dep" "gcc"`" ]; then
-				NAME_GCC="`assoc_get "ext" "gcc"`"
-				NAME_GMP="`assoc_get "ext" "gmp"`"
-				NAME_MPFR="`assoc_get "ext" "mpfr"`"
-
-				# GCC Bootstrap (Stage 1)
-				extract "gcc" "gmp" "mpfr"
-				cp -r "$DIR_EXTRACT/$NAME_GMP"  "$DIR_EXTRACT/$NAME_GCC/gmp"
-				cp -r "$DIR_EXTRACT/$NAME_MPFR" "$DIR_EXTRACT/$NAME_GCC/mpfr"
+				# GCC (Stage 1)
 				build "gcc_bs" "all-gcc" "install-gcc"
 
 				# Newlib
