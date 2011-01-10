@@ -161,20 +161,20 @@ void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 			u2m->state.a = STATE_VALID;
 		}
 
-		printf("[MASTER config]");
+		//printf("[MASTER config]");
 	}
 
 	if (m2u->state.b.initializing) {
 		// not yet good data.
 		u2m->state.a = STATE_VALID; // we have data ready
 		m2u->packet_num = 1; //XXX: "to skip print"
-		printf("[MASTER init]");
+		//printf("[MASTER init]");
 	}
 
 	if (m2u->state.b.valid) {
 		u2m->state.a = STATE_VALID;
 		// TODO: Buffer the data.
-		print_m2u(m2u);
+		//print_m2u(m2u);
 	}
 }
 
