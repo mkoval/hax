@@ -53,7 +53,7 @@
 
 #define IX_OI_BUTTON_OI_INV(ix) _IX_OI_BUTTON_OI_INV((ix) - OFFSET_OI_BUTTON)
 #define _IX_OI_BUTTON_OI_INV(ix) \
-	(((ix) > CT_OIx_BUTTON)?  \
+	(((ix) >= CT_OIx_BUTTON)?  \
 		(1):(0))
 
 #define IX_OI_BUTTON_GROUP_INV(ix, oi) \
