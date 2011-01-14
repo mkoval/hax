@@ -1,6 +1,7 @@
 #include <hax.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "user.h"
 
@@ -50,6 +51,12 @@ void telop_loop(void) {
 	 */
 	int8_t left  = oi_group_get(IX_OI_GROUP(1, 3));
 	int8_t right = oi_group_get(IX_OI_GROUP(1, 2));
+
+	printf("left: %d, right: %d", left, right);
+
+	bool oi_thing = oi_button_get(IX_OI_BUTTON(1, 7, OI_B_UP));
+
+	motor_set(IX_MOTOR(4), 127*oi_thing);
 
 	motor_set(IX_MOTOR(2),   left);
 	motor_set(IX_MOTOR(3), -right);

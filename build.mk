@@ -19,9 +19,6 @@ ifndef prog
 $(error "unnamed program")
 endif
 
-ifeq ($(serial),)
-$(warning "no serial port specified; 'make install' may fail")
-endif
 
 .SUFFIXES:
 .PHONY: all clean build rebuild install

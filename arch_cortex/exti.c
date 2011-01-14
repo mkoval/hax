@@ -27,10 +27,13 @@ static const uint8_t pin_to_ifipin [16] =
 
 static isr_t isr_callback[12];
 
+#define DIG_VALID(pin) (pin < CT_DIGITAL)
+#define INT_VALID(pin) (DIG_VALID(pin) && (pin != 9))
+
 /* HAX interrupt code */
 void interrupt_reg_isr(index_t index, isr_t isr) {
 	index_t pin = index - IX_DIGITAL(1);
-	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+	if (!INT_VALID(pin)) {
 		WARN_IX(index);
 		return;
 	}
@@ -40,7 +43,7 @@ void interrupt_reg_isr(index_t index, isr_t isr) {
 void interrupt_setup(index_t index, isr_t isr)
 {
 	index_t pin = index - IX_DIGITAL(1);
-	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+	if (!INT_VALID(pin)) {
 		WARN_IX(index);
 		return;
 	}
@@ -54,7 +57,7 @@ void interrupt_setup(index_t index, isr_t isr)
 void interrupt_set(index_t index, bool enable)
 {
 	index_t pin = index - IX_DIGITAL(1);
-	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+	if (!INT_VALID(pin)) {
 		WARN_IX(index);
 		return;
 	}
@@ -70,45 +73,49 @@ void interrupt_set(index_t index, bool enable)
 /* HAX digital io api */
 void digital_setup(index_t index, bool output)
 {
-	/* Only external digital pins can be used as output. */
-	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
+	index_t pin = index - IX_DIGITAL(1);
+	if (!DIG_VALID(pin)) {
 		WARN_IX(index);
-	} else {
-		GPIO_InitTypeDef param;
-		param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
-		if (output) {
-			param.GPIO_Mode  = GPIO_Mode_IPU;
-			param.GPIO_Speed = GPIO_Speed_50MHz;
-		} else {
-			param.GPIO_Mode  = GPIO_Mode_Out_PP;
-		}
-		GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &param);
+		return
 	}
+
+	GPIO_InitTypeDef param;
+	param.GPIO_Pin = 1 << ifipin_to_pin[pin];
+	if (output) {
+		param.GPIO_Mode  = GPIO_Mode_IPU;
+		param.GPIO_Speed = GPIO_Speed_50MHz;
+	} else {
+		param.GPIO_Mode  = GPIO_Mode_Out_PP;
+	}
+	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[pin], &param);
 }
 
 bool digital_get(index_t index)
 {
-	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
-		GPIO_TypeDef * port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
-		index_t         pin = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
-		return !!(port->IDR & (1 << pin));
-	} else {
+	index_t pin = index - IX_DIGITAL(1);
+	if (!DIG_VALID(pin)) {
 		WARN_IX(index);
 		return false;
 	}
+
+	GPIO_TypeDef * port = ifipin_to_port[pin];
+	index_t        rpin = ifipin_to_pin[pin];
+	return !!(port->IDR & (1 << rpin));
 }
 
 void digital_set(index_t index, bool output)
 {
-	index_t pin = index - OFFSET_DIGITAL;
+	index_t pin = index - IX_DIGITAL(1);
 
-	// Only external digital pins can be used as output.
-	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
+	if (!DIG_VALID(pin)) {
 		WARN_IX(index);
-	} else if (output) {
-		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[pin];
+		return;
+	}
+
+	if (output) {
+		ifipin_to_port[pin]->BSRR = 1 << ifipin_to_pin[pin];
 	} else {
-		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[pin];
+		ifipin_to_port[pin]->BRR  = 1 << ifipin_to_pin[pin];
 	}
 }
 
