@@ -76,7 +76,7 @@ void digital_setup(index_t index, bool output)
 	index_t pin = index - IX_DIGITAL(1);
 	if (!DIG_VALID(pin)) {
 		WARN_IX(index);
-		return
+		return;
 	}
 
 	GPIO_InitTypeDef param;

@@ -1,5 +1,6 @@
 #include "stm32f10x.h"
 
+#include "compilers.h"
 #include <reent.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -101,22 +102,22 @@ caddr_t _sbrk(int incr)
 	return (caddr_t) prev_heap_end;
 }
 
-int _close(int fd)
+int _close(int __unused fd)
 {
 	return -1;
 }
 
-int _fstat(int fd, struct stat *st)
+int _fstat(int __unused fd, struct stat *st)
 {
 	st->st_mode = S_IFCHR;
 	return 0;
 }
 
-int _lseek(int fd, int ptr, int dir) {
+int _lseek(int __unused fd, int __unused ptr, int __unused dir) {
 	return 0;
 }
 
-int _read(int fd, char *ptr, int len)
+int _read(int __unused fd, char __unused *ptr, int __unused len)
 {
 	return 0;
 }
@@ -125,7 +126,7 @@ int _read(int fd, char *ptr, int len)
 
 // 1 means we are connected to a term.
 // 0 means not ^.
-int _isatty(int fd)
+int _isatty(int __unused fd)
 {
 	return 1;
 }

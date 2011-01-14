@@ -221,9 +221,8 @@ bool is_master_ready(void)
 		!GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4);
 }
 
-void spi_packet_init_m2u(spi_packet_m2u_t *m2u)
+void spi_packet_init_m2u(spi_packet_m2u_t __unused *m2u)
 {
-
 }
 
 void spi_packet_init_u2m(spi_packet_u2m_t *u2m)

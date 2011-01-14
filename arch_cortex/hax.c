@@ -85,12 +85,13 @@ ctrl_mode_t ctrl_mode_get(void) {
  */
 uint16_t analog_get(index_t ix)
 {
-	if (IX_ANALOG(1) <= ix && ix <= IX_ANALOG(CT_ANALOG)) {
-		return adc_buffer[ix - IX_ANALOG(1)];
-	} else {
+	index_t i = ix - IX_ANALOG(1);
+	if (!(i < CT_ANALOG)) {
 		WARN_IX(ix);
 		return 0;
 	}
+
+	return adc_buffer[i];
 }
 
 /*

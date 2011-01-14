@@ -7,11 +7,13 @@
 # define __noreturn
 # define __rom	rom
 # define __overlay overlay
+# define __unused
 #elif defined(__GNUC__)
 # define GCC 1
 # define __noreturn __attribute__((noreturn))
 # define __rom
 # define __overlay
+# define __unused __attribute__((unused))
 #elif defined(SDCC)
 # define __rom __code
 # define __noreturn
