@@ -25,7 +25,8 @@ ARCH_CFLAGS= -D$(STMPROC) -DHSE_VALUE=$(HSE_VALUE)    \
            -Wno-main -DUSE_STDPERIPH_DRIVER -pipe     \
            -ffunction-sections -fno-unwind-tables     \
            -D_SMALL_PRINTF -DNO_FLOATING_POINT        \
-           -DARCH_CORTEX $(CC_INC) $(CFLAGS)
+	   -Os	\
+	   -ggdb -DARCH_CORTEX $(CC_INC) $(CFLAGS)
 
 ARCH_LDFLAGS=$(ALL_CFLAGS)                            \
             -nostartfiles                             \
@@ -44,11 +45,11 @@ clean :
 	@$(RM) $(TRASH)
 
 %.s.o: %.s $(HEADER)
-	@echo "AS $<"
+	@echo "AS $@"
 	@$(AS) $(ALL_ASFLAGS) -c -o $@ $<
 
 %.c.o: %.c $(HEADER)
-	@echo "CC $<"
+	@echo "CC $@"
 	@$(CC) $(ALL_CFLAGS) -c -o $@ $<
 
 %.elf: $(OBJECTS)
@@ -56,21 +57,21 @@ clean :
 	@$(LD) $(ALL_LDFLAGS) -o $@ $^
 
 %.hex: %.elf
-	@echo "HEX $<"
+	@echo "HEX $@"
 	@$(OBJCOPY) -S -O ihex $< $@
 
 %.bin: %.elf
-	@echo "BIN $<"
+	@echo "BIN $@"
 	@$(OBJCOPY) -S -O binary $< $@
 
 # Create extended listing file from ELF output file.
 %.elf.lss: %.elf
-	@echo "LSS $<"
+	@echo "LSS $@"
 	@$(OBJDUMP) -h -S $< > $@
 
 # Create a symbol table from ELF output file.
 %.elf.sym: %.elf
-	@echo "SYM $<"
+	@echo "SYM $@"
 	@$(NM) -n $< > $@
 
 .PHONY: clean rebuild depend

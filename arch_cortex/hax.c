@@ -175,7 +175,11 @@ int8_t oi_group_get(index_t ix)
 
 int8_t oi_rocker_get(index_t ix)
 {
-	struct oi_data *oi [] = { &m2u.m2u.joysticks[0].b, &m2u.m2u.joysticks[1].b };
+	struct oi_data *oi [] = {
+		&m2u.m2u.joysticks[0].b,
+		&m2u.m2u.joysticks[1].b
+	};
+
 	switch(ix) {
 	ROCKER_CASE(1,5);
 	ROCKER_CASE(1,6);

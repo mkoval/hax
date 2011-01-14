@@ -14,9 +14,9 @@
  */
 
 /*     PE9, PE11,  PC6,  PC7, PE13, PE14,  PE8, PE10, PE12,  PE7,  PD0,  PD1*/
-GPIO_TypeDef *const ifipin_to_port[12] =
+static GPIO_TypeDef *const ifipin_to_port[12] =
     {GPIOE,GPIOE,GPIOC,GPIOC,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOE,GPIOD,GPIOD};
-const int8_t ifipin_to_pin[12] =
+static const int8_t ifipin_to_pin[12] =
     {    9,   11,    6,    7,   13,   14,    8,   10,   12,    7,    0,    1};
 
 static const uint8_t pin_to_ifipin [16] =
@@ -25,8 +25,95 @@ static const uint8_t pin_to_ifipin [16] =
 	/* 8   9   10   11   12   13 14   15 */
 	   6,  0,   7,   1,   8,   4, 5, 255};
 
-isr_t isr_callback[12];
+static isr_t isr_callback[12];
 
+/* HAX interrupt code */
+void interrupt_reg_isr(index_t index, isr_t isr) {
+	index_t pin = index - IX_DIGITAL(1);
+	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+		WARN_IX(index);
+		return;
+	}
+	isr_callback[pin] = isr;
+}
+
+void interrupt_setup(index_t index, isr_t isr)
+{
+	index_t pin = index - IX_DIGITAL(1);
+	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+		WARN_IX(index);
+		return;
+	}
+
+	isr_callback[index] = isr;
+	EXTI->EMR   &= ~(1 << pin); /* disable event request */
+	EXTI->RTSR  |=  (1 << pin); /* enable rising edge trigger */
+	EXTI->FTSR  |=  (1 << pin); /* enable falling edge trigger */
+}
+
+void interrupt_set(index_t index, bool enable)
+{
+	index_t pin = index - IX_DIGITAL(1);
+	if (!(0 <= pin && pin <= 11 && pin != 9)) {
+		WARN_IX(index);
+		return;
+	}
+
+	if (enable) {
+		digital_setup(ifipin_to_pin[pin], false);
+		EXTI->IMR  |=  (1 << pin); /* enable interrupt */
+	} else {
+		EXTI->IMR  &= ~(1 << pin); /* disable interrupt */
+	}
+}
+
+/* HAX digital io api */
+void digital_setup(index_t index, bool output)
+{
+	/* Only external digital pins can be used as output. */
+	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
+		WARN_IX(index);
+	} else {
+		GPIO_InitTypeDef param;
+		param.GPIO_Pin = 1 << ifipin_to_pin[index - 1];
+		if (output) {
+			param.GPIO_Mode  = GPIO_Mode_IPU;
+			param.GPIO_Speed = GPIO_Speed_50MHz;
+		} else {
+			param.GPIO_Mode  = GPIO_Mode_Out_PP;
+		}
+		GPIO_Init((GPIO_TypeDef *)ifipin_to_port[index - 1], &param);
+	}
+}
+
+bool digital_get(index_t index)
+{
+	if (IX_DIGITAL(1) <= index && index <= IX_DIGITAL(CT_DIGITAL)) {
+		GPIO_TypeDef * port = ifipin_to_port[index - OFFSET_DIGITAL - 1];
+		index_t         pin = ifipin_to_pin[index - OFFSET_DIGITAL - 1];
+		return !!(port->IDR & (1 << pin));
+	} else {
+		WARN_IX(index);
+		return false;
+	}
+}
+
+void digital_set(index_t index, bool output)
+{
+	index_t pin = index - OFFSET_DIGITAL;
+
+	// Only external digital pins can be used as output.
+	if (index < OFFSET_DIGITAL || index >= OFFSET_DIGITAL + CT_DIGITAL) {
+		WARN_IX(index);
+	} else if (output) {
+		ifipin_to_port[index]->BSRR = 1 << ifipin_to_pin[pin];
+	} else {
+		ifipin_to_port[index]->BRR  = 1 << ifipin_to_pin[pin];
+	}
+}
+
+
+/* interrupt implimentation */
 #define __isr __attribute__((interrupt))
 
 #define CALL_ISR(_i_)                                          \
@@ -62,7 +149,6 @@ __isr void EXTI15_10_IRQHandler(void) {
 	CALL_ISR(12);
 	CALL_ISR(13);
 	CALL_ISR(14);
-	CALL_ISR(15);
 }
 
 void exti_init(void) {

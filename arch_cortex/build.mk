@@ -4,8 +4,6 @@ SRC_STM_LIB = $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
 SRC_PRINTF  = $(wildcard $(ARCH)/lib/small_printf/*.c)
 
 SOURCE  += $(ARCH)/hax.c          \
-	   $(ARCH)/digital.c      \
-	   $(ARCH)/interrupt.c    \
            \
            $(ARCH)/rcc.c          \
            $(ARCH)/spi.c          \
