@@ -7,6 +7,7 @@
 #include "vex_hw.h"
 #include "spi.h"
 #include "usart.h"
+#include "compilers.h"
 
 #include <stdbool.h>
 #include <stdio.h>
