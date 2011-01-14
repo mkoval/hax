@@ -21,7 +21,7 @@ void init(void) {
 	auto_current->cb_init(auto_current, &auto_mutable);
 	fputs("[STATE ", stdout);
 	fputs(auto_current->name, stdout);
-	fputs("]\n\r", stdout);
+	fputs("]\n", stdout);
 
 #if defined(ROBOT_NITISH)
 	digital_setup(BUT_B_L, DIGITAL_IN);
@@ -74,7 +74,7 @@ void auton_loop(void) {
 
 		fputs("[STATE ", stdout);
 		fputs(auto_current->name, stdout);
-		fputs("]\n\r", stdout);
+		fputs("]\n", stdout);
 
 		/* Perform auto_mutable initialization for the new state; replacing the
 		 * non-functioning memset() implementation on the PIC.
@@ -123,14 +123,14 @@ void telop_loop(void)
 
 #if defined(ROBOT_KEVIN)
 	IR_Filter_Routine();
-	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n\r",
+	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n",
 		   (int)analog_get(POT_ARM),
 		   (int)analog_get(POT_LIFT),
 		   (int)encoder_get(ENC_L),
 		   (int)encoder_get(ENC_R),
 		   (int)Get_Rear_IR());
 #elif defined(ROBOT_NITISH)
-	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n\r",
+	printf((char *)"ARM %4d  LIFTL %4d  LIFTR %4d  ENCL %5d  ENCR %5d\n",
 		   (int)analog_get(POT_ARM),
 		   (int)analog_get(POT_LIFT_L),
 		   (int)analog_get(POT_LIFT_R),

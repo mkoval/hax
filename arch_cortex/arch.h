@@ -9,7 +9,7 @@
 #define CT_ANALOG      8
 #define CT_DIGITAL    12
 #define CT_MOTOR      10
-#define CT_OI_GROUPS_PER_OI     8
+#define CT_OI_GROUPS_PER_OI     11
 #define CT_OI_BUTTONS_PER_GROUP 4 /* Max number of buttons per group */
 #define CT_OI         (2 * CT_OI_GROUPS_PER_OI)
 /* buttons per oi */

@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 		printf("IX_OI_GROUP & inverses\n");
 		uint8_t oi, gr;
 		for (oi = 1; oi <= 2; oi++) {
-			for (gr = 1; gr <= 8; gr++) {
+			for (gr = 1; gr <= CT_OI_GROUPS_PER_OI; gr++) {
 				putchar('\t');
 				test_oi_group(oi, gr);
 			}

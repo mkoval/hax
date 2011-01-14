@@ -29,7 +29,7 @@ void auto_straight_loop(state_t const __rom *state, mutable_t *mut) {
 	int8_t  turn  = PROP(ABS(state->data->move.vel), STRAIGHT_ERROR, ABS(diff));
 
 #if DEBUG
-	printf((char *)"delta = %5d, correct = %3d\n\r", (int)diff, (int)turn);
+	printf((char *)"delta = %5d, correct = %3d\n", (int)diff, (int)turn);
 #endif
 
 	drive_smart(state->data->move.vel, SIGN(diff) * turn);
@@ -40,7 +40,7 @@ bool auto_straight_isdone(state_t const __rom *state, mutable_t *mut) {
 	int32_t right = encoder_get(ENC_R) - mut->enc_right;
 
 #if DEBUG
-	printf((char *)"travelled = %5d, target = %5d\n\r",
+	printf((char *)"travelled = %5d, target = %5d\n",
 	       (int)(ABS(left + right) / 2), (int)(state->data->move.ticks));
 #endif
 
@@ -188,7 +188,7 @@ void auto_none_loop(state_t const __rom *state, mutable_t *mut) {
 
 bool auto_none_isdone(state_t const __rom *state, mutable_t *mut) {
 #if DEBUG
-	printf((char *)"timeout = %d\n\r", (int)state->data->timeout);
+	printf((char *)"timeout = %d\n", (int)state->data->timeout);
 #endif
 
 	return mut->timer >= state->timeout;

@@ -1,4 +1,4 @@
-arch     = cortex
+arch     = pic
 prog     = skel
 SOURCE   = main.c user.c
 

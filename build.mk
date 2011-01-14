@@ -23,7 +23,6 @@ ifeq ($(serial),)
 $(warning "no serial port specified; 'make install' may fail")
 endif
 
-
 .SUFFIXES:
 .PHONY: all clean build rebuild install
 
@@ -36,6 +35,7 @@ include $(ARCH)/build.mk
 
 build: $(TARGET)
 
+.PHONY: mrproper
 mrproper:
 	@echo "MRPROPER"
 	@$(FIND) . -print \

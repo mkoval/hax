@@ -9,7 +9,8 @@
 	)             )
 
 
-void __io_putchar(const char c) {
+void __io_putchar(const char c)
+{
 	usart1_putc(c);
 }
 void usart1_putc(const char c)
