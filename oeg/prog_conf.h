@@ -1,6 +1,8 @@
 #ifndef CONFIG_H_
 #define CONFIG_H_
 
+#include <stdio.h>
+
 /* This header is included by other hax source files to
  * determine how the uC should be configured */
 #include <stdio.h>
