@@ -1,5 +1,4 @@
-
-ARCH_PREFIX   = $(shell $(srcdir)/arch_cortex/gcc-prefix.sh)
+ARCH_PREFIX   = arm-none-eabi-
 CC            = $(ARCH_PREFIX)gcc
 LD            = $(ARCH_PREFIX)gcc
 AS            = $(ARCH_PREFIX)gcc
