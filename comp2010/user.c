@@ -49,7 +49,7 @@ void auton_loop(void) {
 
 	/* Remove outliers from the IR distance sensor data. */
 #if defined(ROBOT_KEVIN)
-	IR_Filter_Routine();
+	ir_filter_routine();
 #endif
 
 	/* Start each autonomous slow loop with a clean slate. */
@@ -122,7 +122,7 @@ void telop_loop(void)
 	}
 
 #if defined(ROBOT_KEVIN)
-	IR_Filter_Routine();
+	ir_filter_routine();
 	printf((char *)"ARM %4d  LIFT %4d  ENCL %5d  ENCR %5d BACKIR %5d\n",
 		   (int)analog_get(POT_ARM),
 		   (int)analog_get(POT_LIFT),

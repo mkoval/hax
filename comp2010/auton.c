@@ -9,15 +9,15 @@
 
 #include "auton.h"
 
-void auto_deploy_init(state_t const __rom *state, mutable_t *mut) {
+void auto_deploy_init(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
-void auto_deploy_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_deploy_loop(state_t const __rom *state, mutable_t __unused *mut) {
 	arm_raw(state->data->pose.vel);
 }
 
 /* Drive straight using encoders for velocity control. */
-void auto_straight_init(state_t const __rom *state, mutable_t *mut) {
+void auto_straight_init(state_t const __rom __unused *state, mutable_t *mut) {
 	mut->enc_left  = encoder_get(ENC_L);
 	mut->enc_right = encoder_get(ENC_R);
 }
@@ -47,12 +47,12 @@ bool auto_straight_isdone(state_t const __rom *state, mutable_t *mut) {
 	return ABS(left + right) >= 2 * state->data->move.ticks;
 }
 
-void auto_pickup_init(state_t const __rom *state, mutable_t *mut) {
+void auto_pickup_init(state_t const __rom __unused *state, mutable_t *mut) {
 	mut->enc_left  = encoder_get(ENC_L);
 	mut->enc_right = encoder_get(ENC_R);
 }
 
-void auto_pickup_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_pickup_loop(state_t const __rom *state, mutable_t __unused *mut) {
 	drive_smart(state->data->move.vel, 0);
 	arm_smart(ARM_SPEEDMAX);
 }
@@ -62,15 +62,15 @@ bool auto_pickup_isdone(state_t const __rom *state, mutable_t *mut) {
 }
 
 /* Drive forward at the desired velocity. */
-void auto_drive_init(state_t const __rom *state, mutable_t *mut) {
+void auto_drive_init(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
-void auto_drive_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_drive_loop(state_t const __rom *state, mutable_t __unused *mut) {
 	drive_smart(state->data->move.vel, 0);
 }
 
 /* Turn through a specified angle using encoders as velocity control. */
-void auto_turn_init(state_t const __rom *state, mutable_t *mut) {
+void auto_turn_init(state_t const __rom __unused *state, mutable_t *mut) {
 	/* Store the initial encoder counts for both wheels. */
 	mut->enc_left  = encoder_get(ENC_L);
 	mut->enc_right = encoder_get(ENC_R);
@@ -95,10 +95,10 @@ bool auto_turn_isdone(state_t const __rom *state, mutable_t *mut) {
 }
 
 /* Rotate the arm to be in the specified position. */
-void auto_arm_init(state_t const __rom *state, mutable_t *mut) {
+void auto_arm_init(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
-void auto_arm_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_arm_loop(state_t const __rom *state, mutable_t __unused *mut) {
 	int16_t pos  = analog_get(POT_ARM);
 	bool    up   = state->data->pose.vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = state->data->pose.vel < 0 && ARM_GT(pos, POT_ARM_LOW);
@@ -107,7 +107,7 @@ void auto_arm_loop(state_t const __rom *state, mutable_t *mut) {
 	arm_raw(move * state->data->pose.vel);
 }
 
-bool auto_arm_isdone(state_t const __rom *state, mutable_t *mut) {
+bool auto_arm_isdone(state_t const __rom *state, mutable_t __unused *mut) {
 	int16_t pos  = analog_get(POT_ARM);
 	bool    up   = state->data->pose.vel > 0 && ARM_LT(pos, POT_ARM_HIGH);
 	bool    down = state->data->pose.vel < 0 && ARM_GT(pos, POT_ARM_LOW);
@@ -118,10 +118,10 @@ bool auto_arm_isdone(state_t const __rom *state, mutable_t *mut) {
 #if defined(ROBOT_KEVIN)
 
 /* Move the ramp into the specific position.  */
-void auto_ramp_init(state_t const __rom *state, mutable_t *mut) {
+void auto_ramp_init(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
-void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_ramp_loop(state_t const __rom *state, mutable_t __unused *mut) {
 	int16_t pos  = analog_get(POT_LIFT);
 	bool    up   = state->data->pose.vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = state->data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
@@ -130,7 +130,7 @@ void auto_ramp_loop(state_t const __rom *state, mutable_t *mut) {
 	ramp_raw(move * state->data->pose.vel, move * state->data->pose.vel);
 }
 
-bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
+bool auto_ramp_isdone(state_t const __rom *state, mutable_t __unused *mut) {
 	int16_t pos  = analog_get(POT_LIFT);
 	bool    up   = state->data->pose.vel > 0 && LIFT_LT(pos, POT_LIFT_HIGH);
 	bool    down = state->data->pose.vel < 0 && LIFT_GT(pos, POT_LIFT_LOW);
@@ -138,8 +138,8 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	return !(up || down);
 }
 
-bool auto_ram_isdone(state_t const __rom *state, mutable_t *mut) {
-	IR_Filter_Routine();
+bool auto_ram_isdone(state_t const __rom __unused *state, mutable_t __unused *mut) {
+	ir_filter_routine();
 	return Get_Rear_IR() < DUMP_DISTANCE_10IN;
 }
 
@@ -174,16 +174,16 @@ bool auto_ramp_isdone(state_t const __rom *state, mutable_t *mut) {
 	return !(move_left || move_right);
 }
 
-bool auto_ram_isdone(state_t const __rom *state, mutable_t *mut) {
+bool auto_ram_isdone(state_t const __rom __unused *state, mutable_t __unused *mut) {
 	return !digital_get(BUT_B_L) || !digital_get(BUT_B_R);
 }
 #endif
 
 /* Do nothing for a given timeout.  */
-void auto_none_init(state_t const __rom *state, mutable_t *mut) {
+void auto_none_init(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
-void auto_none_loop(state_t const __rom *state, mutable_t *mut) {
+void auto_none_loop(state_t const __rom __unused *state, mutable_t __unused *mut) {
 }
 
 bool auto_none_isdone(state_t const __rom *state, mutable_t *mut) {

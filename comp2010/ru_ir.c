@@ -7,17 +7,17 @@
 
 #if defined(ROBOT_KEVIN)
 ir_filter_t ir_filters[num_ir_sensors] = {
-	{ 0 },
-	{ 0 },
-	{ 0 },
-	{ IR_REAR },
-	{ 0 }
+	{ },
+	{ },
+	{ },
+	{ .ana_port = IR_REAR },
+	{ }
 };
 #else
 ir_filter_t ir_filters[num_ir_sensors];
 #endif
 
-__rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
+static __rom const uint8_t ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
 	180,180,180,180,180,180,180,180,180,180,180,180,
 	180,180,180,180,180,180,180,180,180,180,180,177,
 	173,168,163,159,156,154,151,147,141,138,136,134,
@@ -37,7 +37,7 @@ __rom const unsigned char ir_long_table_sigo2_in5[IR_LONG_TABLE_SIZE] = {
 	22,22,21,21,21,21,21,21,21,21,20,20,20,20,20,20
 };
 
-__rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
+static __rom const uint8_t ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
 	120,120,120,120,120,120,120,120,120,120,120,120,
 	116,111,98,95,92,89,84,80,77,74,71,69,68,67,66,
 	65,64,63,62,61,60,58,55,53,51,50,49,48,48,47,46,
@@ -57,7 +57,7 @@ __rom const unsigned char ir_short_table_sigo2_in5[IR_SHORT_TABLE_SIZE] = {
 	12,12,12,12,12
 };
 
-int IR_Long_To_In10(int sig)
+int ir_long_to_in10(int sig)
 {
 	int index;
 
@@ -69,7 +69,7 @@ int IR_Long_To_In10(int sig)
 	return (int)(ir_long_table_sigo2_in5[index]) * 2;
 }
 
-int IR_Short_To_In10(int sig)
+int ir_short_to_in10(int sig)
 {
 	int index;
 
@@ -83,7 +83,7 @@ int IR_Short_To_In10(int sig)
 
 // ----------------------------------------------------
 
-void IR_Filter_Routine(void)
+void ir_filter_routine(void)
 {
 	uint8_t i;
 
