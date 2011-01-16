@@ -14,4 +14,8 @@ SOURCE  += $(ARCH)/hax.c          \
            $(SRC_STM_LIB)
 ARCH_EXT = bin
 
+install: $(TARGET)
+	@echo "UPLOAD $^"
+	@$(srcdir)/arch_cortex/jtag/stm32loader.py -ewv -p"$(serial)" -b115200 $(TARGET)
+
 include $(ARCH)/gcc.mk
