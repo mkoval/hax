@@ -4,15 +4,18 @@ SRC_STM_LIB = $(ARCH)/lib/startup/startup_stm32f10x_hd.s \
 SRC_PRINTF  = $(wildcard $(ARCH)/lib/small_printf/*.c)
 
 SOURCE  += $(ARCH)/hax.c          \
-           \
            $(ARCH)/rcc.c          \
            $(ARCH)/spi.c          \
            $(ARCH)/init.c         \
            $(ARCH)/stm32f10x_it.c \
            $(ARCH)/syscall.c      \
            $(ARCH)/usart.c        \
-	   $(ARCH)/exti.c         \
+           $(ARCH)/exti.c         \
            $(SRC_STM_LIB)
-
 ARCH_EXT = bin
+
+install: $(TARGET)
+	@echo "UPLOAD $^"
+	@$(srcdir)/arch_cortex/jtag/stm32loader.py -ewv -p"$(serial)" -b115200 $(TARGET)
+
 include $(ARCH)/gcc.mk
