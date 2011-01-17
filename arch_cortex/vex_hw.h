@@ -27,10 +27,10 @@ struct oi_data {
 	 *	bit2 = Right Down      *** Group 6
 	 *	bit3 = Left Down
 	 */
-	u8 g5_u:1; /* g5 */
-	u8 g5_d:1;
-	u8 g6_u:1; /* g6 */
-	u8 g6_d:1;
+	u8 g5_d:1; /* g5 */
+	u8 g5_u:1;
+	u8 g6_d:1; /* g6 */
+	u8 g6_u:1;
 	u8 reserved1:4; /* not mentioned. */
 
 	u8 g8_d:1; /* g8 */
