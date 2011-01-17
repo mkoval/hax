@@ -139,11 +139,8 @@ void print_m2u(spi_packet_m2u_t *m2u)
 		,m2u->packet_num
 		);
 
-#if 0
 	print_oi(&(m2u->m2u.joysticks[0].b));
 	print_oi(&(m2u->m2u.joysticks[1].b));
-#endif
-
 }
 
 void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
@@ -161,21 +158,17 @@ void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 		} else if (m2u->state.b.iack) {
 			u2m->state.a = STATE_VALID;
 		}
-
-		//printf("[MASTER config]");
 	}
 
 	if (m2u->state.b.initializing) {
 		// not yet good data.
 		u2m->state.a = STATE_VALID; // we have data ready
 		m2u->packet_num = 1; //XXX: "to skip print"
-		//printf("[MASTER init]");
 	}
 
 	if (m2u->state.b.valid) {
 		u2m->state.a = STATE_VALID;
 		// TODO: Buffer the data.
-		//print_m2u(m2u);
 	}
 }
 
