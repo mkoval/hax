@@ -138,9 +138,6 @@ void print_m2u(spi_packet_m2u_t *m2u)
 		,m2u->version
 		,m2u->packet_num
 		);
-
-	print_oi(&(m2u->m2u.joysticks[0].b));
-	print_oi(&(m2u->m2u.joysticks[1].b));
 }
 
 void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
