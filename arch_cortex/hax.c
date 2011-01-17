@@ -237,7 +237,7 @@ bool oi_button_get(index_t ix)
 		return oi->g8_r;
 
 	default:
-		WARN_IX(ix);
+		WARN_IX(i);
 		return false;
 	}
 }

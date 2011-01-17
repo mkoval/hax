@@ -57,8 +57,7 @@
 		(1):(0))
 
 #define IX_OI_BUTTON_GROUP_INV(ix, oi) \
-	(((ix) - CT_OIx_BUTTON * (oi) - OFFSET_OI_BUTTON) \
-	 / CT_OI_BUTTONS_PER_GROUP)
+	(IX_OI_BUTTON_INV_BUTTONS(ix, oi) / CT_OI_BUTTONS_PER_GROUP)
 
 #define IX_OI_BUTTON_INV_BUTTONS(ix, oi) \
 	(((ix) - (oi) * CT_OIx_BUTTON) - OFFSET_OI_BUTTON)
