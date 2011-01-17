@@ -29,7 +29,7 @@ void test_oi_button(uint8_t oi_i, uint8_t gr_i, uint8_t but_i)
 	int but = -1;
 	uint8_t b = IX_OI_BUTTON_INV_BUTTONS(a, oi);
 
-	uint8_t mi = _IX_OI_BUTTON(gr_i, OI_B_UP);
+	uint8_t mi = _IX_OI_BUTTON(gr_i, but_i);
 	printf("IN(%d, %d, %d) == %d == OUT(%d, %d, %d) ~= %d ~= %d\n",
 			oi_i, gr_i, but_i,
 			a,
