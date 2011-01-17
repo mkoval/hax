@@ -1,0 +1,8 @@
+#!/bin/sh
+
+ver=`git rev-parse --verify --short HEAD`
+
+printf "%s" "$ver"
+if git diff-index --name-only HEAD > /dev/null; then
+	printf "%s" "-dirty"
+fi
