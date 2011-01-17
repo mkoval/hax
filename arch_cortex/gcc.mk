@@ -25,7 +25,8 @@ ARCH_CFLAGS= -D$(STMPROC) -DHSE_VALUE=$(HSE_VALUE)    \
            -Wno-main -DUSE_STDPERIPH_DRIVER -pipe     \
            -ffunction-sections -fno-unwind-tables     \
            -D_SMALL_PRINTF -DNO_FLOATING_POINT        \
-	   -Os -Wextra -Wno-missing-field-initializers\
+	   -Os -Wextra -DVERSION="\"$(VER)\""     \
+	   -Wno-missing-field-initializers            \
 	   -ggdb -DARCH_CORTEX $(CC_INC) $(CFLAGS)
 
 ARCH_LDFLAGS=$(ALL_CFLAGS)                            \

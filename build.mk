@@ -19,6 +19,9 @@ ifndef prog
 $(error "unnamed program")
 endif
 
+VER:=$(shell $(srcdir)/get_version)
+
+
 .SUFFIXES:
 .PHONY: all clean build rebuild install
 
