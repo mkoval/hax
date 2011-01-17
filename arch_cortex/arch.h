@@ -61,7 +61,7 @@
 	 / CT_OI_BUTTONS_PER_GROUP)
 
 #define IX_OI_BUTTON_INV_BUTTONS(ix, oi) \
-	((ix) - (oi) * CT_OIx_BUTTON)
+	(((ix) - (oi) * CT_OIx_BUTTON) - OFFSET_OI_BUTTON)
 
 /* Joysticks */
 #define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 0)
