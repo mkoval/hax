@@ -48,7 +48,7 @@ void arch_init_1(void) {
 	spi_packet_init_u2m(&u2m.u2m);
 	spi_packet_init_m2u(&m2u.m2u);
 
-	printf("[ INIT DONE ]\n");
+	puts("# VERSION " VERSION);
 }
 
 void arch_init_2(void) {
@@ -237,7 +237,7 @@ bool oi_button_get(index_t ix)
 		return oi->g8_r;
 
 	default:
-		WARN_IX(ix);
+		WARN_IX(i);
 		return false;
 	}
 }

@@ -19,6 +19,8 @@ ifndef prog
 $(error "unnamed program")
 endif
 
+VER:=$(shell $(srcdir)/get_version)
+
 
 .SUFFIXES:
 .PHONY: all clean build rebuild install
@@ -39,8 +41,3 @@ mrproper:
 	| $(GREP) '.*\.\([od]\|elf\|hex\|bin\|map\|lss\|sym\|strip\)$$' \
 	| $(XARGS) -- $(RM)
 
-ifeq ($(arch),cortex)
-install: $(TARGET)
-	@echo "UPLOAD $^"
-	@$(srcdir)/arch_cortex/jtag/stm32loader.py -ewv -p"$(serial)" -b115200 $(TARGET)
-endif

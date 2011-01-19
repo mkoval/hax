@@ -27,12 +27,13 @@ void test_oi_button(uint8_t oi_i, uint8_t gr_i, uint8_t but_i)
 	int oi = IX_OI_BUTTON_OI_INV(a);
 	int gr = IX_OI_BUTTON_GROUP_INV(a, oi);
 	int but = -1;
-	uint8_t b =  IX_OI_BUTTON_INV_BUTTONS(a, oi);
+	uint8_t b = IX_OI_BUTTON_INV_BUTTONS(a, oi);
 
-	printf("IN(%d, %d, %d) == %d == OUT(%d, %d, %d) ~= %d\n",
+	uint8_t mi = _IX_OI_BUTTON(gr_i, but_i);
+	printf("IN(%d, %d, %d) == %d == OUT(%d, %d, %d) ~= %d ~= %d\n",
 			oi_i, gr_i, but_i,
 			a,
-			oi, gr, but, b);
+			oi, gr, but, b, mi);
 }
 
 int main(int argc, char **argv)
