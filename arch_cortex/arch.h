@@ -63,10 +63,10 @@
 	(((ix) - (oi) * CT_OIx_BUTTON) - OFFSET_OI_BUTTON)
 
 /* Joysticks */
-#define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 0)
-#define OI_JOY_L_Y(oi) IX_OI_GROUP(oi, 1)
-#define OI_JOY_R_X(oi) IX_OI_GROUP(oi, 2)
-#define OI_JOY_R_Y(oi) IX_OI_GROUP(oi, 3)
+#define OI_JOY_R_X(oi) IX_OI_GROUP(oi, 1)
+#define OI_JOY_R_Y(oi) IX_OI_GROUP(oi, 2)
+#define OI_JOY_L_Y(oi) IX_OI_GROUP(oi, 3)
+#define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 4)
 
 #define OI_ROCKER_L(oi) IX_OI_GROUP(oi, 5)
 #define OI_ROCKER_R(oi) IX_OI_GROUP(oi, 6)
