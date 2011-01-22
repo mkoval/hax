@@ -82,10 +82,10 @@ void digital_setup(index_t index, bool output)
 	GPIO_InitTypeDef param;
 	param.GPIO_Pin = 1 << ifipin_to_pin[pin];
 	if (output) {
-		param.GPIO_Mode  = GPIO_Mode_IPU;
+		param.GPIO_Mode  = GPIO_Mode_Out_PP;
 		param.GPIO_Speed = GPIO_Speed_50MHz;
 	} else {
-		param.GPIO_Mode  = GPIO_Mode_Out_PP;
+		param.GPIO_Mode  = GPIO_Mode_IPU;
 	}
 	GPIO_Init((GPIO_TypeDef *)ifipin_to_port[pin], &param);
 }
