@@ -20,7 +20,7 @@
 
 #include "compilers.h"
 #include "init.h"
-#include "rcc.h"
+#include "clocks.h"
 #include "usart.h"
 #include "spi.h"
 #include "exti.h"

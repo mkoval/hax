@@ -6,7 +6,7 @@
 
 #include "cortex.h"
 
-#include "rcc.h"
+#include "clocks.h"
 
 int rcc_src_hclk;
 
