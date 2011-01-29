@@ -57,16 +57,23 @@ void arch_init_2(void) {
 void arch_spin(void) {
 }
 
+static uint64_t spi_last_time_ms;
 void arch_loop_1(void) {
 	vex_spi_xfer(&m2u.m2u, &u2m.u2m);
-	spi_transfer_flag = false;
+	spi_last_time_ms = time_get_ms();
 }
 
 void arch_loop_2(void) {
 }
 
 bool do_slow_loop(void) {
-	return spi_transfer_flag;
+	uint64_t t = time_get_ms();
+
+	if ((t - spi_last_time_ms) > 18) {
+		return true;
+	} else {
+		return false;
+	}
 }
 
 ctrl_mode_t ctrl_mode_get(void) {
