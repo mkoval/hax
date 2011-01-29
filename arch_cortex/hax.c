@@ -24,7 +24,6 @@
 #include "usart.h"
 #include "spi.h"
 #include "exti.h"
-#include "cortex.h"
 
 spi_packet_t m2u;
 spi_packet_t u2m;
@@ -33,7 +32,7 @@ spi_packet_t u2m;
  * INTERNAL FUNCTIONS
  */
 void arch_init_1(void) {
-	rcc_init();
+	clocks_init();
 	gpio_init();
 	nvic_init();
 	usart_init();
