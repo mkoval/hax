@@ -109,7 +109,13 @@ void adc_init(void) {
 }
 
 void nvic_init(void) {
-	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+	/* Place NVIC vector table at address 0 in code */
+	SCB->VTOR = 0;
+
+#if 0
+	/* place NVIC vector table at address 0 in sram */
+	SCB->VTOR = SCB_VTOR_TBLBASE;
+#endif
 }
 
 void tim1_init(void) {
@@ -146,7 +152,8 @@ void tim1_init(void) {
 	TIM1->SMCR &= 0xFFF8;
 }
 
-__attribute__((interrupt)) void TIM1_CC_IRQHandler(void)
+__attribute__((interrupt))
+void TIM1_CC_IRQHandler(void)
 {
 	if(TIM_GetITStatus(TIM1, TIM_IT_CC1)) {
 		spi_transfer_flag = true;
