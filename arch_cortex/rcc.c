@@ -4,6 +4,45 @@
 
 #include <stm32f10x.h>
 
+#include "cortex.h"
+
+#include "rcc.h"
+
+int rcc_src_hclk;
+
+static volatile uint64_t jiffies;
+
+uint64_t time_get_ms(void)
+{
+	return jiffies;
+}
+
+__attribute__((interrupt))
+void SysTick_Handler(void)
+{
+	jiffies++;
+}
+
+/**
+ * systick_setup - initialize the systick subsystem with a 1 ms period
+ *	 72 * 1000 * 1000 / 8 / 9000 = 1000
+ *	 64 * 1000 * 1000 / 8 / 8000 = 1000
+ */
+static void systick_setup(void)
+{
+	SysTick->CTRL = 0;
+
+	if (rcc_src_hclk == CS_HSE) {
+		SysTick->LOAD = 9000;
+	} else if (rcc_src_hclk == CS_HSI) {
+		SysTick->LOAD = 8000;
+	}
+
+	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk
+		| SysTick_CTRL_TICKINT_Msk
+		| SysTick_CTRL_ENABLE_Msk;
+}
+
 static void rcc_reset(void)
 {
 	/* Reset the RCC clock
@@ -58,47 +97,14 @@ static void rcc_reset(void)
 
 }
 
-static void rcc_setup(void)
+static void pll_setup(void)
 {
-	/** SYSCLK, HCLK, PCLK2 and PCLK1 configuration **/
-	/* Enable HSE */
-	RCC->CR |= RCC_CR_HSEON;
-
-	/* Wait till HSE is ready and if Time out is reached exit */
-	{
-		uint32_t i = 0;
-		do {
-			i++;
-		} while (
-			( (RCC->CR & RCC_CR_HSERDY) == 0 )
-			 && (i != HSEStartUp_TimeOut));
-	}
-
-	/* Enable Prefetch Buffer */
-	FLASH->ACR |= FLASH_ACR_PRFTBE;
-
-	/* Flash 2 wait state */
-	FLASH->ACR &= ~FLASH_ACR_LATENCY;
-	FLASH->ACR |= FLASH_ACR_LATENCY_2;
-
-	/* HCLK = SYSCLK */
-	RCC->CFGR &= ~RCC_CFGR_HPRE;
-	RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
-
-	/* PCLK2 = HCLK */
-	RCC->CFGR &= ~RCC_CFGR_PPRE2;
-	RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
-
-	/* PCLK1 = HCLK/2 */
-	RCC->CFGR &= ~RCC_CFGR_PPRE1;
-	RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
-
 	/* PLL Config */
 	RCC->CFGR &= ~(RCC_CFGR_PLLSRC
 		| RCC_CFGR_PLLXTPRE
 		| RCC_CFGR_PLLMULL);
 
-	if (RCC->CR & RCC_CR_HSERDY) {
+	if (rcc_src_hclk == CS_HSE) {
 		/* PLLCLK = HSE * 9 = 72 MHz */
 		RCC->CFGR |= RCC_CFGR_PLLSRC_HSE
 			| RCC_CFGR_PLLMULL9;
@@ -121,73 +127,81 @@ static void rcc_setup(void)
 	/* Wait till PLL is used as system clock source */
 	while ((RCC->CFGR & RCC_CFGR_SWS)
 		!= RCC_CFGR_SWS_PLL);
-
 }
 
-#if 0
-static void rcc_setup(void) {
+__attribute__((interrupt))
+void NMI_Handler(void)
+{
+	uint32_t cir = RCC->CIR;
+	if (cir & RCC_CIR_CSSC) {
+		/* HSE failed, switch to HSI */
+		rcc_src_hclk = CS_HSI;
+
+		pll_setup();
+		systick_setup();
+
+		/* clear the flag */
+		PERIPH_BIT(RCC, CIR, CSSC) = 1;
+
+	} else {
+		/* Handle other NMI's */
+	}
+}
+
+static void rcc_setup(void)
+{
 	// Assumptions on entry:
 	//  running on HSI, PLL disabled.
-	//  all periferal clocks disabled.
+	//  all peripheral clocks disabled.
+	/** SYSCLK, HCLK, PCLK2 and PCLK1 configuration **/
+	/* Enable HSE */
+	PERIPH_BIT(RCC, CR, HSEON) = 1;
 
-	// enable HSE
-	RCC->CR |= RCC_CR_HSION;
-	// wait for HSE startup (fwlib times out after 0x500 reads).
-	while(!( RCC->CR & RCC_CR_HSIRDY));
+	/* Wait till HSE is ready and if Time out is reached exit */
+	uint32_t i;
+	for(i = 0;; i++) {
+		if (i >= HSEStartUp_TimeOut) {
+			rcc_src_hclk = CS_HSI;
+			break;
+		}
+		if (RCC->CR & RCC_CR_HSERDY) {
+			rcc_src_hclk = CS_HSE;
+			/* enable clock security system */
+			PERIPH_BIT(RCC, CR, CSSON) = 1;
+			break;
+		}
+	}
 
-	// FLASH: Enable Prefetch Buffer
-	//  (note: should only be done when running off of 8Mhz HSI.)
+	/* FLASH: Enable Prefetch Buffer
+	 *  (note: should only be done when running off of 8Mhz HSI.) */
 	FLASH->ACR |= FLASH_ACR_PRFTBE;
 
-	// FLASH: Set latency to 2
-	FLASH->ACR |= FLASH_ACR_LATENCY_1;
-	FLASH->ACR &= ~( FLASH_ACR_LATENCY_0
-		| FLASH_ACR_LATENCY_2 );
+	/* FLASH: Set latency to 2 */
+	FLASH->ACR = (FLASH->ACR & ~FLASH_ACR_LATENCY) | FLASH_ACR_LATENCY_2;
 
+	/* HCLK = SYSCLK */
 	// HCLK: AHB (Max 72Mhz)
 	//  = SYSCLK = 72Mhz
 	// 0xxx: SYSCLK not divided
-	RCC->CFGR &= ~RCC_CFGR_HPRE_3;
+	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_HPRE) | RCC_CFGR_HPRE_DIV1;
 
+	/* PCLK2 = HCLK */
 	// PCLK2: APB2 (APB high speed, Max 72Mhz)
 	//	= HCLK = 72MHz
 	// 0xx: HCLK not divided
-	RCC->CFGR &= ~RCC_CFGR_PPRE2_2;
+	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE2) | RCC_CFGR_PPRE2_DIV1;
 
+	/* PCLK1 = HCLK/2 */
 	// PCLK1: APB1 (APB low speed, Max 36Mhz)
 	//	= HCLK/2 = 36MHz
-	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1)
-		| RCC_CFG_PPRE1_DIV2;
+	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_PPRE1) | RCC_CFGR_PPRE1_DIV2;
 
-	// PLLCLK = 8MHz * 9 = 72 MHz
-	RCC->CFGR2 = (RCC->CFGR2 & ~RCC_CFGR2_PREDIV1)
-		| RCC_CFGR2_PREDIV1_DIV1;
+	pll_setup();
 
-	RCC->CFGR &= ~(RCC_CFGR_PLLSRC
-		| RCC_CFGR_PLLXTPRE
-		| RCC_CFGR_PLLMULL);
-	RCC->CFGR |= RCC_CFGR_PLLSRC_HSE
-		| RCC_CFGR_PLLMULL9;
-
-
-	// Enable PLL
-	RCC->CR |= RCC_CR_PLLON;
-
-	// Wait till PLL is ready (no timeout here...)
-	while(!(RCC->CR & RCC_CR_PLLRDY));
-
-	// Select PLL as system clock source
-	RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW)
-		| RCC_CFGR_SW_PLL;
-
-	// Wait untill PLL is used as system clock source
-	while((RCC->CFGR & RCC_CFGR_SWS)
-		!= RCC_CFGR_SWS_PLL);
 }
-#endif
 
-//
-void rcc_init(void) {
+void clocks_init(void) {
 	rcc_reset();
 	rcc_setup();
+	systick_setup();
 }
