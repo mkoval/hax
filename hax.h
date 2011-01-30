@@ -11,6 +11,8 @@
 #include "arch_check.h"
 #include "prog_check.h"
 
+#define ARRAY_SIZE(x) ((size_t)sizeof(x)/sizeof(*(x)))
+
 #define WARN_IX(ix) WARN("idx: %d", ix)
 
 typedef uint8_t index_t;     /* internal pin index */
