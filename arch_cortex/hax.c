@@ -37,7 +37,6 @@ void arch_init_1(void) {
 	nvic_init();
 	usart_init();
 	spi_init();
-	tim1_init();
 	adc_init();
 	exti_init();
 
