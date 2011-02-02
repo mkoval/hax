@@ -118,49 +118,6 @@ void nvic_init(void) {
 #endif
 }
 
-void tim1_init(void) {
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-
-	NVIC_InitTypeDef NVIC_param;
-	/* Enable the TIM1 global Interrupt */
-	NVIC_param.NVIC_IRQChannel = TIM1_CC_IRQn;
-	NVIC_param.NVIC_IRQChannelPreemptionPriority = 3;
-	NVIC_param.NVIC_IRQChannelSubPriority = 3;
-	NVIC_param.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_param);
-
-	/* ---------------------------------------------------------------
-	TIM1 Configuration: Output Compare Toggle Mode:
-	TIM2CLK = 72 MHz, Prescaler = 20, 0xFFFF = 4.5ms
-	1/(72*1000*1000/20/0xFFFF)*1e3 = 18.204166666666666
-	--------------------------------------------------------------- */
-	TIM_TimeBaseInitTypeDef  TIM_param;
-	/* Time base configuration */
-	TIM_param.TIM_Period = 65535;
-	TIM_param.TIM_Prescaler = 20;
-	TIM_param.TIM_ClockDivision = 0;
-	TIM_param.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM1, &TIM_param);
-
-	/* TIM enable counter */
-	TIM_Cmd(TIM1, ENABLE);
-
-	/* TIM IT enable */
-	TIM_ITConfig(TIM1, TIM_IT_CC1, ENABLE);
-
-	// Clear the lower 3 bits (SMS) to disable slave mode.
-	TIM1->SMCR &= 0xFFF8;
-}
-
-__attribute__((interrupt))
-void TIM1_CC_IRQHandler(void)
-{
-	if(TIM_GetITStatus(TIM1, TIM_IT_CC1)) {
-		spi_transfer_flag = true;
-		TIM_ClearITPendingBit(TIM1, TIM_IT_CC1);
-	}
-}
-
 #ifdef  USE_FULL_ASSERT
 void assert_failed(u8* file, u32 line)
 {

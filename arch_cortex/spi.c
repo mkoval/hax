@@ -13,8 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 
-volatile bool spi_transfer_flag = true;
-
 void spi_init(void)
 {
 	/* Clock */
