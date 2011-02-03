@@ -4,8 +4,6 @@
 #include "vex_hw.h"
 #include <stdbool.h>
 
-extern volatile bool spi_transfer_flag;
-
 // prints the packet from the master
 void print_m2u(spi_packet_m2u_t *m2u);
 
