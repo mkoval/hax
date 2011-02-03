@@ -141,7 +141,7 @@ void NMI_Handler(void)
 		systick_setup();
 
 		/* clear the flag */
-		PERIPH_BIT(RCC, CIR, CSSC) = 1;
+		PERIPH_BIT_SET(RCC, CIR, CSSC, 1);
 
 	} else {
 		/* Handle other NMI's */
@@ -155,7 +155,7 @@ static void rcc_setup(void)
 	//  all peripheral clocks disabled.
 	/** SYSCLK, HCLK, PCLK2 and PCLK1 configuration **/
 	/* Enable HSE */
-	PERIPH_BIT(RCC, CR, HSEON) = 1;
+	PERIPH_BIT_SET(RCC, CR, HSEON, 1);
 
 	/* Wait till HSE is ready and if Time out is reached exit */
 	uint32_t i;
