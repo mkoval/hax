@@ -2,6 +2,8 @@
 #include <stdint.h>
 #include <stm32f10x.h>
 
+#include "motor.h"
+
 /*        VBatt
  *       -------
  *       |     |
@@ -162,62 +164,86 @@ struct motor {
 	{ { {GPIOD, 7}, {GPIOD, 14} }, { {GPIOD, 8}, {GPIOD, 15} } }
 }
 
-#define DEF_MOTOR_SET(x)		\
-void motor##x##_set(motor_speed)	\
-{}
+#define DEF_MOTOR_SET(x, an, bn)				\
+void motor##x##_set(int16_t motor_speed)			\
+{								\
+	if (motor_speed > 0) {					\
+		TIM4->CR##bn = 0;				\
+		mtr_high_discon(m_data[x].a);			\
+		udelay(500);					\
+		/* also need to wait for update event */	\
+		TIM4->CR##an = motor_speed;			\
+		mtr_high_connect(m_data[x].b);			\
+	} else if (motor_speed < 0) {				\
+		TIM4->CR##an = 0;				\
+		mtr_high_discon(m_data[x].b);			\
+		udelay(500);					\
+		/* also need to wait for update event */	\
+		TIM4->CR##bn = -motor_speed;			\
+		mtr_high_connect(m_data[x].a);			\
+	} else {						\
+		TIM4->CR##an = 0;				\
+		TIM4->CR##bn = 0;				\
+		udelay(500);					\
+		/* also need to wait for update event */	\
+		mtr_high_connect(m_data[x].a);			\
+		mtr_high_connect(m_data[x].b);			\
+	}							\
+}
 
+DEF_MOTOR_SET(0, 1, 2);
+DEF_MOTOR_SET(1, 3, 4);
+
+
+/* timer4_init - sets up TIM4 to handle control of low-side of h-bridges.
+ *
+ * this timer is used because none of the others could access the pins.
+ */
 static void timer4_init(void)
 {
 	/* Enable Clock */
 	PERIPH_BIT_SET(RCC, APB1ENR, TIM4EN, 1);
 
+	/* Clears the TIM_CR1_CEN bit, disabling timer. Sets the
+	 * center aligned mode to 3: update events on both up and
+	 * down overflows. */
+	TIM4->CR1 = TIM_CR1_CMS_1 | TIM_CR1_CMS0;
+
 	/* Remap TIM4 outputs.
 	 * 0: No remap (TIM4_CH1/PB6, TIM4_CH2/PB7, TIM4_CH3/PB8, TIM4_CH4/PB9)
-	 * 1: Full remap (TIM4_CH1/PD12, TIM4_CH2/PD13, TIM4_CH3/PD14, TIM4_CH4/PD15)
+	 * 1: Full remap (TIM4_CH1/PD12, TIM4_CH2/PD13, TIM4_CH3/PD14,
+	 *			TIM4_CH4/PD15)
 	 * Note: TIM4_ETR on PE0 is not re-mapped.
 	 */
 	PERIPH_BIT_SET(AFIO, MAPR, TIM4_REMAP, 1);
 
-	/* IFI:
-	 * Output compare toggle mode
-	 * TIM2CLK = 72 MHz, Prescaler = 0x4, period = 0xFFFF = 4.5ms
-	 * ClocDivision = 0
-	 * CounterMode = up
-	 *
-	 * ARR = 0x6E; // 1Khz chop rate
-	 * PSC = 0x280; // Prescale rollover @ 4us
-	 *
-	 *
-	 *
-	 */
 
-#if 0
-  /* Time base configuration */
-  TIM_TimeBaseStructure.TIM_Period = 65535;
-  TIM_TimeBaseStructure.TIM_Prescaler = 4;
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+	/* TOP = 0x7FFF */
+	TIM4->ARR = INT16_MAX;
 
-  TIM4->CCMR1 = (6 << 12) | (6 << 4) | (1 << 11) | (1 << 3); //Pwm Mode 1
-  TIM4->CCMR2 = (6 << 12) | (6 << 4) | (1 << 11) | (1 << 3); //Pwm Mode 1
-  TIM4->ARR = 0x6E;   //1Khz chop rate
-  TIM4->PSC = 0x280;  //Prescale rollover at 4us
-  TIM4->CCER = (1 << 1) | (1 << 5) | (1 << 9) | (1 << 13) |  //Low side to active low
-               (1 << 0) | (1 << 4) | (1 << 8) | (1 << 12);   //Turns on lowside outputs
-  TIM4->CR1 = (1 << 0) | (1 << 7);  //Auto reload register is buffered
+	TIM4->CCR1 = 0;
+	TIM4->CCR2 = 0;
+	TIM4->CCR3 = 0;
+	TIM4->CCR4 = 0;
 
-  TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable);
+	/* PWM mode 1, load CCR on update event. */
+	TIM4->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE
+	            | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE;
+	TIM4->CCMR2 = TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE
+	            | TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4PE;
 
-  TIM_ARRPreloadConfig(TIM4, ENABLE);
+	/* Enable outputs, Active low */
+	TIM4->CCER = TIM_CCER_CC1P | TIM_CCER_CC1E
+	           | TIM_CCER_CC2P | TIM_CCER_CC2E
+		   | TIM_CCER_CC3P | TIM_CCER_CC3E
+		   | TIM_CCER_CC4P | TIM_CCER_CC4E;
 
-  /* TIM enable counter */
-  TIM_Cmd(TIM4, ENABLE);
+	/* Prescale
+	 * 72*1000*1000/0x7fff = 2197Hz */
+	TIM4->PSC = 0;
 
-  /* TIM IT enable */
-  //TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
-#endif
-
+	/* Enable */
+	TIM4->CR1 |= TIM_CR1_CEN;
 }
 
 #define mtr_setup_1(m) do {	\
