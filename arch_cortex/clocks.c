@@ -181,7 +181,7 @@ static void rcc_setup(void)
 		if (RCC->CR & RCC_CR_HSERDY) {
 			rcc_src_hclk = CS_HSE;
 			/* enable clock security system */
-			PERIPH_BIT(RCC, CR, CSSON) = 1;
+			PERIPH_BIT_SET(RCC, CR, CSSON, 1);
 			break;
 		}
 	}

@@ -1,6 +1,17 @@
-
 #include <stdint.h>
 #include <stm32f10x.h>
+
+#if defined(USE_STDPERIPH_DRIVER)
+#include "stm32f10x_adc.h"
+#include "stm32f10x_dma.h"
+#include "stm32f10x_rcc.h"
+#include "stm32f10x_gpio.h"
+#include "stm32f10x_usart.h"
+#include "stm32f10x_spi.h"
+#include "stm32f10x_tim.h"
+#include "stm32f10x_misc.h"
+#include "core_cm3.h"
+#endif
 
 #include "motor.h"
 
@@ -27,6 +38,9 @@
  * BH2  PD8
  * BL2~ PD15
  */
+
+/* defined in clocks.c */
+void udelay_500(void);
 
 /* posible timers to utilize: */
 struct pin {
@@ -89,24 +103,24 @@ static void pin_set_high(struct pin *p)
 
 static void mtr_low_discon(struct mtr_side *ms)
 {
-	pin_set_high(ms->l);
-	pin_setup_output_pp_50(ms->l)
+	pin_set_high(&ms->l);
+	pin_setup_output_pp_50(&ms->l)
 }
 
 static void mtr_low_connect(struct mtr_side *ms)
 {
 	/* pin_set_low(ms->l); */
-	pin_setup_af_pp_50(ms->l)
+	pin_setup_af_pp_50(&ms->l)
 }
 
 static void mtr_high_connect(struct mtr_side *ms)
 {
-	pin_set_high(ms->h);
+	pin_set_high(&ms->h);
 }
 
 static void mtr_high_discon(struct mtr_side *ms)
 {
-	pin_set_low(ms->h);
+	pin_set_low(&ms->h);
 }
 
 static void mtr_side_discon(struct mtr_side *ms)
@@ -124,18 +138,18 @@ static void mtr_side_setup(struct mtr_side *ms)
 	mtr_side_discon(ms);
 
 	/* set pins as Out_PP, 50MHz */
-	pin_setup_output_pp_50(ms->h);
-	pin_setup_output_pp_50(ms->l);
+	pin_setup_output_pp_50(&ms->h);
+	pin_setup_output_pp_50(&ms->l);
 }
 
 /* hand over control of the high pins to tmr4 */
 static void mtr_side_tmr_ctrl(struct mtr_side *ms)
 {
-	pin_setup_af_pp_50(ms->h);
-	pin_setup_af_pp_50(ms->l);
+	pin_setup_af_pp_50(&ms->h);
+	pin_setup_af_pp_50(&ms->l);
 }
 
-static mtr_side_set_high(struct mtr_side *ms)
+static void mtr_side_set_high(struct mtr_side *ms)
 {
 	/* disconnect the low side */
 	mtr_low_discon(ms);
@@ -147,7 +161,7 @@ static mtr_side_set_high(struct mtr_side *ms)
 	mtr_high_connect(ms);
 }
 
-static mtr_side_set_low(struct mtr_side *ms)
+static void mtr_side_set_low(struct mtr_side *ms)
 {
 	/* disconnect the high side */
 	mtr_high_discon(ms);
@@ -159,10 +173,10 @@ static mtr_side_set_low(struct mtr_side *ms)
 	mtr_low_connect(ms);
 }
 
-struct motor {
+static struct motor {
 	struct mtr_side a;
 	struct mtr_side b;
-} static m_data [] = {
+} m_data [] = {
 	/*   AH          AL               BH          BL */
 	{ { {GPIOD, 3}, {GPIOD, 12} }, { {GPIOD, 4}, {GPIOD, 13} } },
 	{ { {GPIOD, 7}, {GPIOD, 14} }, { {GPIOD, 8}, {GPIOD, 15} } }
@@ -173,28 +187,28 @@ void motor##x##_set(int16_t motor_speed) \
 {                                        \
 	if (motor_speed > 0) {               \
 		TIM4->CR##bn = 0;                \
-		mtr_high_discon(m_data[x].a);    \
-		mtr_low_discon(m_data[x].b);     \
+		mtr_high_discon(&m_data[x].a);   \
+		mtr_low_discon(&m_data[x].b);    \
 		udelay_500();                    \
 		TIM4->CR##an = motor_speed;      \
-		mtr_low_connect(m_data[x].a);    \
-		mtr_high_connect(m_data[x].b);   \
+		mtr_low_connect(&m_data[x].a);   \
+		mtr_high_connect(&m_data[x].b);  \
 	} else if (motor_speed < 0) {        \
 		TIM4->CR##an = 0;                \
-		mtr_high_discon(m_data[x].b);    \
-		mtr_low_discon(m_data[x].a);     \
+		mtr_high_discon(&m_data[x].b);   \
+		mtr_low_discon(&m_data[x].a);    \
 		udelay_500();                    \
 		TIM4->CR##bn = -motor_speed;     \
-		mtr_low_connect(m_data[x].b);    \
-		mtr_high_connect(m_data[x].a);   \
+		mtr_low_connect(&m_data[x].b);   \
+		mtr_high_connect(&m_data[x].a);  \
 	} else {                             \
 		TIM4->CR##an = 0;                \
 		TIM4->CR##bn = 0;                \
-		mtr_high_discon(m_data[x].a);    \
-		mtr_high_discon(m_data[x].b);    \
+		mtr_high_discon(&m_data[x].a);   \
+		mtr_high_discon(&m_data[x].b);   \
 		udelay_500();                    \
-		mtr_low_connect(m_data[x].a);    \
-		mtr_low_connect(m_data[x].b);    \
+		mtr_low_connect(&m_data[x].a);   \
+		mtr_low_connect(&m_data[x].b);   \
 	}                                    \
 }
 
@@ -265,13 +279,13 @@ static void timer4_init(void)
 
 void motors_init(void)
 {
-	mtr_setup_1(m_data[0]);
-	mtr_setup_1(m_data[1]);
+	mtr_setup_1(&m_data[0]);
+	mtr_setup_1(&m_data[1]);
 
 	/* setup timer for PWM */
 	timer4_init();
 
-	mtr_setup_2(m_data[0]);
-	mtr_setup_2(m_data[1]);
+	mtr_setup_2(&m_data[0]);
+	mtr_setup_2(&m_data[1]);
 }
 
