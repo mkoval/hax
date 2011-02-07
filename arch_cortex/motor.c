@@ -168,34 +168,34 @@ struct motor {
 	{ { {GPIOD, 7}, {GPIOD, 14} }, { {GPIOD, 8}, {GPIOD, 15} } }
 }
 
-#define DEF_MOTOR_SET(x, an, bn)				\
-void motor##x##_set(int16_t motor_speed)			\
-{								\
-	if (motor_speed > 0) {					\
-		TIM4->CR##bn = 0;				\
-		mtr_high_discon(m_data[x].a);			\
-		mtr_low_discon(m_data[x].b);			\
-		udelay_500();					\
-		TIM4->CR##an = motor_speed;			\
-		mtr_low_connect(m_data[x].a);			\
-		mtr_high_connect(m_data[x].b);			\
-	} else if (motor_speed < 0) {				\
-		TIM4->CR##an = 0;				\
-		mtr_high_discon(m_data[x].b);			\
-		mtr_low_discon(m_data[x].a);			\
-		udelay_500();					\
-		TIM4->CR##bn = -motor_speed;			\
-		mtr_low_connect(m_data[x].b);			\
-		mtr_high_connect(m_data[x].a);			\
-	} else {						\
-		TIM4->CR##an = 0;				\
-		TIM4->CR##bn = 0;				\
-		mtr_high_discon(m_data[x].a);			\
-		mtr_high_discon(m_data[x].b);			\
-		udelay_500();					\
-		mtr_low_connect(m_data[x].a);			\
-		mtr_low_connect(m_data[x].b);			\
-	}							\
+#define DEF_MOTOR_SET(x, an, bn)         \
+void motor##x##_set(int16_t motor_speed) \
+{                                        \
+	if (motor_speed > 0) {               \
+		TIM4->CR##bn = 0;                \
+		mtr_high_discon(m_data[x].a);    \
+		mtr_low_discon(m_data[x].b);     \
+		udelay_500();                    \
+		TIM4->CR##an = motor_speed;      \
+		mtr_low_connect(m_data[x].a);    \
+		mtr_high_connect(m_data[x].b);   \
+	} else if (motor_speed < 0) {        \
+		TIM4->CR##an = 0;                \
+		mtr_high_discon(m_data[x].b);    \
+		mtr_low_discon(m_data[x].a);     \
+		udelay_500();                    \
+		TIM4->CR##bn = -motor_speed;     \
+		mtr_low_connect(m_data[x].b);    \
+		mtr_high_connect(m_data[x].a);   \
+	} else {                             \
+		TIM4->CR##an = 0;                \
+		TIM4->CR##bn = 0;                \
+		mtr_high_discon(m_data[x].a);    \
+		mtr_high_discon(m_data[x].b);    \
+		udelay_500();                    \
+		mtr_low_connect(m_data[x].a);    \
+		mtr_low_connect(m_data[x].b);    \
+	}                                    \
 }
 
 DEF_MOTOR_SET(0, 1, 2);
