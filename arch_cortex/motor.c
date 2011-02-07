@@ -63,13 +63,15 @@ static void pin_setup_af_pp_50(struct pin *p)
 	 */
 	if (p->idx =< 7) {
 		uint8_t sh = 4 * p->idx;
-		p->gpio->CRL = (p->gpio->CRL & ~((GPIO_CRL_MODE0 | GPIO_CRL_CNF0) << sh))
-			| ((GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0
+		p->gpio->CRL = (p->gpio->CRL &
+				~((GPIO_CRL_MODE0 | GPIO_CRL_CNF0) << sh))
+				| ((GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0
 						| GPIO_CRH_CNF0_1) << sh);
 	} else {
 		uint8_t sh = 4 * (p->idx - 7);
-		p->gpio->CRH = (p->gpio->CRH & ~((GPIO_CRH_MODE0 | GPIO_CRH_CNF0) << sh))
-			| ((GPIO_CRH_MODE0_1 | GPIO_CRH_MODE0_0
+		p->gpio->CRH = (p->gpio->CRH &
+				~((GPIO_CRH_MODE0 | GPIO_CRH_CNF0) << sh))
+				| ((GPIO_CRH_MODE0_1 | GPIO_CRH_MODE0_0
 						| GPIO_CRH_CNF0_1) << sh);
 	}
 }
@@ -88,11 +90,13 @@ static void pin_set_high(struct pin *p)
 static void mtr_low_discon(struct mtr_side *ms)
 {
 	pin_set_high(ms->l);
+	pin_setup_output_pp_50(ms->l)
 }
 
 static void mtr_low_connect(struct mtr_side *ms)
 {
-	pin_set_low(ms->l);
+	/* pin_set_low(ms->l); */
+	pin_setup_af_pp_50(ms->l)
 }
 
 static void mtr_high_connect(struct mtr_side *ms)
@@ -170,24 +174,27 @@ void motor##x##_set(int16_t motor_speed)			\
 	if (motor_speed > 0) {					\
 		TIM4->CR##bn = 0;				\
 		mtr_high_discon(m_data[x].a);			\
+		mtr_low_discon(m_data[x].b);			\
 		udelay(500);					\
-		/* also need to wait for update event */	\
 		TIM4->CR##an = motor_speed;			\
+		mtr_low_connect(m_data[x].a);			\
 		mtr_high_connect(m_data[x].b);			\
 	} else if (motor_speed < 0) {				\
 		TIM4->CR##an = 0;				\
 		mtr_high_discon(m_data[x].b);			\
+		mtr_low_discon(m_data[x].a);			\
 		udelay(500);					\
-		/* also need to wait for update event */	\
 		TIM4->CR##bn = -motor_speed;			\
+		mtr_low_connect(m_data[x].b);			\
 		mtr_high_connect(m_data[x].a);			\
 	} else {						\
 		TIM4->CR##an = 0;				\
 		TIM4->CR##bn = 0;				\
+		mtr_high_discon(m_data[x].a);			\
+		mtr_high_discon(m_data[x].b);			\
 		udelay(500);					\
-		/* also need to wait for update event */	\
-		mtr_high_connect(m_data[x].a);			\
-		mtr_high_connect(m_data[x].b);			\
+		mtr_low_connect(m_data[x].a);			\
+		mtr_low_connect(m_data[x].b);			\
 	}							\
 }
 
