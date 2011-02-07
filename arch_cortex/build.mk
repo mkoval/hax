@@ -11,6 +11,7 @@ SOURCE  += $(ARCH)/hax.c          \
            $(ARCH)/syscall.c      \
            $(ARCH)/usart.c        \
            $(ARCH)/exti.c         \
+           $(ARCH)/motor.c        \
            $(SRC_STM_LIB)
 ARCH_EXT = bin
 
