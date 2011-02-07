@@ -8,13 +8,28 @@
 
 #include "clocks.h"
 
+/* Tracks our clock source so we can guess at frequency
+ *  HSE => 72 MHz
+ *  HSI => 64 MHz
+ */
+#define CS_HSE 0
+#define CS_HSI 1
 static int rcc_src_hclk;
 
 static volatile uint64_t jiffies;
 
+#define jiffies_to_ms(jiffies) ((jiffies)/2)
+
+/* acuracy is +- the size of a single clock tick. */
+void udelay_500(void) {
+	uint64_t r = jiffies;
+	while(r == jiffies)
+		;
+}
+
 uint64_t time_get_ms(void)
 {
-	return jiffies;
+	return jiffies_to_ms(jiffies);
 }
 
 __attribute__((interrupt))
@@ -24,18 +39,18 @@ void SysTick_Handler(void)
 }
 
 /**
- * systick_setup - initialize the systick subsystem with a 1 ms period
- *	 72 * 1000 * 1000 / 8 / 9000 = 1000
- *	 64 * 1000 * 1000 / 8 / 8000 = 1000
+ * systick_setup - initialize the systick subsystem with a 500us period
+ *	 72 * 1000 * 1000 / 8 / 4500 =  500
+ *	 64 * 1000 * 1000 / 8 / 4000 =  500
  */
 static void systick_setup(void)
 {
 	SysTick->CTRL = 0;
 
 	if (rcc_src_hclk == CS_HSE) {
-		SysTick->LOAD = 9000;
+		SysTick->LOAD = 4500;
 	} else if (rcc_src_hclk == CS_HSI) {
-		SysTick->LOAD = 8000;
+		SysTick->LOAD = 4000;
 	}
 
 	SysTick->CTRL = SysTick_CTRL_CLKSOURCE_Msk
