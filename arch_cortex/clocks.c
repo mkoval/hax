@@ -8,7 +8,7 @@
 
 #include "clocks.h"
 
-int rcc_src_hclk;
+static int rcc_src_hclk;
 
 static volatile uint64_t jiffies;
 
