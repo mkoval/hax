@@ -5,7 +5,6 @@
 #include <stm32f10x.h>
 
 #include "cortex.h"
-
 #include "clocks.h"
 
 /* Tracks our clock source so we can guess at frequency
@@ -22,8 +21,8 @@ static volatile uint64_t jiffies;
 
 /* acuracy is +- the size of a single clock tick. */
 void udelay_500(void) {
-	uint64_t r = jiffies;
-	while(r == jiffies)
+	uint64_t target = jiffies + 1;
+	while (jiffies <= target)
 		;
 }
 
@@ -40,8 +39,8 @@ void SysTick_Handler(void)
 
 /**
  * systick_setup - initialize the systick subsystem with a 500us period
- *	 72 * 1000 * 1000 / 8 / 4500 =  500
- *	 64 * 1000 * 1000 / 8 / 4000 =  500
+ *	 72 * 1000 * 1000 / 8 / 4500 = 2000
+ *	 64 * 1000 * 1000 / 8 / 4000 = 2000
  */
 static void systick_setup(void)
 {

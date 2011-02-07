@@ -141,7 +141,7 @@ static mtr_side_set_high(struct mtr_side *ms)
 	mtr_low_discon(ms);
 
 	/* recommended by Corey Chitwood of vex */
-	udelay(500);
+	udelay_500();
 
 	/* connect the high side */
 	mtr_high_connect(ms);
@@ -153,7 +153,7 @@ static mtr_side_set_low(struct mtr_side *ms)
 	mtr_high_discon(ms);
 
 	/* recommended by Corey Chitwood of vex */
-	udelay(500);
+	udelay_500();
 
 	/* connect the low side */
 	mtr_low_connect(ms);
@@ -175,7 +175,7 @@ void motor##x##_set(int16_t motor_speed)			\
 		TIM4->CR##bn = 0;				\
 		mtr_high_discon(m_data[x].a);			\
 		mtr_low_discon(m_data[x].b);			\
-		udelay(500);					\
+		udelay_500();					\
 		TIM4->CR##an = motor_speed;			\
 		mtr_low_connect(m_data[x].a);			\
 		mtr_high_connect(m_data[x].b);			\
@@ -183,7 +183,7 @@ void motor##x##_set(int16_t motor_speed)			\
 		TIM4->CR##an = 0;				\
 		mtr_high_discon(m_data[x].b);			\
 		mtr_low_discon(m_data[x].a);			\
-		udelay(500);					\
+		udelay_500();					\
 		TIM4->CR##bn = -motor_speed;			\
 		mtr_low_connect(m_data[x].b);			\
 		mtr_high_connect(m_data[x].a);			\
@@ -192,7 +192,7 @@ void motor##x##_set(int16_t motor_speed)			\
 		TIM4->CR##bn = 0;				\
 		mtr_high_discon(m_data[x].a);			\
 		mtr_high_discon(m_data[x].b);			\
-		udelay(500);					\
+		udelay_500();					\
 		mtr_low_connect(m_data[x].a);			\
 		mtr_low_connect(m_data[x].b);			\
 	}							\
