@@ -4,9 +4,9 @@ ALL_ASFLAGS = $(ARCH_ASFLAGS) $(ASFLAGS)
 ALL_MDFLAGS = $(ARCH_MDFLAGS) $(MDFLAGS)
 
 # Use the path to this Makefile as the base directory of HAX.
-srcdir     := $(dir $(lastword $(MAKEFILE_LIST)))
-srcdir     := $(srcdir:/=)
-ARCH        = $(srcdir)/arch_$(arch)
+LIBDIR     := $(dir $(lastword $(MAKEFILE_LIST)))
+LIBDIR     := $(LIBDIR:/=)
+ARCHDIR     = $(LIBDIR)/arch_$(arch)
 TARGET      = $(prog)-$(arch).$(ARCH_EXT)
 
 ifneq ($(arch),cortex)
@@ -19,7 +19,7 @@ ifndef prog
 $(error "unnamed program")
 endif
 
-VER:=$(shell $(srcdir)/get_version)
+VER:=$(shell $(LIBDIR)/get_version)
 
 
 .SUFFIXES:
@@ -30,7 +30,7 @@ all: build
 rebuild: | clean build
 
 -include $(SOURCE:=.d)
-include $(ARCH)/build.mk
+include $(ARCHDIR)/build.mk
 
 build: $(TARGET)
 

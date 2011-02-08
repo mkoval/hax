@@ -3,20 +3,20 @@ CC = sdcc
 AS = gpasm
 LD = $(CC)
 
-SOURCE += $(srcdir)/$(ARCH)/crt0iz_sdcc.c
-SOURCE += $(srcdir)/$(ARCH)/spi_open.c
-SOURCE += $(srcdir)/$(ARCH)/ifi_util_sdcc.asm
+SOURCE += $(ARCHDIR)/crt0iz_sdcc.c		\
+          $(ARCHDIR)/spi_open.c		\
+          $(ARCHDIR)/ifi_util_sdcc.asm
 
 ARCH_CFLAGS = -mpic16 -p18f8520
-ARCH_CFLAGS += -I$(srcdir) -I$(srcdir)/$(ARCH)
-ARCH_CFLAGS += -I$(srcdir)/$(ARCH)/h
-ARCH_CFLAGS += -I$(PROG)
+ARCH_CFLAGS += -I$(LIBDIR) -I$(ARCHDIR)
+ARCH_CFLAGS += -I$(ARCHDIR)/h
+ARCH_CFLAGS += -I.
 ARCH_CFLAGS += --ivt-loc=0x800 --no-crt
 ARCH_CFLAGS += --optimize-cmp
 ARCH_CFLAGS += --optimize-df
 #ARCH_CFLAGS += --pstack-model=large
 
-ARCH_LDFLAGS = -Wl,-s,$(srcdir)/$(ARCH)/18f8520user_sdcc.lkr $(ARCH_CFLAGS)
+ARCH_LDFLAGS = -Wl,-s,/$(ARCHDIR)/18f8520user_sdcc.lkr $(ARCH_CFLAGS)
 ARCH_ASFLAGS = -p18f8520
 
 OBJECTS = $(SOURCE:=.o)

@@ -1,8 +1,8 @@
-SOURCE  += $(ARCH)/hax.c        \
-           $(ARCH)/ifi_lib.c
-HEADERS += $(ARCH)/master.h     \
-           $(ARCH)/ifi_lib.h
+SOURCE  += $(ARCHDIR)/hax.c        \
+           $(ARCHDIR)/ifi_lib.c
+HEADERS += $(ARCHDIR)/master.h     \
+           $(ARCHDIR)/ifi_lib.h
 
 ARCH_EXT = hex
 COMPILER = sdcc
-include $(ARCH)/$(COMPILER).mk
+include $(ARCHDIR)/$(COMPILER).mk
