@@ -10,7 +10,7 @@ SOURCE += $(ARCHDIR)/crt0iz_sdcc.c		\
 ARCH_CFLAGS = -mpic16 -p18f8520
 ARCH_CFLAGS += -I$(LIBDIR) -I$(ARCHDIR)
 ARCH_CFLAGS += -I$(ARCHDIR)/h
-ARCH_CFLAGS += -I.
+ARCH_CFLAGS += -I. -DARCH_PIC
 ARCH_CFLAGS += --ivt-loc=0x800 --no-crt
 ARCH_CFLAGS += --optimize-cmp
 ARCH_CFLAGS += --optimize-df
