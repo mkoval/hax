@@ -46,13 +46,13 @@
 #define IX_OI_INV(idx) ((idx) - OFFSET_OI)
 
 /* Joysticks */
-#define OI_JOY_L_X(oi) IX_OI(oi, 0)
-#define OI_JOY_L_Y(oi) IX_OI(oi, 1)
-#define OI_JOY_R_X(oi) IX_OI(oi, 2)
-#define OI_JOY_R_Y(oi) IX_OI(oi, 3)
+#define OI_JOY_L_X(oi) IX_OI_GROUP(oi, 0)
+#define OI_JOY_L_Y(oi) IX_OI_GROUP(oi, 1)
+#define OI_JOY_R_X(oi) IX_OI_GROUP(oi, 2)
+#define OI_JOY_R_Y(oi) IX_OI_GROUP(oi, 3)
 
-#define OI_ROCKER_L(oi) IX_OI(oi, 5)
-#define OI_ROCKER_R(oi) IX_OI(oi, 6)
+#define OI_ROCKER_L(oi) IX_OI_GROUP(oi, 5)
+#define OI_ROCKER_R(oi) IX_OI_GROUP(oi, 6)
 #define OI_TRIGGER_L(oi, dir) IX_OI_BUTTON(oi, 5, dir)
 #define OI_TRIGGER_R(oi, dir) IX_OI_BUTTON(oi, 6, dir)
 
