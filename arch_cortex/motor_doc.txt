@@ -1,0 +1,60 @@
+Mike,
+
+Thank you for checking first. You absolutely, positively do not want to
+cause a shoot-through in the H-bridges.  That is when the high-left and
+low-left MOSFETs are both turned on or the high-right and low-right sides
+are both turned on.
+
+The STM32F103 controls the H-bridges.  In your startup code, set the
+H-bridges to neutral, then enable AH1, AL1~, BH1 and BL1~ as outputs.  AH1,
+BH1, AL1~ and BL1~ are the control lines for the high-left, high-right,
+low-left and low-right MOSFETs.  Note that the AL1~ and BL1~ control lines
+are low-true logic, so setting them high turns the MOSFETs off. For the
+second H-bridge, substitute the “1” with a “2” in the above signal names.
+
+To go neutral, set AH1 low and AL1~ high, set BH1 low and BL1~ high.
+To go forward, set AH1 high and BL1~ low.  Keep BH1 low and AL1~ high.
+To go reverse, set BH1 high and AL1~ low.  Keep AH1 low and BL1~ high.
+
+WARNING: When switching between forward and reverse (or reverse and
+forward), please insert 500 microseconds or more of neutral time to allow
+the MOSFETs to fully turn off.
+
+For reference, the LPC2458 can disable the low side of the H-bridge’s AL1~
+and BL1~ lines by setting its AL1M~ and BL1M~ high.
+
+DO NOT take AH1 high and AL1~ low at the same time or you have just created
+a shoot-through.
+DO NOT take BH1 high and BL1~ low at the same time.
+Similarly operate H-bridge 2.
+
+	AH1 is STM32F103VDH6 pin PD3
+	AL1~ is pin PD12
+	BH1 is pin PD4
+	BL1~ is pin PD13
+	AH2 is pin PD7
+	AL2~ is pin PD14
+	BH2 is pin PD8
+	BL2~ is pin PD15
+
+For reference,
+	Analog 1 is PA0
+	Analog 2 is PA1
+	Analog 3 is PA2
+	Analog 4 is PA3
+	Analog 5 is PC2
+	Analog 6 is PC3
+	Analog 7 is PC0
+	Analog 8 is PC1
+	Digital 1 is PE9
+	Digital 2 is PE11
+	Digital 3 is PC6
+	Digital 4 is PC7
+	Digital 5 is PE13
+	Digital 6 is PE14
+	Digital 7 is PE8
+	Digital 8 is PE10
+	Digital 9 is PE12
+	Digital 10 is PE7
+	Digital 11 is PD0
+	Digital 12 is PD1
