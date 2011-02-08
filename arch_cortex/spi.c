@@ -138,6 +138,12 @@ void print_m2u(spi_packet_m2u_t *m2u)
 		);
 }
 
+/** spi_valid - Dick Sawn of EasyC fame indicated in a forum post regarding
+ * cortexes being "Burned out" by EasyC that the master, prior to setting the
+ * valid bit in the SPI packet to 1, keeps all 4 low-side H-bridge lines
+ * connected to ground.
+ */
+static bool spi_valid;
 void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 {
 	/* Bad sync magic: bad packet. */
@@ -162,6 +168,7 @@ void spi_process_packets(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 	}
 
 	if (m2u->state.b.valid) {
+		spi_valid = true;
 		u2m->state.a = STATE_VALID;
 		// TODO: Buffer the data.
 	}
@@ -205,9 +212,11 @@ void vex_spi_xfer(spi_packet_m2u_t *m2u, spi_packet_u2m_t *u2m)
 
 bool is_master_ready(void)
 {
+	/* arch_init_2() blocks while this is false. */
 	// master is ready when both input lines are low.
 	return !GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_3) &&
-		!GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4);
+		!GPIO_ReadInputDataBit(GPIOE,GPIO_Pin_4) &&
+		spi_valid;
 }
 
 void spi_packet_init_m2u(spi_packet_m2u_t __unused *m2u)
