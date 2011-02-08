@@ -25,8 +25,8 @@
 #include "spi.h"
 #include "exti.h"
 
-spi_packet_t m2u;
-spi_packet_t u2m;
+static spi_packet_t m2u;
+static spi_packet_t u2m;
 
 /*
  * INTERNAL FUNCTIONS
