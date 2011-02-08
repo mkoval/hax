@@ -1,18 +1,8 @@
 #include <stdint.h>
 #include <stm32f10x.h>
 
-#if defined(USE_STDPERIPH_DRIVER)
-#include "stm32f10x_adc.h"
-#include "stm32f10x_dma.h"
-#include "stm32f10x_rcc.h"
-#include "stm32f10x_gpio.h"
-#include "stm32f10x_usart.h"
-#include "stm32f10x_spi.h"
-#include "stm32f10x_tim.h"
-#include "stm32f10x_misc.h"
-#include "core_cm3.h"
-#endif
-
+#include "cortex.h"
+#include "clocks.h"
 #include "motor.h"
 
 /*        VBatt
@@ -39,8 +29,6 @@
  * BL2~ PD15
  */
 
-/* defined in clocks.c */
-void udelay_500(void);
 
 /* posible timers to utilize: */
 struct pin {
@@ -59,14 +47,16 @@ static void pin_setup_output_pp_50(struct pin *p)
 	/* MODE = 11 = 50MHz output
 	 * CNF  = 00 = Push-pull output
 	 */
-	if (p->idx =< 7) {
+	if (p->idx <= 7) {
 		uint8_t sh = 4 * p->idx;
-		p->gpio->CRL = (p->gpio->CRL & ~((GPIO_CRL_MODE0 | GPIO_CRL_CNF0) << sh))
-			| ((GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0) << sh);
+		p->gpio->CRL = (p->gpio->CRL &
+				~((GPIO_CRL_MODE0 | GPIO_CRL_CNF0) << sh))
+				| ((GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0) << sh);
 	} else {
 		uint8_t sh = 4 * (p->idx - 7);
-		p->gpio->CRH = (p->gpio->CRH & ~((GPIO_CRH_MODE0 | GPIO_CRH_CNF0) << sh))
-			| ((GPIO_CRH_MODE0_1 | GPIO_CRH_MODE0_0) << sh);
+		p->gpio->CRH = (p->gpio->CRH &
+				~((GPIO_CRH_MODE8 | GPIO_CRH_CNF8) << sh))
+				| ((GPIO_CRH_MODE8_1 | GPIO_CRH_MODE8_0) << sh);
 	}
 }
 
@@ -75,42 +65,42 @@ static void pin_setup_af_pp_50(struct pin *p)
 	/* MODE = 11 = 50MHz output
 	 * CNF  = 10 = Alternate function push-pull output
 	 */
-	if (p->idx =< 7) {
+	if (p->idx <= 7) {
 		uint8_t sh = 4 * p->idx;
 		p->gpio->CRL = (p->gpio->CRL &
 				~((GPIO_CRL_MODE0 | GPIO_CRL_CNF0) << sh))
 				| ((GPIO_CRL_MODE0_1 | GPIO_CRL_MODE0_0
-						| GPIO_CRH_CNF0_1) << sh);
+						| GPIO_CRL_CNF0_1) << sh);
 	} else {
 		uint8_t sh = 4 * (p->idx - 7);
 		p->gpio->CRH = (p->gpio->CRH &
-				~((GPIO_CRH_MODE0 | GPIO_CRH_CNF0) << sh))
-				| ((GPIO_CRH_MODE0_1 | GPIO_CRH_MODE0_0
-						| GPIO_CRH_CNF0_1) << sh);
+				~((GPIO_CRH_MODE8 | GPIO_CRH_CNF8) << sh))
+				| ((GPIO_CRH_MODE8_1 | GPIO_CRH_MODE8_0
+						| GPIO_CRH_CNF8_1) << sh);
 	}
 }
 
 
 static void pin_set_low(struct pin *p)
 {
-	p->gpio->BSR = (1 << p->idx);
+	p->gpio->BRR = (1 << p->idx);
 }
 
 static void pin_set_high(struct pin *p)
 {
-	p->gpio->BSSR = (1 << p->idx);
+	p->gpio->BSRR = (1 << p->idx);
 }
 
 static void mtr_low_discon(struct mtr_side *ms)
 {
 	pin_set_high(&ms->l);
-	pin_setup_output_pp_50(&ms->l)
+	pin_setup_output_pp_50(&ms->l);
 }
 
 static void mtr_low_connect(struct mtr_side *ms)
 {
 	/* pin_set_low(ms->l); */
-	pin_setup_af_pp_50(&ms->l)
+	pin_setup_af_pp_50(&ms->l);
 }
 
 static void mtr_high_connect(struct mtr_side *ms)
@@ -149,6 +139,7 @@ static void mtr_side_tmr_ctrl(struct mtr_side *ms)
 	pin_setup_af_pp_50(&ms->l);
 }
 
+#if 0
 static void mtr_side_set_high(struct mtr_side *ms)
 {
 	/* disconnect the low side */
@@ -172,6 +163,7 @@ static void mtr_side_set_low(struct mtr_side *ms)
 	/* connect the low side */
 	mtr_low_connect(ms);
 }
+#endif
 
 static struct motor {
 	struct mtr_side a;
@@ -180,30 +172,30 @@ static struct motor {
 	/*   AH          AL               BH          BL */
 	{ { {GPIOD, 3}, {GPIOD, 12} }, { {GPIOD, 4}, {GPIOD, 13} } },
 	{ { {GPIOD, 7}, {GPIOD, 14} }, { {GPIOD, 8}, {GPIOD, 15} } }
-}
+};
 
 #define DEF_MOTOR_SET(x, an, bn)         \
 void motor##x##_set(int16_t motor_speed) \
 {                                        \
 	if (motor_speed > 0) {               \
-		TIM4->CR##bn = 0;                \
+		TIM4->CCR##bn = 0;                \
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_low_discon(&m_data[x].b);    \
 		udelay_500();                    \
-		TIM4->CR##an = motor_speed;      \
+		TIM4->CCR##an = motor_speed;      \
 		mtr_low_connect(&m_data[x].a);   \
 		mtr_high_connect(&m_data[x].b);  \
 	} else if (motor_speed < 0) {        \
-		TIM4->CR##an = 0;                \
+		TIM4->CCR##an = 0;                \
 		mtr_high_discon(&m_data[x].b);   \
 		mtr_low_discon(&m_data[x].a);    \
 		udelay_500();                    \
-		TIM4->CR##bn = -motor_speed;     \
+		TIM4->CCR##bn = -motor_speed;     \
 		mtr_low_connect(&m_data[x].b);   \
 		mtr_high_connect(&m_data[x].a);  \
 	} else {                             \
-		TIM4->CR##an = 0;                \
-		TIM4->CR##bn = 0;                \
+		TIM4->CCR##an = 0;                \
+		TIM4->CCR##bn = 0;                \
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_high_discon(&m_data[x].b);   \
 		udelay_500();                    \
@@ -228,7 +220,7 @@ static void timer4_init(void)
 	/* Clears the TIM_CR1_CEN bit, disabling timer. Sets the
 	 * center aligned mode to 3: update events on both up and
 	 * down overflows. */
-	TIM4->CR1 = TIM_CR1_CMS_1 | TIM_CR1_CMS0;
+	TIM4->CR1 = TIM_CR1_CMS_1 | TIM_CR1_CMS_0;
 
 	/* Remap TIM4 outputs.
 	 * 0: No remap (TIM4_CH1/PB6, TIM4_CH2/PB7, TIM4_CH3/PB8, TIM4_CH4/PB9)
