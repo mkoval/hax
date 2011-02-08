@@ -29,7 +29,6 @@
  * BL2~ PD15
  */
 
-
 /* posible timers to utilize: */
 struct pin {
 	volatile GPIO_TypeDef *gpio;
@@ -132,13 +131,6 @@ static void mtr_side_setup(struct mtr_side *ms)
 	pin_setup_output_pp_50(&ms->l);
 }
 
-/* hand over control of the high pins to tmr4 */
-static void mtr_side_tmr_ctrl(struct mtr_side *ms)
-{
-	pin_setup_af_pp_50(&ms->h);
-	pin_setup_af_pp_50(&ms->l);
-}
-
 #if 0
 static void mtr_side_set_high(struct mtr_side *ms)
 {
@@ -178,24 +170,24 @@ static struct motor {
 void motor##x##_set(int16_t motor_speed) \
 {                                        \
 	if (motor_speed > 0) {               \
-		TIM4->CCR##bn = 0;                \
+		TIM4->CCR##bn = 0;               \
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_low_discon(&m_data[x].b);    \
 		udelay_500();                    \
-		TIM4->CCR##an = motor_speed;      \
+		TIM4->CCR##an = motor_speed;     \
 		mtr_low_connect(&m_data[x].a);   \
 		mtr_high_connect(&m_data[x].b);  \
 	} else if (motor_speed < 0) {        \
-		TIM4->CCR##an = 0;                \
+		TIM4->CCR##an = 0;               \
 		mtr_high_discon(&m_data[x].b);   \
 		mtr_low_discon(&m_data[x].a);    \
 		udelay_500();                    \
-		TIM4->CCR##bn = -motor_speed;     \
+		TIM4->CCR##bn = -motor_speed;    \
 		mtr_low_connect(&m_data[x].b);   \
 		mtr_high_connect(&m_data[x].a);  \
 	} else {                             \
-		TIM4->CCR##an = 0;                \
-		TIM4->CCR##bn = 0;                \
+		TIM4->CCR##an = 0;               \
+		TIM4->CCR##bn = 0;               \
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_high_discon(&m_data[x].b);   \
 		udelay_500();                    \
@@ -232,8 +224,7 @@ static void timer4_init(void)
 
 
 	/* TOP = 0x7FFF */
-	TIM4->ARR = INT16_MAX;
-
+	TIM4->ARR  = INT16_MAX;
 	TIM4->CCR1 = 0;
 	TIM4->CCR2 = 0;
 	TIM4->CCR3 = 0;
@@ -248,8 +239,8 @@ static void timer4_init(void)
 	/* Enable outputs, Active low */
 	TIM4->CCER = TIM_CCER_CC1P | TIM_CCER_CC1E
 	           | TIM_CCER_CC2P | TIM_CCER_CC2E
-		   | TIM_CCER_CC3P | TIM_CCER_CC3E
-		   | TIM_CCER_CC4P | TIM_CCER_CC4E;
+	           | TIM_CCER_CC3P | TIM_CCER_CC3E
+	           | TIM_CCER_CC4P | TIM_CCER_CC4E;
 
 	/* Prescale
 	 * 72*1000*1000/0x7fff = 2197Hz */
@@ -264,11 +255,6 @@ static void timer4_init(void)
 	mtr_side_setup(m.b);	\
 } while(0)
 
-#define mtr_setup_2(m) do {	\
-	mtr_side_tmr_ctrl(m.a);	\
-	mtr_side_tmr_ctrl(m.b);	\
-} while(0)
-
 void motors_init(void)
 {
 	mtr_setup_1(&m_data[0]);
@@ -276,8 +262,4 @@ void motors_init(void)
 
 	/* setup timer for PWM */
 	timer4_init();
-
-	mtr_setup_2(&m_data[0]);
-	mtr_setup_2(&m_data[1]);
 }
-
