@@ -38,6 +38,7 @@ struct pin {
 struct mtr_side {
 	struct pin h;
 	struct pin l;
+	volatile uint16_t *ccr;
 };
 
 /* do initial gpio init prior to bringing up TMR4 */
@@ -161,43 +162,49 @@ static struct motor {
 	struct mtr_side a;
 	struct mtr_side b;
 } m_data [] = {
-	/*   AH          AL               BH          BL */
-	{ { {GPIOD, 3}, {GPIOD, 12} }, { {GPIOD, 4}, {GPIOD, 13} } },
-	{ { {GPIOD, 7}, {GPIOD, 14} }, { {GPIOD, 8}, {GPIOD, 15} } }
+	/*   AH          AL                            BH          BL */
+	{ { {GPIOD, 3}, {GPIOD, 12}, &TIM4->CCR1 }, { {GPIOD, 4}, {GPIOD, 13}, &TIM4->CCR2 } },
+	{ { {GPIOD, 7}, {GPIOD, 14}, &TIM4->CCR3 }, { {GPIOD, 8}, {GPIOD, 15}, &TIM4->CCR4 } }
 };
 
-#define DEF_MOTOR_SET(x, an, bn)         \
+#define DEF_MOTOR_SET(x)         \
 void motor##x##_set(int16_t motor_speed) \
 {                                        \
 	if (motor_speed > 0) {               \
-		TIM4->CCR##bn = 0;               \
+		*m_data[x].a.ccr = 0;		\
+		mtr_high_discon(&m_data[x].b);	\
+		mtr_low_discon(&m_data[x].a);	\
+		\
+		udelay_500();                    \
+		\
+		*m_data[x].b.ccr = motor_speed;	\
+		mtr_high_connect(&m_data[x].a);  \
+		mtr_low_connect(&m_data[x].b);   \
+	} else if (motor_speed < 0) {		\
+		*m_data[x].b.ccr = 0;		\
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_low_discon(&m_data[x].b);    \
+		\
 		udelay_500();                    \
-		TIM4->CCR##an = motor_speed;     \
-		mtr_low_connect(&m_data[x].a);   \
+		\
+		*m_data[x].a.ccr = -motor_speed; \
 		mtr_high_connect(&m_data[x].b);  \
-	} else if (motor_speed < 0) {        \
-		TIM4->CCR##an = 0;               \
-		mtr_high_discon(&m_data[x].b);   \
-		mtr_low_discon(&m_data[x].a);    \
-		udelay_500();                    \
-		TIM4->CCR##bn = -motor_speed;    \
-		mtr_low_connect(&m_data[x].b);   \
-		mtr_high_connect(&m_data[x].a);  \
+		mtr_low_connect(&m_data[x].a);   \
 	} else {                             \
-		TIM4->CCR##an = 0;               \
-		TIM4->CCR##bn = 0;               \
+		*m_data[x].a.ccr = 0;		\
+		*m_data[x].b.ccr = 0;		\
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_high_discon(&m_data[x].b);   \
+		\
 		udelay_500();                    \
+		\
 		mtr_low_connect(&m_data[x].a);   \
 		mtr_low_connect(&m_data[x].b);   \
 	}                                    \
 }
 
-DEF_MOTOR_SET(0, 1, 2);
-DEF_MOTOR_SET(1, 3, 4);
+DEF_MOTOR_SET(0);
+DEF_MOTOR_SET(1);
 
 
 /* timer4_init - sets up TIM4 to handle control of low-side of h-bridges.
