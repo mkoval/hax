@@ -222,6 +222,11 @@ static void timer4_init(void)
 	 */
 	PERIPH_BIT_SET(AFIO, MAPR, TIM4_REMAP, 1);
 
+	/* Clear slave mode settings. */
+	TIM4->SMCR = 0;
+
+	/* Disable DMA */
+	TIM4->DIER = 0;
 
 	/* TOP = 0x7FFF */
 	TIM4->ARR  = INT16_MAX;
@@ -230,7 +235,7 @@ static void timer4_init(void)
 	TIM4->CCR3 = 0;
 	TIM4->CCR4 = 0;
 
-	/* PWM mode 1, load CCR on update event. */
+	/* PWM mode 1, load CCR on update event (enable "Preload regrister"). */
 	TIM4->CCMR1 = TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE
 	            | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE;
 	TIM4->CCMR2 = TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE
