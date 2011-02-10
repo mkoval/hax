@@ -191,12 +191,12 @@ void motor##x##_set(int16_t motor_speed) \
 		mtr_high_connect(&m_data[x].b);  \
 		mtr_low_connect(&m_data[x].a);   \
 	} else {                             \
-		*(m_data[x].a.ccr) = 0;		\
-		*(m_data[x].b.ccr) = 0;		\
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_high_discon(&m_data[x].b);   \
 		mtr_low_discon(&m_data[x].a);   \
 		mtr_low_discon(&m_data[x].b);   \
+		*(m_data[x].a.ccr) = 0;		\
+		*(m_data[x].b.ccr) = 0;		\
 	}                                    \
 }
 
