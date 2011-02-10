@@ -29,7 +29,7 @@ void arch_init_1(void) {
 	adc_init();
 	exti_init();
 
-	motors_init();
+	//motors_init();
 
 	memset(&u2m, 0, sizeof u2m);
 	memset(&m2u, 0, sizeof m2u);
@@ -105,11 +105,14 @@ void motor_set(index_t index, int8_t value) {
 	value2 = value + 128;
 
 	if (index == IX_MOTOR(1) || index == IX_MOTOR(10)) {
+		WARN("index %d; value %d; two-wire motor", index, value);
+#if 0
 		if (index == IX_MOTOR(1)) {
 			motor0_set((int16_t)value << 8);
 		} else {
 			motor1_set((int16_t)value << 8);
 		}
+#endif
 	} else if (IX_MOTOR(2) <= index && index <= IX_MOTOR(9)) {
 		u2m.u2m.motors[index - IX_MOTOR(2)] = value2;
 	} else {
