@@ -167,9 +167,11 @@ static struct motor {
 	{ { {GPIOD, 7}, {GPIOD, 14}, &TIM4->CCR3 }, { {GPIOD, 8}, {GPIOD, 15}, &TIM4->CCR4 } }
 };
 
+#include <stdio.h>
 #define DEF_MOTOR_SET(x)         \
 void motor##x##_set(int16_t motor_speed) \
 {                                        \
+	printf("mtr = %d\n", (int)motor_speed); \
 	if (motor_speed > 0) {               \
 		*(m_data[x].a.ccr) = 0;		\
 		mtr_high_discon(&m_data[x].b);	\
