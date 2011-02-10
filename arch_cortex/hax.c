@@ -40,13 +40,6 @@ void arch_init_1(void) {
 	puts("# VERSION " VERSION);
 }
 
-void arch_init_2(void) {
-	while(!is_master_ready());
-}
-
-void arch_spin(void) {
-}
-
 static uint64_t spi_last_time_ms;
 void arch_loop_1(void) {
 	vex_spi_xfer(&m2u.m2u, &u2m.u2m);
@@ -64,6 +57,17 @@ bool do_slow_loop(void) {
 	} else {
 		return false;
 	}
+}
+
+void arch_init_2(void) {
+	while(!is_master_ready()) {
+		if (do_slow_loop()) {
+			arch_loop_1();
+		}
+	}
+}
+
+void arch_spin(void) {
 }
 
 ctrl_mode_t ctrl_mode_get(void) {
