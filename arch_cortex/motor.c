@@ -197,11 +197,8 @@ void motor##x##_set(int16_t motor_speed) \
 		*(m_data[x].b.ccr) = 0;		\
 		mtr_high_discon(&m_data[x].a);   \
 		mtr_high_discon(&m_data[x].b);   \
-		\
-		udelay_500();                    \
-		\
-		mtr_low_connect(&m_data[x].a);   \
-		mtr_low_connect(&m_data[x].b);   \
+		mtr_low_discon(&m_data[x].a);   \
+		mtr_low_discon(&m_data[x].b);   \
 	}                                    \
 }
 
